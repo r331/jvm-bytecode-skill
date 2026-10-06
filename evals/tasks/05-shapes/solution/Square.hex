@@ -1,0 +1,112 @@
+# Square.class - hand-written, major 55 (Java 11)
+#
+# public class Square implements Shape {
+#   private final double size;                        field size:D
+#   public Square(double size)  (D)V                  locals: 0 = this, 1-2 = size
+#     super(); this.size = size;
+#   public double area()        ()D                   locals: 0 = this
+#     return size * size;
+#   public String name()        ()Ljava/lang/String;  locals: 0 = this
+#     return "square";
+# }
+# All methods are straight-line, so no StackMapTable is needed.
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 37                         # major_version 55 (Java 11)
+00 17                         # constant_pool_count 23 (entries 1..22)
+
+# ---- constant pool ----
+01 00 06 53 71 75 61 72 65                                # 1 Utf8 "Square"
+07 00 01                                                  # 2 Class Square
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 05 53 68 61 70 65                                   # 5 Utf8 "Shape"
+07 00 05                                                  # 6 Class Shape
+01 00 04 73 69 7A 65                                      # 7 Utf8 "size"
+01 00 01 44                                               # 8 Utf8 "D"
+0C 00 07 00 08                                            # 9 NameAndType size:D
+09 00 02 00 09                                            # 10 Fieldref Square.size:D
+01 00 06 3C 69 6E 69 74 3E                                # 11 Utf8 "<init>"
+01 00 03 28 29 56                                         # 12 Utf8 "()V"
+0C 00 0B 00 0C                                            # 13 NameAndType <init>:()V
+0A 00 04 00 0D                                            # 14 Methodref Object.<init>:()V
+01 00 04 28 44 29 56                                      # 15 Utf8 "(D)V"
+01 00 04 61 72 65 61                                      # 16 Utf8 "area"
+01 00 03 28 29 44                                         # 17 Utf8 "()D"
+01 00 04 6E 61 6D 65                                      # 18 Utf8 "name"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 19 Utf8 "()Ljava/lang/String;"
+01 00 06 73 71 75 61 72 65                                # 20 Utf8 "square"
+08 00 14                                                  # 21 String "square"
+01 00 04 43 6F 64 65                                      # 22 Utf8 "Code"
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Square
+00 04                         # super_class #4 java/lang/Object
+00 01                         # interfaces_count
+00 06                         # interfaces[0] #6 Shape
+
+# ---- fields ----
+00 01                         # fields_count
+00 12                         # access_flags ACC_PRIVATE | ACC_FINAL
+00 07                         # name_index "size"
+00 08                         # descriptor_index "D"
+00 00                         # attributes_count
+
+00 03                         # methods_count
+
+# ---- method <init>(D)V ----
+00 01                         # access_flags ACC_PUBLIC
+00 0B                         # name_index "<init>"
+00 0F                         # descriptor_index "(D)V"
+00 01                         # attributes_count
+00 16                         # Code
+00 00 00 16                   # attribute_length 22 = 12 + 10
+00 03                         # max_stack 3 (this + double)
+00 03                         # max_locals 3 (this, size x2)
+00 00 00 0A                   # code_length 10
+2A                            # 0 aload_0                     [this]
+B7 00 0E                      # 1 invokespecial Object.<init>:()V  []
+2A                            # 4 aload_0                     [this]
+27                            # 5 dload_1                     [this, double]  depth 3
+B5 00 0A                      # 6 putfield Square.size:D      []
+B1                            # 9 return
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method area()D ----
+00 01                         # access_flags ACC_PUBLIC
+00 10                         # name_index "area"
+00 11                         # descriptor_index "()D"
+00 01                         # attributes_count
+00 16                         # Code
+00 00 00 16                   # attribute_length 22 = 12 + 10
+00 04                         # max_stack 4 (double + this, then double + double)
+00 01                         # max_locals 1 (this)
+00 00 00 0A                   # code_length 10
+2A                            # 0 aload_0                     [this]            depth 1
+B4 00 0A                      # 1 getfield Square.size:D      [double]          depth 2
+2A                            # 4 aload_0                     [double, this]    depth 3
+B4 00 0A                      # 5 getfield Square.size:D      [double, double]  depth 4
+6B                            # 8 dmul                        [double]          depth 2
+AF                            # 9 dreturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method name()Ljava/lang/String; ----
+00 01                         # access_flags ACC_PUBLIC
+00 12                         # name_index "name"
+00 13                         # descriptor_index "()Ljava/lang/String;"
+00 01                         # attributes_count
+00 16                         # Code
+00 00 00 0F                   # attribute_length 15 = 12 + 3
+00 01                         # max_stack 1
+00 01                         # max_locals 1 (this)
+00 00 00 03                   # code_length 3
+12 15                         # 0 ldc #21 "square"            [String]
+B0                            # 2 areturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+00 00                         # class attributes_count

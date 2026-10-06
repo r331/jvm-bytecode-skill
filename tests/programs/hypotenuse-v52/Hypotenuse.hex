@@ -1,0 +1,141 @@
+# Hypotenuse.class - hand-written JVM class file, as annotated hex.
+# Everything after '#' on a line is a comment; the rest is raw bytes.
+# Usage: java Hypotenuse <a> <b>   -> prints sqrt(a^2 + b^2) via Math.hypot
+# Major 52 variant of hypotenuse-v49: same code, plus a hand-written StackMapTable
+# (references/verification.md, Worked example 1).
+
+CA FE BA BE                     # magic
+00 00 00 34                     # minor 0, major 52 (Java 8: type checking, StackMapTable required)
+
+00 31                           # constant_pool_count = 49
+01 00 0A 48 79 70 6F 74 65 6E 75 73 65                          #  1 Utf8 "Hypotenuse"
+07 00 01                                                        #  2 Class Hypotenuse
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74        #  3 Utf8 "java/lang/Object"
+07 00 03                                                        #  4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                            #  5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F
+         53 74 72 69 6E 67 3B 29 56                             #  6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                            #  7 Utf8 "Code"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D        #  8 Utf8 "java/lang/System"
+07 00 08                                                        #  9 Class java/lang/System
+01 00 03 6F 75 74                                               # 10 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E
+         74 53 74 72 65 61 6D 3B                                # 11 Utf8 "Ljava/io/PrintStream;"
+0C 00 0A 00 0B                                                  # 12 NameAndType out:PrintStream
+09 00 09 00 0C                                                  # 13 Fieldref System.out
+01 00 03 65 72 72                                               # 14 Utf8 "err"
+0C 00 0E 00 0B                                                  # 15 NameAndType err:PrintStream
+09 00 09 00 0F                                                  # 16 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74
+         53 74 72 65 61 6D                                      # 17 Utf8 "java/io/PrintStream"
+07 00 11                                                        # 18 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                                   # 19 Utf8 "println"
+01 00 04 28 44 29 56                                            # 20 Utf8 "(D)V"
+0C 00 13 00 14                                                  # 21 NameAndType println(D)V
+0A 00 12 00 15                                                  # 22 Methodref PrintStream.println(D)V
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53
+         74 72 69 6E 67 3B 29 56                                # 23 Utf8 "(Ljava/lang/String;)V"
+0C 00 13 00 17                                                  # 24 NameAndType println(String)V
+0A 00 12 00 18                                                  # 25 Methodref PrintStream.println(String)V
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 44 6F 75 62 6C 65        # 26 Utf8 "java/lang/Double"
+07 00 1A                                                        # 27 Class java/lang/Double
+01 00 0B 70 61 72 73 65 44 6F 75 62 6C 65                       # 28 Utf8 "parseDouble"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53
+         74 72 69 6E 67 3B 29 44                                # 29 Utf8 "(Ljava/lang/String;)D"
+0C 00 1C 00 1D                                                  # 30 NameAndType parseDouble(String)D
+0A 00 1B 00 1E                                                  # 31 Methodref Double.parseDouble
+01 00 0E 6A 61 76 61 2F 6C 61 6E 67 2F 4D 61 74 68              # 32 Utf8 "java/lang/Math"
+07 00 20                                                        # 33 Class java/lang/Math
+01 00 05 68 79 70 6F 74                                         # 34 Utf8 "hypot"
+01 00 05 28 44 44 29 44                                         # 35 Utf8 "(DD)D"
+0C 00 22 00 23                                                  # 36 NameAndType hypot(DD)D
+0A 00 21 00 24                                                  # 37 Methodref Math.hypot
+01 00 1E 55 73 61 67 65 3A 20 6A 61 76 61 20 48
+         79 70 6F 74 65 6E 75 73 65 20 3C 61 3E 20 3C 62 3E     # 38 Utf8 "Usage: java Hypotenuse <a> <b>"
+08 00 26                                                        # 39 String #38
+01 00 25 45 72 72 6F 72 3A 20 73 69 64 65 73 20
+         6D 75 73 74 20 62 65 20 70 6F 73 69 74 69 76 65
+         20 6E 75 6D 62 65 72 73                                # 40 Utf8 "Error: sides must be positive numbers"
+08 00 28                                                        # 41 String #40
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D
+         62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 42 Utf8 "java/lang/NumberFormatException"
+07 00 2A                                                        # 43 Class NumberFormatException
+01 00 04 65 78 69 74                                            # 44 Utf8 "exit"
+01 00 04 28 49 29 56                                            # 45 Utf8 "(I)V"
+0C 00 2C 00 2D                                                  # 46 NameAndType exit(I)V
+0A 00 09 00 2E                                                  # 47 Methodref System.exit
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65                # 48 Utf8 "StackMapTable"
+
+00 21                           # access: public super
+00 02                           # this_class  = Hypotenuse
+00 04                           # super_class = java/lang/Object
+00 00                           # interfaces_count
+00 00                           # fields_count
+00 01                           # methods_count
+
+# public static void main(String[] args)
+00 09                           # access: public static
+00 05                           # name "main"
+00 06                           # descriptor "([Ljava/lang/String;)V"
+00 01                           # attributes_count
+00 07                           # attribute "Code"
+00 00 00 69                     # attribute_length = 105 = 12 + 71 code + 8 exception entry + 14 StackMapTable
+00 05                           # max_stack
+00 05                           # max_locals: args, a (2 slots), b (2 slots)
+00 00 00 47                     # code_length = 71
+
+2A                              #  0 aload_0
+BE                              #  1 arraylength
+05                              #  2 iconst_2
+9F 00 10                        #  3 if_icmpeq -> 19
+B2 00 10                        #  6 getstatic System.err
+12 27                           #  9 ldc "Usage: ..."
+B6 00 19                        # 11 invokevirtual println(String)
+04                              # 14 iconst_1
+B8 00 2F                        # 15 invokestatic System.exit
+B1                              # 18 return
+2A                              # 19 aload_0                   (try start)
+03                              # 20 iconst_0
+32                              # 21 aaload
+B8 00 1F                        # 22 invokestatic Double.parseDouble
+48                              # 25 dstore_1                  a
+2A                              # 26 aload_0
+04                              # 27 iconst_1
+32                              # 28 aaload
+B8 00 1F                        # 29 invokestatic Double.parseDouble
+4A                              # 32 dstore_3                  b  (try end)
+27                              # 33 dload_1
+0E                              # 34 dconst_0
+97                              # 35 dcmpl                     NaN -> -1
+9E 00 16                        # 36 ifle -> 58                a <= 0 or NaN
+29                              # 39 dload_3
+0E                              # 40 dconst_0
+97                              # 41 dcmpl
+9E 00 10                        # 42 ifle -> 58                b <= 0 or NaN
+B2 00 0D                        # 45 getstatic System.out
+27                              # 48 dload_1
+29                              # 49 dload_3
+B8 00 25                        # 50 invokestatic Math.hypot
+B6 00 16                        # 53 invokevirtual println(double)
+B1                              # 56 return
+57                              # 57 pop                       (NumberFormatException handler)
+B2 00 10                        # 58 getstatic System.err
+12 29                           # 61 ldc "Error: ..."
+B6 00 19                        # 63 invokevirtual println(String)
+04                              # 66 iconst_1
+B8 00 2F                        # 67 invokestatic System.exit
+B1                              # 70 return
+
+00 01                           # exception_table_length
+00 13 00 21 00 39 00 2B         # [19, 33) -> 57, catch NumberFormatException
+00 01                           # Code attributes_count
+
+# StackMapTable: frames at 19 (branch target), 57 (handler), 58 (branch target + handler fallthrough)
+00 30                           # attribute_name_index -> #48 Utf8 "StackMapTable"
+00 00 00 08                     # attribute_length = 8
+00 03                           # number_of_entries = 3
+13                              # @19 same_frame (delta 19)                locals [args]
+65 07 00 2B                     # @57 same_locals_1_stack_item (37+64)     stack [NumberFormatException #43]
+00                              # @58 same_frame (delta 0)                 locals [args]; a, b not declared
+
+00 00                           # class attributes_count

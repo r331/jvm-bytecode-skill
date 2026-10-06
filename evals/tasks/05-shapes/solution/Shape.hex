@@ -1,0 +1,44 @@
+# Shape.class - hand-written, major 55 (Java 11)
+#
+# public interface Shape {
+#   public abstract double area();          ()D
+#   public abstract String name();          ()Ljava/lang/String;
+# }
+# Abstract methods have no Code attribute, so no "Code" Utf8 is needed.
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 37                         # major_version 55 (Java 11)
+00 09                         # constant_pool_count 9 (entries 1..8)
+
+# ---- constant pool ----
+01 00 05 53 68 61 70 65                                   # 1 Utf8 "Shape"
+07 00 01                                                  # 2 Class Shape
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 61 72 65 61                                      # 5 Utf8 "area"
+01 00 03 28 29 44                                         # 6 Utf8 "()D"
+01 00 04 6E 61 6D 65                                      # 7 Utf8 "name"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 8 Utf8 "()Ljava/lang/String;"
+
+# ---- class header ----
+06 01                         # access_flags ACC_PUBLIC | ACC_INTERFACE | ACC_ABSTRACT
+00 02                         # this_class #2 Shape
+00 04                         # super_class #4 java/lang/Object (required for interfaces)
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 02                         # methods_count
+
+# ---- method area ----
+04 01                         # access_flags ACC_PUBLIC | ACC_ABSTRACT
+00 05                         # name_index "area"
+00 06                         # descriptor_index "()D"
+00 00                         # attributes_count (abstract: no Code)
+
+# ---- method name ----
+04 01                         # access_flags ACC_PUBLIC | ACC_ABSTRACT
+00 07                         # name_index "name"
+00 08                         # descriptor_index "()Ljava/lang/String;"
+00 00                         # attributes_count (abstract: no Code)
+
+00 00                         # class attributes_count

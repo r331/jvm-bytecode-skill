@@ -1,0 +1,10 @@
+# args	exit	stdout	stderr
+	0	Hello, World!	
+Alice	0	Hello, Alice!	
+José	0	Hello, José!	
+Mary\sJane	0	Hello, Mary Jane!	
+\e	0	Hello, !	
+World	0	Hello, World!	
+Alice Bob	1		Usage: java Greet [name]
+a b c	1		Usage: java Greet [name]
+\e \e	1		Usage: java Greet [name]

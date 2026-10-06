@@ -1,0 +1,323 @@
+# Opcodes.class - hand-written class file used only to check opcode decoding with javap -c.
+# It is never loaded or run (the code is not type-correct and uses jsr/ret), it only has to parse.
+# test-opcodes.sh reads the lines between BEGIN CODE and END CODE: the first byte of each line is
+# the opcode, the comment is '<offset> <mnemonic> [note]'. It checks the opcode against
+# references/instructions.md and the offset/mnemonic against javap -c output.
+# Covers every assigned opcode except invokedynamic (needs BootstrapMethods) and the reserved ones.
+
+CA FE BA BE                     # magic
+00 00 00 31                     # minor 0, major 49 (jsr/ret allowed, no StackMapTable)
+
+00 15                           # constant_pool_count = 21
+01 00 07 4F 70 63 6F 64 65 73                               #  1 Utf8 "Opcodes"
+07 00 01                                                    #  2 Class Opcodes
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74    #  3 Utf8 "java/lang/Object"
+07 00 03                                                    #  4 Class java/lang/Object
+01 00 01 6D                                                 #  5 Utf8 "m"
+01 00 03 28 29 56                                           #  6 Utf8 "()V"
+01 00 04 43 6F 64 65                                        #  7 Utf8 "Code"
+01 00 01 66                                                 #  8 Utf8 "f"
+01 00 01 49                                                 #  9 Utf8 "I"
+0C 00 08 00 09                                              # 10 NameAndType f:I
+09 00 02 00 0A                                              # 11 Fieldref Opcodes.f:I
+0C 00 05 00 06                                              # 12 NameAndType m:()V
+0A 00 02 00 0C                                              # 13 Methodref Opcodes.m:()V
+0B 00 04 00 0C                                              # 14 InterfaceMethodref java/lang/Object.m:()V (only decoded, never resolved)
+03 00 00 00 2A                                              # 15 Integer 42
+05 00 00 00 00 00 00 00 07                                  # 16 Long 7 (takes indices 16 and 17)
+08 00 01                                                    # 18 String #1 "Opcodes"
+01 00 03 5B 5B 49                                           # 19 Utf8 "[[I"
+07 00 13                                                    # 20 Class [[I
+
+00 21                           # access: public super
+00 02                           # this_class  = Opcodes
+00 04                           # super_class = java/lang/Object
+00 00                           # interfaces_count
+00 00                           # fields_count
+00 01                           # methods_count
+
+# static void m()
+00 08                           # access: static
+00 05                           # name "m"
+00 06                           # descriptor "()V"
+00 01                           # attributes_count
+00 07                           # attribute "Code"
+00 00 02 4F                     # attribute_length = 591 = 12 + code_length
+01 00                           # max_stack = 256 (never verified)
+02 00                           # max_locals = 512 (wide indices up to 302)
+00 00 02 43                     # code_length = 579
+
+# BEGIN CODE
+00                                                  #    0 nop
+01                                                  #    1 aconst_null
+02                                                  #    2 iconst_m1
+03                                                  #    3 iconst_0
+04                                                  #    4 iconst_1
+05                                                  #    5 iconst_2
+06                                                  #    6 iconst_3
+07                                                  #    7 iconst_4
+08                                                  #    8 iconst_5
+09                                                  #    9 lconst_0
+0A                                                  #   10 lconst_1
+0B                                                  #   11 fconst_0
+0C                                                  #   12 fconst_1
+0D                                                  #   13 fconst_2
+0E                                                  #   14 dconst_0
+0F                                                  #   15 dconst_1
+10 7F                                               #   16 bipush   127
+11 80 00                                            #   18 sipush   -32768
+12 0F                                               #   21 ldc   #15 Integer 42
+13 00 12                                            #   23 ldc_w   #18 String
+14 00 10                                            #   26 ldc2_w   #16 Long 7
+15 05                                               #   29 iload   local 5
+16 05                                               #   31 lload   local 5
+17 05                                               #   33 fload   local 5
+18 05                                               #   35 dload   local 5
+19 05                                               #   37 aload   local 5
+1A                                                  #   39 iload_0
+1B                                                  #   40 iload_1
+1C                                                  #   41 iload_2
+1D                                                  #   42 iload_3
+1E                                                  #   43 lload_0
+1F                                                  #   44 lload_1
+20                                                  #   45 lload_2
+21                                                  #   46 lload_3
+22                                                  #   47 fload_0
+23                                                  #   48 fload_1
+24                                                  #   49 fload_2
+25                                                  #   50 fload_3
+26                                                  #   51 dload_0
+27                                                  #   52 dload_1
+28                                                  #   53 dload_2
+29                                                  #   54 dload_3
+2A                                                  #   55 aload_0
+2B                                                  #   56 aload_1
+2C                                                  #   57 aload_2
+2D                                                  #   58 aload_3
+2E                                                  #   59 iaload
+2F                                                  #   60 laload
+30                                                  #   61 faload
+31                                                  #   62 daload
+32                                                  #   63 aaload
+33                                                  #   64 baload
+34                                                  #   65 caload
+35                                                  #   66 saload
+36 06                                               #   67 istore   local 6
+37 06                                               #   69 lstore   local 6
+38 06                                               #   71 fstore   local 6
+39 06                                               #   73 dstore   local 6
+3A 06                                               #   75 astore   local 6
+3B                                                  #   77 istore_0
+3C                                                  #   78 istore_1
+3D                                                  #   79 istore_2
+3E                                                  #   80 istore_3
+3F                                                  #   81 lstore_0
+40                                                  #   82 lstore_1
+41                                                  #   83 lstore_2
+42                                                  #   84 lstore_3
+43                                                  #   85 fstore_0
+44                                                  #   86 fstore_1
+45                                                  #   87 fstore_2
+46                                                  #   88 fstore_3
+47                                                  #   89 dstore_0
+48                                                  #   90 dstore_1
+49                                                  #   91 dstore_2
+4A                                                  #   92 dstore_3
+4B                                                  #   93 astore_0
+4C                                                  #   94 astore_1
+4D                                                  #   95 astore_2
+4E                                                  #   96 astore_3
+4F                                                  #   97 iastore
+50                                                  #   98 lastore
+51                                                  #   99 fastore
+52                                                  #  100 dastore
+53                                                  #  101 aastore
+54                                                  #  102 bastore
+55                                                  #  103 castore
+56                                                  #  104 sastore
+57                                                  #  105 pop
+58                                                  #  106 pop2
+59                                                  #  107 dup
+5A                                                  #  108 dup_x1
+5B                                                  #  109 dup_x2
+5C                                                  #  110 dup2
+5D                                                  #  111 dup2_x1
+5E                                                  #  112 dup2_x2
+5F                                                  #  113 swap
+60                                                  #  114 iadd
+61                                                  #  115 ladd
+62                                                  #  116 fadd
+63                                                  #  117 dadd
+64                                                  #  118 isub
+65                                                  #  119 lsub
+66                                                  #  120 fsub
+67                                                  #  121 dsub
+68                                                  #  122 imul
+69                                                  #  123 lmul
+6A                                                  #  124 fmul
+6B                                                  #  125 dmul
+6C                                                  #  126 idiv
+6D                                                  #  127 ldiv
+6E                                                  #  128 fdiv
+6F                                                  #  129 ddiv
+70                                                  #  130 irem
+71                                                  #  131 lrem
+72                                                  #  132 frem
+73                                                  #  133 drem
+74                                                  #  134 ineg
+75                                                  #  135 lneg
+76                                                  #  136 fneg
+77                                                  #  137 dneg
+78                                                  #  138 ishl
+79                                                  #  139 lshl
+7A                                                  #  140 ishr
+7B                                                  #  141 lshr
+7C                                                  #  142 iushr
+7D                                                  #  143 lushr
+7E                                                  #  144 iand
+7F                                                  #  145 land
+80                                                  #  146 ior
+81                                                  #  147 lor
+82                                                  #  148 ixor
+83                                                  #  149 lxor
+84 05 FF                                            #  150 iinc   local 5 += -1
+85                                                  #  153 i2l
+86                                                  #  154 i2f
+87                                                  #  155 i2d
+88                                                  #  156 l2i
+89                                                  #  157 l2f
+8A                                                  #  158 l2d
+8B                                                  #  159 f2i
+8C                                                  #  160 f2l
+8D                                                  #  161 f2d
+8E                                                  #  162 d2i
+8F                                                  #  163 d2l
+90                                                  #  164 d2f
+91                                                  #  165 i2b
+92                                                  #  166 i2c
+93                                                  #  167 i2s
+94                                                  #  168 lcmp
+95                                                  #  169 fcmpl
+96                                                  #  170 fcmpg
+97                                                  #  171 dcmpl
+98                                                  #  172 dcmpg
+99 00 03                                            #  173 ifeq   -> next instruction
+9A 00 03                                            #  176 ifne   -> next instruction
+9B 00 03                                            #  179 iflt   -> next instruction
+9C 00 03                                            #  182 ifge   -> next instruction
+9D 00 03                                            #  185 ifgt   -> next instruction
+9E 00 03                                            #  188 ifle   -> next instruction
+9F 00 03                                            #  191 if_icmpeq   -> next instruction
+A0 00 03                                            #  194 if_icmpne   -> next instruction
+A1 00 03                                            #  197 if_icmplt   -> next instruction
+A2 00 03                                            #  200 if_icmpge   -> next instruction
+A3 00 03                                            #  203 if_icmpgt   -> next instruction
+A4 00 03                                            #  206 if_icmple   -> next instruction
+A5 00 03                                            #  209 if_acmpeq   -> next instruction
+A6 00 03                                            #  212 if_acmpne   -> next instruction
+A7 00 03                                            #  215 goto   -> next instruction
+A8 00 03                                            #  218 jsr   -> next instruction
+A9 07                                               #  221 ret   local 7
+AA                                                  #  223 tableswitch   + 0 padding byte(s)
+   00 00 00 1C                                      #        default +28
+   00 00 00 01                                      #        low 1
+   00 00 00 03                                      #        high 3
+   00 00 00 04 00 00 00 08 00 00 00 0C              #        offsets: 1 -> +4, 2 -> +8, 3 -> +12
+00                                                  #  248 nop   alignment filler
+00                                                  #  249 nop   alignment filler
+AA 00                                               #  250 tableswitch   + 1 padding byte(s)
+   00 00 00 1C                                      #        default +28
+   00 00 00 01                                      #        low 1
+   00 00 00 03                                      #        high 3
+   00 00 00 04 00 00 00 08 00 00 00 0C              #        offsets: 1 -> +4, 2 -> +8, 3 -> +12
+00                                                  #  276 nop   alignment filler
+AA 00 00                                            #  277 tableswitch   + 2 padding byte(s)
+   00 00 00 1C                                      #        default +28
+   00 00 00 01                                      #        low 1
+   00 00 00 03                                      #        high 3
+   00 00 00 04 00 00 00 08 00 00 00 0C              #        offsets: 1 -> +4, 2 -> +8, 3 -> +12
+AA 00 00 00                                         #  304 tableswitch   + 3 padding byte(s)
+   00 00 00 1C                                      #        default +28
+   00 00 00 01                                      #        low 1
+   00 00 00 03                                      #        high 3
+   00 00 00 04 00 00 00 08 00 00 00 0C              #        offsets: 1 -> +4, 2 -> +8, 3 -> +12
+AB 00 00 00                                         #  332 lookupswitch   + 3 padding byte(s)
+   00 00 00 28                                      #        default +40
+   00 00 00 02                                      #        npairs 2
+   FF FF FF FB 00 00 00 10                          #        match -5 -> +16
+   00 00 00 64 00 00 00 18                          #        match 100 -> +24
+00                                                  #  360 nop   alignment filler
+AB 00 00                                            #  361 lookupswitch   + 2 padding byte(s)
+   00 00 00 28                                      #        default +40
+   00 00 00 02                                      #        npairs 2
+   FF FF FF FB 00 00 00 10                          #        match -5 -> +16
+   00 00 00 64 00 00 00 18                          #        match 100 -> +24
+00                                                  #  388 nop   alignment filler
+00                                                  #  389 nop   alignment filler
+AB 00                                               #  390 lookupswitch   + 1 padding byte(s)
+   00 00 00 28                                      #        default +40
+   00 00 00 02                                      #        npairs 2
+   FF FF FF FB 00 00 00 10                          #        match -5 -> +16
+   00 00 00 64 00 00 00 18                          #        match 100 -> +24
+00                                                  #  416 nop   alignment filler
+00                                                  #  417 nop   alignment filler
+00                                                  #  418 nop   alignment filler
+AB                                                  #  419 lookupswitch   + 0 padding byte(s)
+   00 00 00 28                                      #        default +40
+   00 00 00 02                                      #        npairs 2
+   FF FF FF FB 00 00 00 10                          #        match -5 -> +16
+   00 00 00 64 00 00 00 18                          #        match 100 -> +24
+AC                                                  #  444 ireturn
+AD                                                  #  445 lreturn
+AE                                                  #  446 freturn
+AF                                                  #  447 dreturn
+B0                                                  #  448 areturn
+B1                                                  #  449 return
+B2 00 0B                                            #  450 getstatic   #11 Fieldref Opcodes.f:I
+B3 00 0B                                            #  453 putstatic   #11 Fieldref Opcodes.f:I
+B4 00 0B                                            #  456 getfield   #11 Fieldref Opcodes.f:I
+B5 00 0B                                            #  459 putfield   #11 Fieldref Opcodes.f:I
+B6 00 0D                                            #  462 invokevirtual   #13 Methodref Opcodes.m:()V
+B7 00 0D                                            #  465 invokespecial   #13 Methodref Opcodes.m:()V
+B8 00 0D                                            #  468 invokestatic   #13 Methodref Opcodes.m:()V
+B9 00 0E 01 00                                      #  471 invokeinterface   #14 InterfaceMethodref Object.m:()V, count 1, 0
+BB 00 02                                            #  476 new   #2 Class Opcodes
+BC 04                                               #  479 newarray   atype 4 = boolean
+BC 05                                               #  481 newarray   atype 5 = char
+BC 06                                               #  483 newarray   atype 6 = float
+BC 07                                               #  485 newarray   atype 7 = double
+BC 08                                               #  487 newarray   atype 8 = byte
+BC 09                                               #  489 newarray   atype 9 = short
+BC 0A                                               #  491 newarray   atype 10 = int
+BC 0B                                               #  493 newarray   atype 11 = long
+BD 00 04                                            #  495 anewarray   #4 Class java/lang/Object
+BE                                                  #  498 arraylength
+BF                                                  #  499 athrow
+C0 00 02                                            #  500 checkcast   #2 Class Opcodes
+C1 00 02                                            #  503 instanceof   #2 Class Opcodes
+C2                                                  #  506 monitorenter
+C3                                                  #  507 monitorexit
+C4 15 01 2C                                         #  508 wide   wide iload 300
+C4 16 01 2C                                         #  512 wide   wide lload 300
+C4 17 01 2C                                         #  516 wide   wide fload 300
+C4 18 01 2C                                         #  520 wide   wide dload 300
+C4 19 01 2C                                         #  524 wide   wide aload 300
+C4 36 01 2D                                         #  528 wide   wide istore 301
+C4 37 01 2D                                         #  532 wide   wide lstore 301
+C4 38 01 2D                                         #  536 wide   wide fstore 301
+C4 39 01 2D                                         #  540 wide   wide dstore 301
+C4 3A 01 2D                                         #  544 wide   wide astore 301
+C4 84 01 2C 03 E8                                   #  548 wide   wide iinc 300 += 1000
+C4 A9 01 2E                                         #  554 wide   wide ret 302
+C5 00 14 02                                         #  558 multianewarray   #20 Class [[I, dimensions 2
+C6 00 03                                            #  562 ifnull   -> next instruction
+C7 00 03                                            #  565 ifnonnull   -> next instruction
+C8 00 00 00 05                                      #  568 goto_w   -> next instruction
+C9 00 00 00 05                                      #  573 jsr_w   -> next instruction
+B1                                                  #  578 return   last instruction
+# END CODE
+
+00 00                           # exception_table_length
+00 00                           # Code attributes_count
+
+00 00                           # class attributes_count

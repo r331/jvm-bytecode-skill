@@ -1,0 +1,148 @@
+# Factorial.class - hand-written, major 65 (Java 21)
+#
+# Pseudocode for main([Ljava/lang/String;)V, static:
+#   locals: 0 = args (String[]), 1 = n (int), 2-3 = result (long), 4 = i (int)
+#   if (args.length != 1) { msg = USAGE; goto err }
+#   try { n = Integer.parseInt(args[0]) } catch (NumberFormatException) { msg = NOTINT; goto err }
+#   if (n < 0 || n > 20) { msg = RANGE; goto err }
+#   result = 1L; i = 2
+#   loop: if (i > n) goto print; result *= (long) i; i++; goto loop
+#   print: System.out.println(result); return
+#   err: System.err.println(msg); System.exit(1); return
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 41                         # major_version 65 (Java 21)
+00 31                         # constant_pool_count 49 (entries 1..48)
+
+# ---- constant pool ----
+01 00 09 46 61 63 74 6F 72 69 61 6C                       # 1 Utf8 "Factorial"
+07 00 01                                                  # 2 Class Factorial
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 9 Utf8 "java/lang/System"
+07 00 09                                                  # 10 Class java/lang/System
+01 00 03 6F 75 74                                         # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                            # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                            # 14 Fieldref System.out
+01 00 03 65 72 72                                         # 15 Utf8 "err"
+0C 00 0F 00 0C                                            # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                            # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                  # 19 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 20 Utf8 "println"
+01 00 04 28 4A 29 56                                      # 21 Utf8 "(J)V"
+0C 00 14 00 15                                            # 22 NameAndType println:(J)V
+0A 00 13 00 16                                            # 23 Methodref PrintStream.println(J)V
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 24 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 18                                            # 25 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 19                                            # 26 Methodref PrintStream.println(String)V
+01 00 11 6A 61 76 61 2F 6C 61 6E 67 2F 49 6E 74 65 67 65 72  # 27 Utf8 "java/lang/Integer"
+07 00 1B                                                  # 28 Class java/lang/Integer
+01 00 08 70 61 72 73 65 49 6E 74                          # 29 Utf8 "parseInt"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 49  # 30 Utf8 "(Ljava/lang/String;)I"
+0C 00 1D 00 1E                                            # 31 NameAndType parseInt:(Ljava/lang/String;)I
+0A 00 1C 00 1F                                            # 32 Methodref Integer.parseInt
+01 00 04 65 78 69 74                                      # 33 Utf8 "exit"
+01 00 04 28 49 29 56                                      # 34 Utf8 "(I)V"
+0C 00 21 00 22                                            # 35 NameAndType exit:(I)V
+0A 00 0A 00 23                                            # 36 Methodref System.exit
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 37 Utf8 "java/lang/NumberFormatException"
+07 00 25                                                  # 38 Class java/lang/NumberFormatException
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 39 Utf8 "[Ljava/lang/String;"
+07 00 27                                                  # 40 Class [Ljava/lang/String;
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 41 Utf8 "java/lang/String"
+07 00 29                                                  # 42 Class java/lang/String
+01 00 19 55 73 61 67 65 3A 20 6A 61 76 61 20 46 61 63 74 6F 72 69 61 6C 20 3C 6E 3E  # 43 Utf8 "Usage: java Factorial <n>"
+08 00 2B                                                  # 44 String USAGE
+01 00 1B 45 72 72 6F 72 3A 20 6E 20 6D 75 73 74 20 62 65 20 61 6E 20 69 6E 74 65 67 65 72  # 45 Utf8 "Error: n must be an integer"
+08 00 2D                                                  # 46 String NOTINT
+01 00 21 45 72 72 6F 72 3A 20 6E 20 6D 75 73 74 20 62 65 20 62 65 74 77 65 65 6E 20 30 20 61 6E 64 20 32 30  # 47 Utf8 "Error: n must be between 0 and 20"
+08 00 2F                                                  # 48 String RANGE
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Factorial
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 01                         # methods_count
+
+# ---- method main ----
+00 09                         # access_flags public static
+00 05                         # name_index "main"
+00 06                         # descriptor_index "([Ljava/lang/String;)V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 8D                   # attribute_length 141 = 12 + 82 + 8*1 + (6 + 33)
+00 04                         # max_stack 4 (long result + long i)
+00 05                         # max_locals 5 (args, n, result x2, i)
+00 00 00 52                   # code_length 82
+
+2A                            # 0  aload_0                  [args]
+BE                            # 1  arraylength              [len]
+04                            # 2  iconst_1                 [len, 1]
+9F 00 08                      # 3  if_icmpeq -> 11
+12 2C                         # 6  ldc USAGE                [String]
+A7 00 3E                      # 8  goto -> 70 (err)
+2A                            # 11 aload_0  (try start)     [args]
+03                            # 12 iconst_0
+32                            # 13 aaload                   [String]
+B8 00 20                      # 14 invokestatic Integer.parseInt  [int]
+3C                            # 17 istore_1   (try end = 18)
+A7 00 09                      # 18 goto -> 27
+57                            # 21 pop   (handler: NFE on stack)
+12 2E                         # 22 ldc NOTINT               [String]
+A7 00 2E                      # 24 goto -> 70 (err)
+1B                            # 27 iload_1
+9B 00 28                      # 28 iflt -> 68 (bad)
+1B                            # 31 iload_1
+10 14                         # 32 bipush 20
+A3 00 22                      # 34 if_icmpgt -> 68 (bad)
+0A                            # 37 lconst_1
+41                            # 38 lstore_2                 result = 1L
+05                            # 39 iconst_2
+36 04                         # 40 istore 4                 i = 2
+15 04                         # 42 iload 4   (loop)
+1B                            # 44 iload_1
+A3 00 0F                      # 45 if_icmpgt -> 60 (print)
+20                            # 48 lload_2                  [long]  depth 2
+15 04                         # 49 iload 4                  depth 3
+85                            # 51 i2l                      depth 4
+69                            # 52 lmul                     depth 2
+41                            # 53 lstore_2
+84 04 01                      # 54 iinc 4 1
+A7 FF F1                      # 57 goto -> 42 (-15)
+B2 00 0E                      # 60 getstatic System.out     (print)
+20                            # 63 lload_2                  depth 3
+B6 00 17                      # 64 invokevirtual println(J)V
+B1                            # 67 return
+12 30                         # 68 ldc RANGE  (bad)         [String]
+B2 00 11                      # 70 getstatic System.err (err)  [String, PrintStream]
+5F                            # 73 swap                     [PrintStream, String]
+B6 00 1A                      # 74 invokevirtual println(String)V
+04                            # 77 iconst_1
+B8 00 24                      # 78 invokestatic System.exit
+B1                            # 81 return  (code ends at 82)
+
+00 01                         # exception_table_length
+00 0B 00 12 00 15 00 26       # [11, 18) -> 21, catch NumberFormatException (#38)
+
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 21                   # attribute_length 33
+00 07                         # number_of_entries
+0B                            # @11 same_frame                       locals [args]
+49 07 00 26                   # @21 same_locals_1_stack (9+64)       stack [NFE]
+FC 00 05 01                   # @27 append_frame delta 5             locals [args, int]
+FD 00 0E 04 01                # @42 append_frame delta 14            locals [args, int, long, int]
+11                            # @60 same_frame delta 17
+F9 00 07                      # @68 chop_frame 2 (251-2=249), delta 7            locals [args, int]
+FF 00 01 00 01 07 00 28 00 01 07 00 2A  # @70 full_frame delta 1   locals [String[]] stack [String]
+
+00 00                         # class attributes_count

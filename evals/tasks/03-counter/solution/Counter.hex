@@ -1,0 +1,310 @@
+# Counter.class - hand-written reference solution, major 52 (Java 8)
+#
+# Pseudocode (never written as source; documentation only):
+#   public class Counter extends Object
+#     private int count;                       flags 0002, descriptor I
+#     private final String name;               flags 0012, descriptor Ljava/lang/String;
+#     public Counter(String n)                 <init> (Ljava/lang/String;)V
+#       locals: 0 = this (UninitializedThis until Object.<init>), 1 = n
+#       super(); this.name = n; this.count = 0; return
+#     public void increment()                  ()V      this.count = this.count + 1
+#     public int get()                         ()I      return this.count
+#     public String toString()                 ()Ljava/lang/String;
+#       return new StringBuilder().append(name).append("=").append(count).toString()
+#     public static void main(String[] args)   ([Ljava/lang/String;)V
+#       locals: 0 = args, 1 = c (Counter), 2 = i (int), 3 = cmd (String)
+#       if (args.length == 0) { System.err.println(USAGE); System.exit(1); return }
+#       c = new Counter(args[0])
+#       for (i = 1; i < args.length; i++) {
+#         cmd = args[i]
+#         if (cmd.equals("inc")) c.increment()
+#         else if (cmd.equals("get")) System.out.println(c.get())
+#         else if (cmd.equals("show")) System.out.println(c.toString())
+#         else { System.err.println("Unknown command: " + cmd); System.exit(2); return }
+#       }
+#       return
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 34                         # major_version 52 (Java 8)
+00 55                         # constant_pool_count 85 (entries 1..84)
+
+# ---- constant pool ----
+01 00 07 43 6F 75 6E 74 65 72                             # 1 Utf8 "Counter"
+07 00 01                                                  # 2 Class Counter
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 05 63 6F 75 6E 74                                   # 5 Utf8 "count"
+01 00 01 49                                               # 6 Utf8 "I"
+01 00 04 6E 61 6D 65                                      # 7 Utf8 "name"
+01 00 12 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 8 Utf8 "Ljava/lang/String;"
+01 00 06 3C 69 6E 69 74 3E                                # 9 Utf8 "<init>"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 10 Utf8 "(Ljava/lang/String;)V"
+01 00 03 28 29 56                                         # 11 Utf8 "()V"
+01 00 09 69 6E 63 72 65 6D 65 6E 74                       # 12 Utf8 "increment"
+01 00 03 67 65 74                                         # 13 Utf8 "get" (also used by String #78)
+01 00 03 28 29 49                                         # 14 Utf8 "()I"
+01 00 08 74 6F 53 74 72 69 6E 67                          # 15 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 16 Utf8 "()Ljava/lang/String;"
+01 00 04 6D 61 69 6E                                      # 17 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 18 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 19 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 20 Utf8 "StackMapTable"
+0C 00 09 00 0B                                            # 21 NameAndType <init>:()V
+0A 00 04 00 15                                            # 22 Methodref java/lang/Object.<init>:()V
+0C 00 07 00 08                                            # 23 NameAndType name:Ljava/lang/String;
+09 00 02 00 17                                            # 24 Fieldref Counter.name:Ljava/lang/String;
+0C 00 05 00 06                                            # 25 NameAndType count:I
+09 00 02 00 19                                            # 26 Fieldref Counter.count:I
+01 00 17 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72  # 27 Utf8 "java/lang/StringBuilder"
+07 00 1B                                                  # 28 Class java/lang/StringBuilder
+0A 00 1C 00 15                                            # 29 Methodref StringBuilder.<init>:()V
+01 00 06 61 70 70 65 6E 64                                # 30 Utf8 "append"
+01 00 2D 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B  # 31 Utf8 "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+0C 00 1E 00 1F                                            # 32 NameAndType append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+0A 00 1C 00 20                                            # 33 Methodref StringBuilder.append(String)
+01 00 01 3D                                               # 34 Utf8 "="
+08 00 22                                                  # 35 String "="
+01 00 1C 28 49 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B  # 36 Utf8 "(I)Ljava/lang/StringBuilder;"
+0C 00 1E 00 24                                            # 37 NameAndType append:(I)Ljava/lang/StringBuilder;
+0A 00 1C 00 25                                            # 38 Methodref StringBuilder.append(int)
+0C 00 0F 00 10                                            # 39 NameAndType toString:()Ljava/lang/String;
+0A 00 1C 00 27                                            # 40 Methodref StringBuilder.toString
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 41 Utf8 "java/lang/System"
+07 00 29                                                  # 42 Class java/lang/System
+01 00 03 6F 75 74                                         # 43 Utf8 "out"
+01 00 03 65 72 72                                         # 44 Utf8 "err"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 45 Utf8 "Ljava/io/PrintStream;"
+0C 00 2B 00 2D                                            # 46 NameAndType out:Ljava/io/PrintStream;
+09 00 2A 00 2E                                            # 47 Fieldref System.out
+0C 00 2C 00 2D                                            # 48 NameAndType err:Ljava/io/PrintStream;
+09 00 2A 00 30                                            # 49 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 50 Utf8 "java/io/PrintStream"
+07 00 32                                                  # 51 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 52 Utf8 "println"
+0C 00 34 00 0A                                            # 53 NameAndType println:(Ljava/lang/String;)V
+0A 00 33 00 35                                            # 54 Methodref PrintStream.println(String)V
+01 00 04 28 49 29 56                                      # 55 Utf8 "(I)V"
+0C 00 34 00 37                                            # 56 NameAndType println:(I)V
+0A 00 33 00 38                                            # 57 Methodref PrintStream.println(I)V
+01 00 04 65 78 69 74                                      # 58 Utf8 "exit"
+0C 00 3A 00 37                                            # 59 NameAndType exit:(I)V
+0A 00 2A 00 3B                                            # 60 Methodref System.exit(I)V
+01 00 2C 55 73 61 67 65 3A 20 6A 61 76 61 20 43 6F 75 6E 74 65 72 20 3C 6E 61 6D 65 3E 20 5B 69 6E 63 7C 67 65 74 7C 73 68 6F 77 5D 2E 2E 2E  # 61 Utf8 "Usage: java Counter <name> [inc|get|show]..." (44 bytes)
+08 00 3D                                                  # 62 String USAGE
+0C 00 09 00 0A                                            # 63 NameAndType <init>:(Ljava/lang/String;)V
+0A 00 02 00 3F                                            # 64 Methodref Counter.<init>(String)V
+0C 00 0C 00 0B                                            # 65 NameAndType increment:()V
+0A 00 02 00 41                                            # 66 Methodref Counter.increment()V
+0C 00 0D 00 0E                                            # 67 NameAndType get:()I
+0A 00 02 00 43                                            # 68 Methodref Counter.get()I
+0A 00 02 00 27                                            # 69 Methodref Counter.toString()Ljava/lang/String;
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 70 Utf8 "java/lang/String"
+07 00 46                                                  # 71 Class java/lang/String
+01 00 06 65 71 75 61 6C 73                                # 72 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 73 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 48 00 49                                            # 74 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 47 00 4A                                            # 75 Methodref String.equals(Object)Z
+01 00 03 69 6E 63                                         # 76 Utf8 "inc"
+08 00 4C                                                  # 77 String "inc"
+08 00 0D                                                  # 78 String "get" (reuses Utf8 #13)
+01 00 04 73 68 6F 77                                      # 79 Utf8 "show"
+08 00 4F                                                  # 80 String "show"
+01 00 11 55 6E 6B 6E 6F 77 6E 20 63 6F 6D 6D 61 6E 64 3A 20  # 81 Utf8 "Unknown command: " (17 bytes, trailing space)
+08 00 51                                                  # 82 String "Unknown command: "
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 83 Utf8 "[Ljava/lang/String;"
+07 00 53                                                  # 84 Class [Ljava/lang/String; (StackMapTable type of args)
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Counter
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count 0
+
+# ---- fields ----
+00 02                         # fields_count 2
+00 02 00 05 00 06 00 00       # field: flags 0002 private, name #5 "count", desc #6 "I", 0 attributes
+00 12 00 07 00 08 00 00       # field: flags 0012 private final, name #7 "name", desc #8 "Ljava/lang/String;", 0 attributes
+
+# ---- methods ----
+00 05                         # methods_count 5
+
+# == method 1: public Counter(String) ==
+00 01                         # access_flags ACC_PUBLIC
+00 09                         # name_index #9 "<init>"
+00 0A                         # descriptor_index #10 "(Ljava/lang/String;)V"
+00 01                         # attributes_count 1
+00 13                         # attribute_name_index #19 "Code"
+00 00 00 1B                   # attribute_length 27 = 12 + 15
+00 02                         # max_stack 2
+00 02                         # max_locals 2 (this, n)
+00 00 00 0F                   # code_length 15
+2A                            #  0 aload_0                   [UninitializedThis]
+B7 00 16                      #  1 invokespecial #22 Object.<init>()V   (this becomes Counter)
+2A                            #  4 aload_0                   [Counter]
+2B                            #  5 aload_1                   [Counter, String]
+B5 00 18                      #  6 putfield #24 Counter.name
+2A                            #  9 aload_0                   [Counter]
+03                            # 10 iconst_0                  [Counter, int]
+B5 00 1A                      # 11 putfield #26 Counter.count
+B1                            # 14 return
+00 00                         # exception_table_length 0
+00 00                         # attributes_count 0 (straight-line code, no StackMapTable needed)
+
+# == method 2: public void increment() ==
+00 01                         # access_flags ACC_PUBLIC
+00 0C                         # name_index #12 "increment"
+00 0B                         # descriptor_index #11 "()V"
+00 01                         # attributes_count 1
+00 13                         # attribute_name_index #19 "Code"
+00 00 00 17                   # attribute_length 23 = 12 + 11
+00 03                         # max_stack 3
+00 01                         # max_locals 1 (this)
+00 00 00 0B                   # code_length 11
+2A                            #  0 aload_0                   [this]
+59                            #  1 dup                       [this, this]
+B4 00 1A                      #  2 getfield #26 Counter.count  [this, int]
+04                            #  5 iconst_1                  [this, int, 1]
+60                            #  6 iadd                      [this, int]
+B5 00 1A                      #  7 putfield #26 Counter.count  []
+B1                            # 10 return
+00 00                         # exception_table_length 0
+00 00                         # attributes_count 0
+
+# == method 3: public int get() ==
+00 01                         # access_flags ACC_PUBLIC
+00 0D                         # name_index #13 "get"
+00 0E                         # descriptor_index #14 "()I"
+00 01                         # attributes_count 1
+00 13                         # attribute_name_index #19 "Code"
+00 00 00 11                   # attribute_length 17 = 12 + 5
+00 01                         # max_stack 1
+00 01                         # max_locals 1 (this)
+00 00 00 05                   # code_length 5
+2A                            #  0 aload_0
+B4 00 1A                      #  1 getfield #26 Counter.count
+AC                            #  4 ireturn
+00 00                         # exception_table_length 0
+00 00                         # attributes_count 0
+
+# == method 4: public String toString() ==
+00 01                         # access_flags ACC_PUBLIC
+00 0F                         # name_index #15 "toString"
+00 10                         # descriptor_index #16 "()Ljava/lang/String;"
+00 01                         # attributes_count 1
+00 13                         # attribute_name_index #19 "Code"
+00 00 00 2A                   # attribute_length 42 = 12 + 30
+00 02                         # max_stack 2
+00 01                         # max_locals 1 (this)
+00 00 00 1E                   # code_length 30
+BB 00 1C                      #  0 new #28 StringBuilder    [Uninit(0)]
+59                            #  3 dup                       [Uninit(0), Uninit(0)]
+B7 00 1D                      #  4 invokespecial #29 StringBuilder.<init>()V  [SB]
+2A                            #  7 aload_0                   [SB, this]
+B4 00 18                      #  8 getfield #24 Counter.name  [SB, String]
+B6 00 21                      # 11 invokevirtual #33 append(String)  [SB]
+12 23                         # 14 ldc #35 "="               [SB, String]
+B6 00 21                      # 16 invokevirtual #33 append(String)  [SB]
+2A                            # 19 aload_0                   [SB, this]
+B4 00 1A                      # 20 getfield #26 Counter.count  [SB, int]
+B6 00 26                      # 23 invokevirtual #38 append(int)  [SB]
+B6 00 28                      # 26 invokevirtual #40 StringBuilder.toString  [String]
+B0                            # 29 areturn
+00 00                         # exception_table_length 0
+00 00                         # attributes_count 0
+
+# == method 5: public static void main(String[]) ==
+# Branch targets / frame offsets: 18, 31, 57, 79, 101, 131, 137
+00 09                         # access_flags ACC_PUBLIC | ACC_STATIC
+00 11                         # name_index #17 "main"
+00 12                         # descriptor_index #18 "([Ljava/lang/String;)V"
+00 01                         # attributes_count 1
+00 13                         # attribute_name_index #19 "Code"
+00 00 00 B2                   # attribute_length 178 = 12 + 138 + (6 + 22)
+00 04                         # max_stack 4 (at 24: Uninit, Uninit, args, 0)
+00 04                         # max_locals 4 (args, c, i, cmd)
+00 00 00 8A                   # code_length 138
+2A                            #   0 aload_0                  [args]
+BE                            #   1 arraylength              [int]
+9A 00 10                      #   2 ifne -> 18 (+16)
+B2 00 31                      #   5 getstatic #49 System.err  [PrintStream]
+12 3E                         #   8 ldc #62 USAGE            [PrintStream, String]
+B6 00 36                      #  10 invokevirtual #54 println(String)V
+04                            #  13 iconst_1
+B8 00 3C                      #  14 invokestatic #60 System.exit(I)V
+B1                            #  17 return
+BB 00 02                      #  18 new #2 Counter           [Uninit(18)]          (frame: same)
+59                            #  21 dup                      [Uninit(18), Uninit(18)]
+2A                            #  22 aload_0                  [U, U, args]
+03                            #  23 iconst_0                 [U, U, args, 0]
+32                            #  24 aaload                   [U, U, String]
+B7 00 40                      #  25 invokespecial #64 Counter.<init>(String)V  [Counter]
+4C                            #  28 astore_1                 c = new Counter(args[0])
+04                            #  29 iconst_1
+3D                            #  30 istore_2                 i = 1
+1C                            #  31 iload_2                  loop head (frame: append Counter, int)
+2A                            #  32 aload_0
+BE                            #  33 arraylength              [int, int]
+A2 00 67                      #  34 if_icmpge -> 137 (+103)
+2A                            #  37 aload_0
+1C                            #  38 iload_2
+32                            #  39 aaload                   [String]
+4E                            #  40 astore_3                 cmd = args[i]
+2D                            #  41 aload_3                  [cmd]
+12 4D                         #  42 ldc #77 "inc"            [cmd, "inc"]
+B6 00 4B                      #  44 invokevirtual #75 String.equals  [int]
+99 00 0A                      #  47 ifeq -> 57 (+10)
+2B                            #  50 aload_1                  [c]
+B6 00 42                      #  51 invokevirtual #66 Counter.increment()V
+A7 00 4D                      #  54 goto -> 131 (+77)
+2D                            #  57 aload_3                  (frame: append String)
+12 4E                         #  58 ldc #78 "get"
+B6 00 4B                      #  60 invokevirtual #75 String.equals
+99 00 10                      #  63 ifeq -> 79 (+16)
+B2 00 2F                      #  66 getstatic #47 System.out  [PrintStream]
+2B                            #  69 aload_1                  [PrintStream, c]
+B6 00 44                      #  70 invokevirtual #68 Counter.get()I  [PrintStream, int]
+B6 00 39                      #  73 invokevirtual #57 println(I)V
+A7 00 37                      #  76 goto -> 131 (+55)
+2D                            #  79 aload_3                  (frame: same)
+12 50                         #  80 ldc #80 "show"
+B6 00 4B                      #  82 invokevirtual #75 String.equals
+99 00 10                      #  85 ifeq -> 101 (+16)
+B2 00 2F                      #  88 getstatic #47 System.out  [PrintStream]
+2B                            #  91 aload_1                  [PrintStream, c]
+B6 00 45                      #  92 invokevirtual #69 Counter.toString()  [PrintStream, String]
+B6 00 36                      #  95 invokevirtual #54 println(String)V
+A7 00 21                      #  98 goto -> 131 (+33)
+B2 00 31                      # 101 getstatic #49 System.err  [PS]                 (frame: same)
+BB 00 1C                      # 104 new #28 StringBuilder    [PS, Uninit(104)]
+59                            # 107 dup                      [PS, U, U]
+B7 00 1D                      # 108 invokespecial #29 StringBuilder.<init>()V  [PS, SB]
+12 52                         # 111 ldc #82 "Unknown command: "  [PS, SB, String]
+B6 00 21                      # 113 invokevirtual #33 append(String)  [PS, SB]
+2D                            # 116 aload_3                  [PS, SB, cmd]
+B6 00 21                      # 117 invokevirtual #33 append(String)  [PS, SB]
+B6 00 28                      # 120 invokevirtual #40 StringBuilder.toString  [PS, String]
+B6 00 36                      # 123 invokevirtual #54 println(String)V
+05                            # 126 iconst_2
+B8 00 3C                      # 127 invokestatic #60 System.exit(I)V
+B1                            # 130 return
+84 02 01                      # 131 iinc 2 1                 i++ (frame: chop 1, cmd dropped)
+A7 FF 99                      # 134 goto -> 31 (-103)
+B1                            # 137 return                   (frame: same)
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 14                         # attribute_name_index #20 "StackMapTable"
+00 00 00 16                   # attribute_length 22
+00 07                         # number_of_entries 7
+12                            # @18  same_frame, delta 18           locals [String[]]
+FD 00 0C 07 00 02 01          # @31  append 2, delta 12             locals [String[], Counter, int]
+FC 00 19 07 00 47             # @57  append 1, delta 25             locals [String[], Counter, int, String]
+15                            # @79  same_frame, delta 21
+15                            # @101 same_frame, delta 21
+FA 00 1D                      # @131 chop 1, delta 29               locals [String[], Counter, int]
+05                            # @137 same_frame, delta 5
+# No frame lies between a `new` and its <init> call (18..25 and 104..108 are straight-line),
+# so no Uninitialized(offset) verification type is needed in this method.
+
+# ---- class attributes ----
+00 00                         # attributes_count 0

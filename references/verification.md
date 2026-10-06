@@ -53,6 +53,16 @@ A merge point where locals differ from the previous frame and the stack is not e
 | `FF` | full_frame |
 
 Chop and append count frame ENTRIES, not slots: a `long` or `double` local is one entry, so dropping `[long, int]` is chop 2 (`F9`).
+An append_frame encodes ONLY the new entries, never the previous locals again: going from `[args]` to `[args, int, long]` is `FD <delta> 01 04`, not `FD <delta> 07 .. 01 04`.
+Relisting old locals makes the byte count wrong, which usually shows up as `ClassFormatError: Truncated class file` or a garbled frame.
+
+### Merge rules worth knowing
+
+- An incoming path may carry MORE locals than the frame declares; the extras are simply forgotten (e.g. a loop's back edge, or a jump to a shared error label).
+- An incoming path may not carry FEWER initialized locals than the frame declares.
+- `null` is assignable to any reference type, and any class type is assignable to `java/lang/Object`.
+- Interface types are treated like `java/lang/Object` by the type checker: storing a `Circle` into a `Shape[]` or calling `invokeinterface Shape.area` on a value typed as an implementing class or as `Object` verifies without a `checkcast`; the JVM checks the interface at run time.
+- Switches need a frame at the default target and at every case target, even when several cases share a target (one frame per distinct offset).
 
 ## StackMapTable layout
 
@@ -180,6 +190,7 @@ Its locals must be assignable from the locals at every instruction inside `[star
 ## Constructors and uninitialized objects
 
 - In `<init>`, slot 0 starts as `UninitializedThis`; after `invokespecial super.<init>` it becomes the class type.
+- Before the super call, `putfield` on `UninitializedThis` is allowed only for fields declared in the current class; no other use of `this` is allowed.
 - `new` pushes `Uninitialized(offset_of_new)`; after `invokespecial <init>` all copies become the class type.
 - An exception handler must not use a local that held an uninitialized object anywhere inside its protected range.
 

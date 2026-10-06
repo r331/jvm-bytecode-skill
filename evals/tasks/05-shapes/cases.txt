@@ -1,0 +1,20 @@
+# args	exit	stdout	stderr
+circle 1 square 2	0	circle 3.141592653589793\nsquare 4.0\ntotal 7.141592653589793	
+square 3	0	square 9.0\ntotal 9.0	
+circle 2.5 square 0.5 circle 10	0	circle 19.634954084936208\nsquare 0.25\ncircle 314.1592653589793\ntotal 334.04421944391555	
+circle 0.1 square 1.5	0	circle 0.031415926535897934\nsquare 2.25\ntotal 2.2814159265358978	
+square 1e4	0	square 1.0E8\ntotal 1.0E8	
+square Infinity	0	square Infinity\ntotal Infinity	
+	1		Usage: java Shapes (circle|square) <size> ...
+circle	1		Usage: java Shapes (circle|square) <size> ...
+circle 1 square	1		Usage: java Shapes (circle|square) <size> ...
+triangle 1	2		Unknown shape: triangle
+Circle 1	2		Unknown shape: Circle
+circle 1 hexagon 2	2		Unknown shape: hexagon
+hexagon abc	2		Unknown shape: hexagon
+circle abc	1		Invalid size: abc
+square 0	1		Invalid size: 0
+square -2	1		Invalid size: -2
+circle NaN	1		Invalid size: NaN
+circle x hexagon 1	1		Invalid size: x
+square 2 circle -0.0	1		Invalid size: -0.0

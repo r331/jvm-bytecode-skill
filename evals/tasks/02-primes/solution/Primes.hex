@@ -1,0 +1,203 @@
+# Primes.class - hand-written, major 65 (Java 21), StackMapTable required.
+#
+# java Primes <n>: prints all primes <= n on one line, separated by single spaces
+# (empty line if none). n must be an integer 0..100000.
+#
+# Design (pseudocode):
+#   static void main(String[] args)           ([Ljava/lang/String;)V, flags 0009
+#     locals: 0 = args, 1 = n (int), 2 = sb (StringBuilder), 3 = i (int), 4 = j (int)
+#     if args.length != 1 -> err("Usage: java Primes <n>")
+#     try { n = Integer.parseInt(args[0]) } catch NumberFormatException -> err(RANGE)
+#     if n < 0 || n > 100000 -> err(RANGE)
+#     sb = new StringBuilder(); i = 2
+#     loop_i: while i <= n:
+#       j = 2
+#       loop_j: while j*j <= i:
+#         if i % j == 0 -> next_i
+#         j++
+#       prime: if sb.length() != 0: sb.append(' ')
+#       app:   sb.append(i)
+#       next_i: i++
+#     System.out.println(sb.toString()); return
+#     err: [String] System.err.println(msg); System.exit(1); return
+#   RANGE = "Error: n must be an integer between 0 and 100000"
+
+CA FE BA BE                     # magic
+00 00                           # minor_version 0
+00 41                           # major_version 65 (Java 21)
+00 42                           # constant_pool_count 66 (entries 1..65)
+
+# ---- constant pool ----
+01 00 06 50 72 69 6D 65 73                                  # 1 Utf8 "Primes"
+07 00 01                                                    # 2 Class Primes
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74    # 3 Utf8 "java/lang/Object"
+07 00 03                                                    # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                        # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56   # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                        # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65             # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D    # 9 Utf8 "java/lang/System"
+07 00 09                                                    # 10 Class java/lang/System
+01 00 03 6F 75 74                                           # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B   # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                              # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                              # 14 Fieldref System.out
+01 00 03 65 72 72                                           # 15 Utf8 "err"
+0C 00 0F 00 0C                                              # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                              # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D   # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                    # 19 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                               # 20 Utf8 "println"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56   # 21 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 15                                              # 22 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 16                                              # 23 Methodref PrintStream.println(String)V
+01 00 04 65 78 69 74                                        # 24 Utf8 "exit"
+01 00 04 28 49 29 56                                        # 25 Utf8 "(I)V"
+0C 00 18 00 19                                              # 26 NameAndType exit:(I)V
+0A 00 0A 00 1A                                              # 27 Methodref System.exit(I)V
+01 00 11 6A 61 76 61 2F 6C 61 6E 67 2F 49 6E 74 65 67 65 72 # 28 Utf8 "java/lang/Integer"
+07 00 1C                                                    # 29 Class java/lang/Integer
+01 00 08 70 61 72 73 65 49 6E 74                            # 30 Utf8 "parseInt"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 49   # 31 Utf8 "(Ljava/lang/String;)I"
+0C 00 1E 00 1F                                              # 32 NameAndType parseInt:(Ljava/lang/String;)I
+0A 00 1D 00 20                                              # 33 Methodref Integer.parseInt(String)I
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E   # 34 Utf8 "java/lang/NumberFormatException"
+07 00 22                                                    # 35 Class java/lang/NumberFormatException
+01 00 17 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72   # 36 Utf8 "java/lang/StringBuilder"
+07 00 24                                                    # 37 Class java/lang/StringBuilder
+01 00 06 3C 69 6E 69 74 3E                                  # 38 Utf8 "<init>"
+01 00 03 28 29 56                                           # 39 Utf8 "()V"
+0C 00 26 00 27                                              # 40 NameAndType <init>:()V
+0A 00 25 00 28                                              # 41 Methodref StringBuilder.<init>()V
+01 00 06 6C 65 6E 67 74 68                                  # 42 Utf8 "length"
+01 00 03 28 29 49                                           # 43 Utf8 "()I"
+0C 00 2A 00 2B                                              # 44 NameAndType length:()I
+0A 00 25 00 2C                                              # 45 Methodref StringBuilder.length()I
+01 00 06 61 70 70 65 6E 64                                  # 46 Utf8 "append"
+01 00 1C 28 43 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B   # 47 Utf8 "(C)Ljava/lang/StringBuilder;"
+0C 00 2E 00 2F                                              # 48 NameAndType append:(C)Ljava/lang/StringBuilder;
+0A 00 25 00 30                                              # 49 Methodref StringBuilder.append(C)
+01 00 1C 28 49 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B   # 50 Utf8 "(I)Ljava/lang/StringBuilder;"
+0C 00 2E 00 32                                              # 51 NameAndType append:(I)Ljava/lang/StringBuilder;
+0A 00 25 00 33                                              # 52 Methodref StringBuilder.append(I)
+01 00 08 74 6F 53 74 72 69 6E 67                            # 53 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B   # 54 Utf8 "()Ljava/lang/String;"
+0C 00 35 00 36                                              # 55 NameAndType toString:()Ljava/lang/String;
+0A 00 25 00 37                                              # 56 Methodref StringBuilder.toString()
+01 00 16 55 73 61 67 65 3A 20 6A 61 76 61 20 50 72 69 6D 65 73 20 3C 6E 3E   # 57 Utf8 "Usage: java Primes <n>"
+08 00 39                                                    # 58 String USAGE
+01 00 30 45 72 72 6F 72 3A 20 6E 20 6D 75 73 74 20 62 65 20 61 6E 20 69 6E 74 65 67 65 72 20 62 65 74 77 65 65 6E 20 30 20 61 6E 64 20 31 30 30 30 30 30   # 59 Utf8 "Error: n must be an integer between 0 and 100000"
+08 00 3B                                                    # 60 String RANGE
+03 00 01 86 A0                                              # 61 Integer 100000
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B   # 62 Utf8 "[Ljava/lang/String;"
+07 00 3E                                                    # 63 Class [Ljava/lang/String;
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67    # 64 Utf8 "java/lang/String"
+07 00 40                                                    # 65 Class java/lang/String
+
+# ---- class header ----
+00 21                           # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                           # this_class #2 Primes
+00 04                           # super_class #4 java/lang/Object
+00 00                           # interfaces_count
+00 00                           # fields_count
+00 01                           # methods_count
+
+# ---- method main ----
+00 09                           # access_flags public static
+00 05                           # name "main"
+00 06                           # descriptor ([Ljava/lang/String;)V
+00 01                           # attributes_count
+00 07                           # Code
+00 00 00 C6                     # attribute_length 198 = 12 + 128 + 8*1 + (6 + 44)
+00 02                           # max_stack 2
+00 05                           # max_locals 5 (args, n, sb, i, j)
+00 00 00 80                     # code_length 128
+
+2A                              # 0 aload_0                        [String[]]
+BE                              # 1 arraylength                    [int]
+04                              # 2 iconst_1                       [int, int]
+9F 00 08                        # 3 if_icmpeq -> 11 (+8)
+12 3A                           # 6 ldc #58 USAGE                  [String]
+A7 00 6C                        # 8 goto -> 116 err (+108)
+2A                              # 11 aload_0      (try start)
+03                              # 12 iconst_0
+32                              # 13 aaload                        [String]
+B8 00 21                        # 14 invokestatic Integer.parseInt [int]
+3C                              # 17 istore_1     (try end = 18)
+A7 00 09                        # 18 goto -> 27 (+9)
+57                              # 21 pop          (handler: NumberFormatException)
+12 3C                           # 22 ldc #60 RANGE                 [String]
+A7 00 5C                        # 24 goto -> 116 err (+92)
+1B                              # 27 iload_1
+9B 00 56                        # 28 iflt -> 114 bad (+86)
+1B                              # 31 iload_1
+12 3D                           # 32 ldc #61 100000                [int, int]
+A3 00 50                        # 34 if_icmpgt -> 114 bad (+80)
+BB 00 25                        # 37 new StringBuilder             [Uninit(37)]
+59                              # 40 dup                           [Uninit(37), Uninit(37)]
+B7 00 29                        # 41 invokespecial StringBuilder.<init>  [StringBuilder]
+4D                              # 44 astore_2     sb
+05                              # 45 iconst_2
+3E                              # 46 istore_3     i = 2
+1D                              # 47 iload_3      (loop_i)
+1B                              # 48 iload_1
+A3 00 36                        # 49 if_icmpgt -> 103 done (+54)
+05                              # 52 iconst_2
+36 04                           # 53 istore 4     j = 2
+15 04                           # 55 iload 4      (loop_j)
+15 04                           # 57 iload 4
+68                              # 59 imul                          [int j*j]
+1D                              # 60 iload_3                       [int, int]
+A3 00 10                        # 61 if_icmpgt -> 77 prime (+16)   j*j > i
+1D                              # 64 iload_3
+15 04                           # 65 iload 4
+70                              # 67 irem                          [int i%j]
+99 00 1D                        # 68 ifeq -> 97 next_i (+29)       divisible -> not prime
+84 04 01                        # 71 iinc 4 1     j++
+A7 FF ED                        # 74 goto -> 55 loop_j (-19)
+2C                              # 77 aload_2      (prime)
+B6 00 2D                        # 78 invokevirtual StringBuilder.length  [int]
+99 00 0A                        # 81 ifeq -> 91 app (+10)          first prime: no separator
+2C                              # 84 aload_2
+10 20                           # 85 bipush 32 ' '                 [StringBuilder, int]
+B6 00 31                        # 87 invokevirtual StringBuilder.append(C)  [StringBuilder]
+57                              # 90 pop
+2C                              # 91 aload_2      (app)
+1D                              # 92 iload_3                       [StringBuilder, int]
+B6 00 34                        # 93 invokevirtual StringBuilder.append(I)  [StringBuilder]
+57                              # 96 pop
+84 03 01                        # 97 iinc 3 1     (next_i) i++
+A7 FF CB                        # 100 goto -> 47 loop_i (-53)
+B2 00 0E                        # 103 getstatic System.out  (done)  [PrintStream]
+2C                              # 106 aload_2                       [PrintStream, StringBuilder]
+B6 00 38                        # 107 invokevirtual StringBuilder.toString  [PrintStream, String]
+B6 00 17                        # 110 invokevirtual PrintStream.println(String)V
+B1                              # 113 return
+12 3C                           # 114 ldc #60 RANGE  (bad)          [String]
+B2 00 11                        # 116 getstatic System.err  (err)   [String, PrintStream]
+5F                              # 119 swap                          [PrintStream, String]
+B6 00 17                        # 120 invokevirtual PrintStream.println(String)V
+04                              # 123 iconst_1
+B8 00 1B                        # 124 invokestatic System.exit(I)V
+B1                              # 127 return     (code ends at 127, length 128)
+
+00 01                           # exception_table_length 1
+00 0B 00 12 00 15 00 23         # [11, 18) -> 21, catch #35 NumberFormatException
+
+00 01                           # Code attributes_count 1
+00 08                           # StackMapTable
+00 00 00 2C                     # attribute_length 44 = 2 + 42 bytes of frames
+00 0B                           # number_of_entries 11
+0B                              # @11  same_frame, delta 11              locals [String[]]  stack []
+49 07 00 23                     # @21  same_locals_1_stack_item, delta 9 locals [String[]]  stack [NumberFormatException]
+FC 00 05 01                     # @27  append 1, delta 5                 locals [String[], int]  stack []
+FD 00 13 07 00 25 01            # @47  append 2, delta 19                locals [String[], int, StringBuilder, int]  stack []
+FC 00 07 01                     # @55  append 1, delta 7                 locals [String[], int, StringBuilder, int, int]  stack []
+15                              # @77  same_frame, delta 21              locals [String[], int, StringBuilder, int, int]  stack []
+0D                              # @91  same_frame, delta 13              locals [String[], int, StringBuilder, int, int]  stack []
+05                              # @97  same_frame, delta 5               locals [String[], int, StringBuilder, int, int]  stack []
+FA 00 05                        # @103 chop 1, delta 5                   locals [String[], int, StringBuilder, int]  stack []
+F9 00 0A                        # @114 chop 2, delta 10                  locals [String[], int]  stack []
+FF 00 01 00 01 07 00 3F 00 01 07 00 41   # @116 full_frame, delta 1     locals [String[]]  stack [String]
+
+00 00                           # class attributes_count 0

@@ -1,0 +1,299 @@
+# Shapes.class - hand-written, major 55 (Java 11)
+#
+# Pseudocode for main([Ljava/lang/String;)V, static:
+#   locals: 0 = args (String[]), 1 = n then count (int), 2 = shapes (Shape[]), 3 = i (int),
+#           4 = kind (String), 5 = code (int, 1 circle / 2 square), 6 = sizeArg (String),
+#           7-8 = size (double); in the print phase 4-5 = total (double), 6 = s (Shape),
+#           7-8 = a (double)
+#   n = args.length
+#   if (n == 0 || (n & 1) != 0) goto usage
+#   count = n >> 1; shapes = new Shape[count]; i = 0
+#   L1: if (i >= count) goto print
+#     kind = args[i << 1]
+#     code = 1; if (kind.equals("circle")) goto parse
+#     code = 2; if (kind.equals("square")) goto parse
+#     System.err.print("Unknown shape: "); System.err.println(kind); System.exit(2); return
+#   parse: sizeArg = args[(i << 1) + 1]
+#     try { size = Double.parseDouble(sizeArg) } catch (NumberFormatException) { goto invalid }
+#     if (!(size > 0)) goto invalid            (dcmpl + ifle: NaN is invalid)
+#     shapes[i] = code == 1 ? new Circle(size) : new Square(size)
+#     i++; goto L1
+#   print: total = 0.0; i = 0
+#   L2: if (i >= count) goto end
+#     s = shapes[i]
+#     System.out.print(s.name()); System.out.print(' ')     (invokeinterface Shape.name)
+#     a = s.area(); System.out.println(a); total += a        (invokeinterface Shape.area)
+#     i++; goto L2
+#   end: System.out.print("total "); System.out.println(total); return
+#   invalid: System.err.print("Invalid size: "); System.err.println(sizeArg); System.exit(1); return
+#   usage: System.err.println(USAGE); System.exit(1); return
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 37                         # major_version 55 (Java 11)
+00 55                         # constant_pool_count 85 (entries 1..84)
+
+# ---- constant pool ----
+01 00 06 53 68 61 70 65 73                                # 1 Utf8 "Shapes"
+07 00 01                                                  # 2 Class Shapes
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 9 Utf8 "java/lang/System"
+07 00 09                                                  # 10 Class java/lang/System
+01 00 03 6F 75 74                                         # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                            # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                            # 14 Fieldref System.out
+01 00 03 65 72 72                                         # 15 Utf8 "err"
+0C 00 0F 00 0C                                            # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                            # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                  # 19 Class java/io/PrintStream
+01 00 05 70 72 69 6E 74                                   # 20 Utf8 "print"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 21 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 15                                            # 22 NameAndType print:(Ljava/lang/String;)V
+0A 00 13 00 16                                            # 23 Methodref PrintStream.print(String)V
+01 00 07 70 72 69 6E 74 6C 6E                             # 24 Utf8 "println"
+0C 00 18 00 15                                            # 25 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 19                                            # 26 Methodref PrintStream.println(String)V
+01 00 04 28 43 29 56                                      # 27 Utf8 "(C)V"
+0C 00 14 00 1B                                            # 28 NameAndType print:(C)V
+0A 00 13 00 1C                                            # 29 Methodref PrintStream.print(C)V
+01 00 04 28 44 29 56                                      # 30 Utf8 "(D)V"
+0C 00 18 00 1E                                            # 31 NameAndType println:(D)V
+0A 00 13 00 1F                                            # 32 Methodref PrintStream.println(D)V
+01 00 04 65 78 69 74                                      # 33 Utf8 "exit"
+01 00 04 28 49 29 56                                      # 34 Utf8 "(I)V"
+0C 00 21 00 22                                            # 35 NameAndType exit:(I)V
+0A 00 0A 00 23                                            # 36 Methodref System.exit(I)V
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 37 Utf8 "java/lang/String"
+07 00 25                                                  # 38 Class java/lang/String
+01 00 06 65 71 75 61 6C 73                                # 39 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 40 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 27 00 28                                            # 41 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 26 00 29                                            # 42 Methodref String.equals(Object)Z
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 44 6F 75 62 6C 65  # 43 Utf8 "java/lang/Double"
+07 00 2B                                                  # 44 Class java/lang/Double
+01 00 0B 70 61 72 73 65 44 6F 75 62 6C 65                 # 45 Utf8 "parseDouble"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 44  # 46 Utf8 "(Ljava/lang/String;)D"
+0C 00 2D 00 2E                                            # 47 NameAndType parseDouble:(Ljava/lang/String;)D
+0A 00 2C 00 2F                                            # 48 Methodref Double.parseDouble(String)D
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 49 Utf8 "java/lang/NumberFormatException"
+07 00 31                                                  # 50 Class java/lang/NumberFormatException
+01 00 05 53 68 61 70 65                                   # 51 Utf8 "Shape"
+07 00 33                                                  # 52 Class Shape
+01 00 08 5B 4C 53 68 61 70 65 3B                          # 53 Utf8 "[LShape;"
+07 00 35                                                  # 54 Class [LShape; (for stack map frames)
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 55 Utf8 "[Ljava/lang/String;"
+07 00 37                                                  # 56 Class [Ljava/lang/String; (for stack map frames)
+01 00 04 61 72 65 61                                      # 57 Utf8 "area"
+01 00 03 28 29 44                                         # 58 Utf8 "()D"
+0C 00 39 00 3A                                            # 59 NameAndType area:()D
+0B 00 34 00 3B                                            # 60 InterfaceMethodref Shape.area:()D
+01 00 04 6E 61 6D 65                                      # 61 Utf8 "name"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 62 Utf8 "()Ljava/lang/String;"
+0C 00 3D 00 3E                                            # 63 NameAndType name:()Ljava/lang/String;
+0B 00 34 00 3F                                            # 64 InterfaceMethodref Shape.name:()Ljava/lang/String;
+01 00 06 43 69 72 63 6C 65                                # 65 Utf8 "Circle"
+07 00 41                                                  # 66 Class Circle
+01 00 06 3C 69 6E 69 74 3E                                # 67 Utf8 "<init>"
+0C 00 43 00 1E                                            # 68 NameAndType <init>:(D)V
+0A 00 42 00 44                                            # 69 Methodref Circle.<init>(D)V
+01 00 06 53 71 75 61 72 65                                # 70 Utf8 "Square"
+07 00 46                                                  # 71 Class Square
+0A 00 47 00 44                                            # 72 Methodref Square.<init>(D)V
+01 00 06 63 69 72 63 6C 65                                # 73 Utf8 "circle"
+08 00 49                                                  # 74 String "circle"
+01 00 06 73 71 75 61 72 65                                # 75 Utf8 "square"
+08 00 4B                                                  # 76 String "square"
+01 00 2D 55 73 61 67 65 3A 20 6A 61 76 61 20 53 68 61 70 65 73 20 28 63 69 72 63 6C 65 7C 73 71 75 61 72 65 29 20 3C 73 69 7A 65 3E 20 2E 2E 2E  # 77 Utf8 "Usage: java Shapes (circle|square) <size> ..." (45 bytes)
+08 00 4D                                                  # 78 String USAGE
+01 00 0F 55 6E 6B 6E 6F 77 6E 20 73 68 61 70 65 3A 20     # 79 Utf8 "Unknown shape: " (15 bytes, trailing space)
+08 00 4F                                                  # 80 String "Unknown shape: "
+01 00 0E 49 6E 76 61 6C 69 64 20 73 69 7A 65 3A 20        # 81 Utf8 "Invalid size: " (14 bytes, trailing space)
+08 00 51                                                  # 82 String "Invalid size: "
+01 00 06 74 6F 74 61 6C 20                                # 83 Utf8 "total " (6 bytes, trailing space)
+08 00 53                                                  # 84 String "total "
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Shapes
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 01                         # methods_count
+
+# ---- method main ----
+00 09                         # access_flags public static
+00 05                         # name_index "main"
+00 06                         # descriptor_index "([Ljava/lang/String;)V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 01 8B                   # attribute_length 395 = 12 + 269 + 8*1 + (6 + 100)
+00 06                         # max_stack 6 (shapes, i, uninit, uninit, double x2)
+00 09                         # max_locals 9 (slots 0..8; double at 7-8)
+00 00 01 0D                   # code_length 269
+
+2A                            # 0   aload_0                  [args]
+BE                            # 1   arraylength              [n]
+3C                            # 2   istore_1                 n
+1B                            # 3   iload_1
+99 00 FC                      # 4   ifeq -> 256 (usage)       +252
+1B                            # 7   iload_1
+04                            # 8   iconst_1
+7E                            # 9   iand                     [n & 1]
+9A 00 F6                      # 10  ifne -> 256 (usage)       +246
+1B                            # 13  iload_1
+04                            # 14  iconst_1
+7A                            # 15  ishr                     [n >> 1]
+3C                            # 16  istore_1                 count
+1B                            # 17  iload_1
+BD 00 34                      # 18  anewarray #52 Shape      [Shape[]]
+4D                            # 21  astore_2                 shapes
+03                            # 22  iconst_0
+3E                            # 23  istore_3                 i = 0
+1D                            # 24  iload_3   (L1)
+1B                            # 25  iload_1
+A2 00 7E                      # 26  if_icmpge -> 152 (print)  +126
+2A                            # 29  aload_0                  [args]
+1D                            # 30  iload_3                  [args, i]
+04                            # 31  iconst_1
+78                            # 32  ishl                     [args, 2i]
+32                            # 33  aaload                   [String]
+3A 04                         # 34  astore 4                 kind
+04                            # 36  iconst_1
+36 05                         # 37  istore 5                 code = 1
+19 04                         # 39  aload 4                  [kind]
+12 4A                         # 41  ldc #74 "circle"         [kind, String]
+B6 00 2A                      # 43  invokevirtual String.equals  [int]
+9A 00 25                      # 46  ifne -> 83 (parse)        +37
+05                            # 49  iconst_2
+36 05                         # 50  istore 5                 code = 2
+19 04                         # 52  aload 4
+12 4C                         # 54  ldc #76 "square"
+B6 00 2A                      # 56  invokevirtual String.equals
+9A 00 18                      # 59  ifne -> 83 (parse)        +24
+B2 00 11                      # 62  getstatic System.err     [PrintStream]
+12 50                         # 65  ldc #80 "Unknown shape: "  [PrintStream, String]
+B6 00 17                      # 67  invokevirtual print(String)V
+B2 00 11                      # 70  getstatic System.err
+19 04                         # 73  aload 4                  [PrintStream, kind]
+B6 00 1A                      # 75  invokevirtual println(String)V
+05                            # 78  iconst_2
+B8 00 24                      # 79  invokestatic System.exit(I)V
+B1                            # 82  return
+2A                            # 83  aload_0   (parse)
+1D                            # 84  iload_3
+04                            # 85  iconst_1
+78                            # 86  ishl
+04                            # 87  iconst_1
+60                            # 88  iadd                     [args, 2i+1]
+32                            # 89  aaload                   [String]
+3A 06                         # 90  astore 6                 sizeArg
+19 06                         # 92  aload 6   (try start)
+B8 00 30                      # 94  invokestatic Double.parseDouble  [double]
+39 07                         # 97  dstore 7                 size (try end = 99)
+A7 00 07                      # 99  goto -> 106 (check)       +7
+57                            # 102 pop   (handler: NFE on stack)
+A7 00 84                      # 103 goto -> 235 (invalid)     +132
+18 07                         # 106 dload 7   (check)       [double]  depth 2
+0E                            # 108 dconst_0                 depth 4
+97                            # 109 dcmpl                    [int] (NaN -> -1)
+9E 00 7D                      # 110 ifle -> 235 (invalid)     +125
+15 05                         # 113 iload 5                  [code]
+04                            # 115 iconst_1
+A0 00 12                      # 116 if_icmpne -> 134 (sq)     +18
+2C                            # 119 aload_2                  [shapes]
+1D                            # 120 iload_3                  [shapes, i]
+BB 00 42                      # 121 new #66 Circle           [shapes, i, uninit(121)]
+59                            # 124 dup                      depth 4
+18 07                         # 125 dload 7                  depth 6
+B7 00 45                      # 127 invokespecial Circle.<init>(D)V  [shapes, i, Circle]
+53                            # 130 aastore                  []
+A7 00 0F                      # 131 goto -> 146 (next)        +15
+2C                            # 134 aload_2   (sq)
+1D                            # 135 iload_3
+BB 00 47                      # 136 new #71 Square           [shapes, i, uninit(136)]
+59                            # 139 dup
+18 07                         # 140 dload 7                  depth 6
+B7 00 48                      # 142 invokespecial Square.<init>(D)V  [shapes, i, Square]
+53                            # 145 aastore
+84 03 01                      # 146 iinc 3 1   (next)
+A7 FF 83                      # 149 goto -> 24 (L1)           -125
+0E                            # 152 dconst_0   (print)       [double]
+39 04                         # 153 dstore 4                 total = 0.0
+03                            # 155 iconst_0
+3E                            # 156 istore_3                 i = 0
+1D                            # 157 iload_3    (L2)
+1B                            # 158 iload_1
+A2 00 3B                      # 159 if_icmpge -> 218 (end)    +59
+2C                            # 162 aload_2
+1D                            # 163 iload_3
+32                            # 164 aaload                   [Shape]
+3A 06                         # 166 astore 6                 s
+B2 00 0E                      # 167 getstatic System.out     [PrintStream]
+19 06                         # 170 aload 6                  [PrintStream, s]
+B9 00 40 01 00                # 172 invokeinterface Shape.name, count 1 (receiver only), 0  [PrintStream, String]
+B6 00 17                      # 177 invokevirtual print(String)V
+B2 00 0E                      # 180 getstatic System.out
+10 20                         # 183 bipush 32 ' '            [PrintStream, int]
+B6 00 1D                      # 185 invokevirtual print(C)V
+19 06                         # 188 aload 6                  [s]
+B9 00 3C 01 00                # 190 invokeinterface Shape.area, count 1 (receiver only), 0  [double]
+39 07                         # 195 dstore 7                 a
+B2 00 0E                      # 197 getstatic System.out
+18 07                         # 200 dload 7                  depth 3
+B6 00 20                      # 202 invokevirtual println(D)V
+18 04                         # 205 dload 4                  depth 2
+18 07                         # 207 dload 7                  depth 4
+63                            # 209 dadd                     depth 2
+39 04                         # 210 dstore 4                 total += a
+84 03 01                      # 212 iinc 3 1
+A7 FF C6                      # 215 goto -> 157 (L2)          -58
+B2 00 0E                      # 218 getstatic System.out  (end)
+12 54                         # 221 ldc #84 "total "
+B6 00 17                      # 223 invokevirtual print(String)V
+B2 00 0E                      # 226 getstatic System.out
+18 04                         # 229 dload 4                  depth 3
+B6 00 20                      # 231 invokevirtual println(D)V
+B1                            # 234 return
+B2 00 11                      # 235 getstatic System.err  (invalid)
+12 52                         # 238 ldc #82 "Invalid size: "
+B6 00 17                      # 240 invokevirtual print(String)V
+B2 00 11                      # 243 getstatic System.err
+19 06                         # 246 aload 6                  [PrintStream, sizeArg]
+B6 00 1A                      # 248 invokevirtual println(String)V
+04                            # 251 iconst_1
+B8 00 24                      # 252 invokestatic System.exit(I)V
+B1                            # 255 return
+B2 00 11                      # 256 getstatic System.err  (usage)
+12 4E                         # 259 ldc #78 USAGE
+B6 00 1A                      # 261 invokevirtual println(String)V
+04                            # 264 iconst_1
+B8 00 24                      # 265 invokestatic System.exit(I)V
+B1                            # 268 return  (code ends at 269)
+
+00 01                         # exception_table_length
+00 5C 00 63 00 66 00 32       # [92, 99) -> 102, catch NumberFormatException (#50)
+
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 64                   # attribute_length 100 = 2 + 98 bytes of entries
+00 0B                         # number_of_entries 11
+FE 00 18 01 07 00 36 01                                   # @24  append 3, delta 24    locals [args, int, Shape[], int]
+FD 00 3A 07 00 26 01                                      # @83  append 2, delta 58    locals [.., String kind, int code]
+FF 00 12 00 07 07 00 38 01 07 00 36 01 07 00 26 01 07 00 26 00 01 07 00 32  # @102 full_frame, delta 18  locals [args, int, Shape[], int, String, int, String sizeArg] stack [NFE]
+FC 00 03 03                                               # @106 append 1, delta 3     locals [.., String sizeArg, double size]
+1B                                                        # @134 same_frame, delta 27
+0B                                                        # @146 same_frame, delta 11
+FF 00 05 00 04 07 00 38 01 07 00 36 01 00 00              # @152 full_frame, delta 5   locals [args, int, Shape[], int] (drops 4 entries, more than chop allows)
+FC 00 04 03                                               # @157 append 1, delta 4     locals [args, int, Shape[], int, double total]
+3C                                                        # @218 same_frame, delta 60
+FF 00 10 00 07 07 00 38 01 07 00 36 01 07 00 26 01 07 00 26 00 00  # @235 full_frame, delta 16  locals [args, int, Shape[], int, String, int, String sizeArg] (slot 4 type changes)
+FF 00 14 00 01 07 00 38 00 00                             # @256 full_frame, delta 20  locals [args]
+
+00 00                         # class attributes_count

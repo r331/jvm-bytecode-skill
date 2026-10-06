@@ -1,0 +1,219 @@
+# Calc.class - hand-written reference solution, major 61 (Java 17)
+#
+# Pseudocode for main([Ljava/lang/String;)V, static:
+#   locals: 0 = args (String[]), 1-2 = a (long), 3-4 = b (long), 5 = op (String)
+#   if (args.length != 3) { code = 1; msg = USAGE; goto err }
+#   try { a = Long.parseLong(args[0]); b = Long.parseLong(args[2]) }
+#   catch (NumberFormatException) { code = 1; msg = INVALID; goto err }
+#   op = args[1]
+#   if (op.length() != 1) goto unknown
+#   lookupswitch (op.charAt(0)) {
+#     '%' -> rem   '+' -> add   '-' -> sub   '/' -> div   'x' -> mul   default -> unknown }
+#   add: push a + b; goto print      sub: push a - b; goto print     mul: push a * b; goto print
+#   div: if (b == 0) goto divz; push a / b; goto print
+#   rem: if (b == 0) goto divz; push a % b; goto print
+#   print: System.out.println(long on stack); return
+#   divz: code = 3; msg = DIVZERO; goto err
+#   unknown: code = 2; System.err.print(UNKNOWN_PREFIX); msg = op; (fall through to err)
+#   err: stack [int code, String msg]: System.err.println(msg); System.exit(code); return
+#
+# ldiv of Long.MIN_VALUE by -1 overflows to Long.MIN_VALUE without an exception (JVMS ldiv);
+# lrem of Long.MIN_VALUE by -1 is 0.
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 3D                         # major_version 61 (Java 17)
+00 3E                         # constant_pool_count 62 (entries 1..61)
+
+# ---- constant pool ----
+01 00 04 43 61 6C 63                                      # 1 Utf8 "Calc"
+07 00 01                                                  # 2 Class Calc
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 9 Utf8 "java/lang/System"
+07 00 09                                                  # 10 Class java/lang/System
+01 00 03 6F 75 74                                         # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                            # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                            # 14 Fieldref System.out
+01 00 03 65 72 72                                         # 15 Utf8 "err"
+0C 00 0F 00 0C                                            # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                            # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                  # 19 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 20 Utf8 "println"
+01 00 04 28 4A 29 56                                      # 21 Utf8 "(J)V"
+0C 00 14 00 15                                            # 22 NameAndType println:(J)V
+0A 00 13 00 16                                            # 23 Methodref PrintStream.println(J)V
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 24 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 18                                            # 25 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 19                                            # 26 Methodref PrintStream.println(String)V
+01 00 05 70 72 69 6E 74                                   # 27 Utf8 "print"
+0C 00 1B 00 18                                            # 28 NameAndType print:(Ljava/lang/String;)V
+0A 00 13 00 1C                                            # 29 Methodref PrintStream.print(String)V
+01 00 0E 6A 61 76 61 2F 6C 61 6E 67 2F 4C 6F 6E 67        # 30 Utf8 "java/lang/Long"
+07 00 1E                                                  # 31 Class java/lang/Long
+01 00 09 70 61 72 73 65 4C 6F 6E 67                       # 32 Utf8 "parseLong"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4A  # 33 Utf8 "(Ljava/lang/String;)J"
+0C 00 20 00 21                                            # 34 NameAndType parseLong:(Ljava/lang/String;)J
+0A 00 1F 00 22                                            # 35 Methodref Long.parseLong
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 36 Utf8 "java/lang/String"
+07 00 24                                                  # 37 Class java/lang/String
+01 00 06 6C 65 6E 67 74 68                                # 38 Utf8 "length"
+01 00 03 28 29 49                                         # 39 Utf8 "()I"
+0C 00 26 00 27                                            # 40 NameAndType length:()I
+0A 00 25 00 28                                            # 41 Methodref String.length
+01 00 06 63 68 61 72 41 74                                # 42 Utf8 "charAt"
+01 00 04 28 49 29 43                                      # 43 Utf8 "(I)C"
+0C 00 2A 00 2B                                            # 44 NameAndType charAt:(I)C
+0A 00 25 00 2C                                            # 45 Methodref String.charAt
+01 00 04 65 78 69 74                                      # 46 Utf8 "exit"
+01 00 04 28 49 29 56                                      # 47 Utf8 "(I)V"
+0C 00 2E 00 2F                                            # 48 NameAndType exit:(I)V
+0A 00 0A 00 30                                            # 49 Methodref System.exit
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 50 Utf8 "java/lang/NumberFormatException"
+07 00 32                                                  # 51 Class java/lang/NumberFormatException
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 52 Utf8 "[Ljava/lang/String;"
+07 00 34                                                  # 53 Class [Ljava/lang/String;
+01 00 1D 55 73 61 67 65 3A 20 6A 61 76 61 20 43 61 6C 63 20 3C 61 3E 20 3C 6F 70 3E 20 3C 62 3E  # 54 Utf8 "Usage: java Calc <a> <op> <b>" (29)
+08 00 36                                                  # 55 String USAGE
+01 00 15 45 72 72 6F 72 3A 20 69 6E 76 61 6C 69 64 20 6E 75 6D 62 65 72  # 56 Utf8 "Error: invalid number" (21)
+08 00 38                                                  # 57 String INVALID
+01 00 17 45 72 72 6F 72 3A 20 64 69 76 69 73 69 6F 6E 20 62 79 20 7A 65 72 6F  # 58 Utf8 "Error: division by zero" (23)
+08 00 3A                                                  # 59 String DIVZERO
+01 00 18 45 72 72 6F 72 3A 20 75 6E 6B 6E 6F 77 6E 20 6F 70 65 72 61 74 6F 72 20  # 60 Utf8 "Error: unknown operator " (24, trailing space)
+08 00 3C                                                  # 61 String UNKNOWN_PREFIX
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Calc
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 01                         # methods_count
+
+# ---- method main ----
+00 09                         # access_flags public static
+00 05                         # name_index "main"
+00 06                         # descriptor_index "([Ljava/lang/String;)V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 FD                   # attribute_length 253 = 12 + 187 + 8*1 + (6 + 40)
+00 04                         # max_stack 4 (two longs; or long + PrintStream + PrintStream at print)
+00 06                         # max_locals 6 (args, a x2, b x2, op)
+00 00 00 BB                   # code_length 187
+
+2A                            # 0   aload_0                    [args]
+BE                            # 1   arraylength                [len]
+06                            # 2   iconst_3                   [len, 3]
+9F 00 09                      # 3   if_icmpeq -> 12 (+9)
+04                            # 6   iconst_1                   [1]
+12 37                         # 7   ldc USAGE (#55)            [1, String]
+A7 00 A7                      # 9   goto -> 176 err (+167)
+2A                            # 12  aload_0  (try start)       [args]
+03                            # 13  iconst_0
+32                            # 14  aaload                     [String]
+B8 00 23                      # 15  invokestatic Long.parseLong (#35)  [long] depth 2
+40                            # 18  lstore_1                   a
+2A                            # 19  aload_0
+05                            # 20  iconst_2
+32                            # 21  aaload                     [String]
+B8 00 23                      # 22  invokestatic Long.parseLong (#35)  [long] depth 2
+42                            # 25  lstore_3   (try end = 26)  b
+A7 00 0A                      # 26  goto -> 36 (+10)
+57                            # 29  pop  (handler: NFE on stack)
+04                            # 30  iconst_1                   [1]
+12 39                         # 31  ldc INVALID (#57)          [1, String]
+A7 00 8F                      # 33  goto -> 176 err (+143)
+2A                            # 36  aload_0
+04                            # 37  iconst_1
+32                            # 38  aaload                     [String]
+3A 05                         # 39  astore 5                   op
+19 05                         # 41  aload 5                    [op]
+B6 00 29                      # 43  invokevirtual String.length (#41)  [int]
+04                            # 46  iconst_1                   [int, 1]
+A0 00 76                      # 47  if_icmpne -> 165 unknown (+118)
+19 05                         # 50  aload 5                    [op]
+03                            # 52  iconst_0                   [op, 0]
+B6 00 2D                      # 53  invokevirtual String.charAt (#45)  [char as int]
+AB                            # 56  lookupswitch
+00 00 00                      # 57  padding 3 bytes: (4 - (57 % 4)) % 4 = 3, operands start at 60
+00 00 00 6D                   # 60  default -> 165 unknown (+109)
+00 00 00 05                   # 64  npairs 5
+00 00 00 25 00 00 00 52       # 68  '%' (0x25) -> 138 rem (+82)
+00 00 00 2B 00 00 00 34       # 76  '+' (0x2B) -> 108 add (+52)
+00 00 00 2D 00 00 00 3A       # 84  '-' (0x2D) -> 114 sub (+58)
+00 00 00 2F 00 00 00 46       # 92  '/' (0x2F) -> 126 div (+70)
+00 00 00 78 00 00 00 40       # 100 'x' (0x78) -> 120 mul (+64)
+1F                            # 108 lload_1  (add)            [a]
+21                            # 109 lload_3                    [a, b] depth 4
+61                            # 110 ladd                       [long]
+A7 00 27                      # 111 goto -> 150 print (+39)
+1F                            # 114 lload_1  (sub)
+21                            # 115 lload_3
+65                            # 116 lsub
+A7 00 21                      # 117 goto -> 150 print (+33)
+1F                            # 120 lload_1  (mul)
+21                            # 121 lload_3
+69                            # 122 lmul
+A7 00 1B                      # 123 goto -> 150 print (+27)
+21                            # 126 lload_3  (div)            [b]
+09                            # 127 lconst_0                   [b, 0L]
+94                            # 128 lcmp                       [int]
+99 00 1E                      # 129 ifeq -> 159 divz (+30)
+1F                            # 132 lload_1
+21                            # 133 lload_3
+6D                            # 134 ldiv                       [long]
+A7 00 0F                      # 135 goto -> 150 print (+15)
+21                            # 138 lload_3  (rem)            [b]
+09                            # 139 lconst_0
+94                            # 140 lcmp
+99 00 12                      # 141 ifeq -> 159 divz (+18)
+1F                            # 144 lload_1
+21                            # 145 lload_3
+71                            # 146 lrem                       [long]
+A7 00 03                      # 147 goto -> 150 print (+3)
+B2 00 0E                      # 150 getstatic System.out (#14) (print)  [long, PS] depth 3
+5B                            # 153 dup_x2 (form 2: cat2 under cat1)    [PS, long, PS] depth 4
+57                            # 154 pop                        [PS, long]
+B6 00 17                      # 155 invokevirtual println(J)V (#23)
+B1                            # 158 return
+06                            # 159 iconst_3  (divz)          [3]
+12 3B                         # 160 ldc DIVZERO (#59)          [3, String]
+A7 00 0E                      # 162 goto -> 176 err (+14)
+05                            # 165 iconst_2  (unknown)       [2]
+B2 00 11                      # 166 getstatic System.err (#17) [2, PS]
+12 3D                         # 169 ldc UNKNOWN_PREFIX (#61)   [2, PS, String]
+B6 00 1D                      # 171 invokevirtual print(String)V (#29)  [2]
+19 05                         # 174 aload 5                    [2, op]  falls through to err
+B2 00 11                      # 176 getstatic System.err (#17) (err)  [int, String, PS]
+5F                            # 179 swap                       [int, PS, String]
+B6 00 1A                      # 180 invokevirtual println(String)V (#26)  [int]
+B8 00 31                      # 183 invokestatic System.exit (#49)
+B1                            # 186 return  (code ends at 187)
+
+00 01                         # exception_table_length
+00 0C 00 1A 00 1D 00 33       # [12, 26) -> 29, catch NumberFormatException (#51)
+
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 28                   # attribute_length 40 = 2 + 38 bytes of frames
+00 0C                         # number_of_entries 12
+0C                            # @12  same_frame delta 12                 locals [args]
+50 07 00 33                   # @29  same_locals_1_stack (16+64)         stack [NFE]
+FD 00 06 04 04                # @36  append 2, delta 6                   locals [args, long, long]
+FC 00 47 07 00 25             # @108 append 1, delta 71                  locals [args, long, long, String]
+05                            # @114 same_frame delta 5
+05                            # @120 same_frame delta 5
+05                            # @126 same_frame delta 5
+0B                            # @138 same_frame delta 11
+4B 04                         # @150 same_locals_1_stack (11+64)         stack [long]
+08                            # @159 same_frame delta 8
+05                            # @165 same_frame delta 5
+FF 00 0A 00 01 07 00 35 00 02 01 07 00 25  # @176 full_frame delta 10  locals [String[]] stack [int, String]
+
+00 00                         # class attributes_count

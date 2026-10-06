@@ -1,0 +1,14 @@
+# args	exit	stdout	stderr
+	1		Usage: java Counter <name> [inc|get|show]...
+apples	0		
+apples get	0	0	
+apples show	0	apples=0	
+apples inc inc inc show	0	apples=3	
+c inc get inc get show	0	1\n2\nc=2	
+hits inc inc get show inc show get	0	2\nhits=2\nhits=3\n3	
+x inc get bad show	2	1	Unknown command: bad
+x Inc	2		Unknown command: Inc
+x \e	2		Unknown command: 
+my\sname show inc show	0	my name=0\nmy name=1	
+inc inc show	0	inc=1	
+\e show	0	=0	

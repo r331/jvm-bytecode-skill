@@ -1,0 +1,14 @@
+# args	exit	stdout	stderr
+	1		Usage: java Factorial <n>
+0	0	1
+1	0	1
+5	0	120
+13	0	6227020800
+20	0	2432902008176640000
+21	1		Error: n must be between 0 and 20
+-1	1		Error: n must be between 0 and 20
+abc	1		Error: n must be an integer
+3.5	1		Error: n must be an integer
+\e	1		Error: n must be an integer
+2147483648	1		Error: n must be an integer
+1 2	1		Usage: java Factorial <n>

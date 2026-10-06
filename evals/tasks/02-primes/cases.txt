@@ -1,0 +1,16 @@
+# args	exit	stdout	stderr
+	1		Usage: java Primes <n>
+1 2	1		Usage: java Primes <n>
+0	0		
+1	0		
+2	0	2	
+3	0	2 3	
+4	0	2 3	
+30	0	2 3 5 7 11 13 17 19 23 29	
+100	0	2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97	
+abc	1		Error: n must be an integer between 0 and 100000
+3.5	1		Error: n must be an integer between 0 and 100000
+\e	1		Error: n must be an integer between 0 and 100000
+-1	1		Error: n must be an integer between 0 and 100000
+100001	1		Error: n must be an integer between 0 and 100000
+2147483648	1		Error: n must be an integer between 0 and 100000

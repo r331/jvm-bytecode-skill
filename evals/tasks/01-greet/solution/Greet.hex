@@ -1,0 +1,136 @@
+# Greet.class - hand-written JVM class file, as annotated hex.
+# Everything after '#' on a line is a comment; the rest is raw bytes.
+#
+# Behavior:
+#   java Greet          -> stdout "Hello, World!\n", exit 0
+#   java Greet <name>   -> stdout "Hello, <name>!\n", exit 0
+#   java Greet a b ...  -> stderr "Usage: java Greet [name]\n", exit 1
+#
+# Pseudocode for main([Ljava/lang/String;)V (static, locals: 0 args, 1 n, 2 name):
+#   n = args.length
+#   if (n > 1) { System.err.println("Usage: java Greet [name]"); System.exit(1); return; }
+#   name = "World"
+#   if (n != 0) name = args[0]
+#   System.out.println(new StringBuilder().append("Hello, ").append(name).append("!").toString())
+#
+# Major 49: verified by type inference, so no StackMapTable is needed.
+
+CA FE BA BE                     # magic
+00 00 00 31                     # minor 0, major 49 (Java 5)
+
+00 31                           # constant_pool_count = 49 (entries 1..48)
+01 00 05 47 72 65 65 74                                         #  1 Utf8 "Greet"
+07 00 01                                                        #  2 Class Greet
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74        #  3 Utf8 "java/lang/Object"
+07 00 03                                                        #  4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                            #  5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F
+         53 74 72 69 6E 67 3B 29 56                             #  6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                            #  7 Utf8 "Code"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D        #  8 Utf8 "java/lang/System"
+07 00 08                                                        #  9 Class java/lang/System
+01 00 03 6F 75 74                                               # 10 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E
+         74 53 74 72 65 61 6D 3B                                # 11 Utf8 "Ljava/io/PrintStream;"
+0C 00 0A 00 0B                                                  # 12 NameAndType out:Ljava/io/PrintStream;
+09 00 09 00 0C                                                  # 13 Fieldref System.out
+01 00 03 65 72 72                                               # 14 Utf8 "err"
+0C 00 0E 00 0B                                                  # 15 NameAndType err:Ljava/io/PrintStream;
+09 00 09 00 0F                                                  # 16 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74
+         53 74 72 65 61 6D                                      # 17 Utf8 "java/io/PrintStream"
+07 00 11                                                        # 18 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                                   # 19 Utf8 "println"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53
+         74 72 69 6E 67 3B 29 56                                # 20 Utf8 "(Ljava/lang/String;)V"
+0C 00 13 00 14                                                  # 21 NameAndType println(Ljava/lang/String;)V
+0A 00 12 00 15                                                  # 22 Methodref PrintStream.println(String)V
+01 00 17 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72
+         69 6E 67 42 75 69 6C 64 65 72                          # 23 Utf8 "java/lang/StringBuilder"
+07 00 17                                                        # 24 Class java/lang/StringBuilder
+01 00 06 3C 69 6E 69 74 3E                                      # 25 Utf8 "<init>"
+01 00 03 28 29 56                                               # 26 Utf8 "()V"
+0C 00 19 00 1A                                                  # 27 NameAndType <init>()V
+0A 00 18 00 1B                                                  # 28 Methodref StringBuilder.<init>()V
+01 00 06 61 70 70 65 6E 64                                      # 29 Utf8 "append"
+01 00 2D 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53
+         74 72 69 6E 67 3B 29 4C 6A 61 76 61 2F 6C 61
+         6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65
+         72 3B                                                  # 30 Utf8 "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+0C 00 1D 00 1E                                                  # 31 NameAndType append(String)StringBuilder
+0A 00 18 00 1F                                                  # 32 Methodref StringBuilder.append(String)
+01 00 08 74 6F 53 74 72 69 6E 67                                # 33 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F
+         53 74 72 69 6E 67 3B                                   # 34 Utf8 "()Ljava/lang/String;"
+0C 00 21 00 22                                                  # 35 NameAndType toString()String
+0A 00 18 00 23                                                  # 36 Methodref StringBuilder.toString()
+01 00 04 65 78 69 74                                            # 37 Utf8 "exit"
+01 00 04 28 49 29 56                                            # 38 Utf8 "(I)V"
+0C 00 25 00 26                                                  # 39 NameAndType exit(I)V
+0A 00 09 00 27                                                  # 40 Methodref System.exit(I)V
+01 00 18 55 73 61 67 65 3A 20 6A 61 76 61 20 47
+         72 65 65 74 20 5B 6E 61 6D 65 5D                       # 41 Utf8 "Usage: java Greet [name]"
+08 00 29                                                        # 42 String #41
+01 00 05 57 6F 72 6C 64                                         # 43 Utf8 "World"
+08 00 2B                                                        # 44 String #43
+01 00 07 48 65 6C 6C 6F 2C 20                                   # 45 Utf8 "Hello, " (trailing space)
+08 00 2D                                                        # 46 String #45
+01 00 01 21                                                     # 47 Utf8 "!"
+08 00 2F                                                        # 48 String #47
+
+00 21                           # access: public super
+00 02                           # this_class  = #2 Greet
+00 04                           # super_class = #4 java/lang/Object
+00 00                           # interfaces_count
+00 00                           # fields_count
+00 01                           # methods_count (only main; class is never instantiated, so no <init>)
+
+# public static void main(String[] args)
+00 09                           # access: public static
+00 05                           # name #5 "main"
+00 06                           # descriptor #6 "([Ljava/lang/String;)V"
+00 01                           # attributes_count
+00 07                           # attribute name #7 "Code"
+00 00 00 4B                     # attribute_length = 12 + 63 + 0 + 0 = 75
+00 03                           # max_stack = 3 (out, sb, sb / out, sb, str)
+00 03                           # max_locals = 3 (args, n, name)
+00 00 00 3F                     # code_length = 63
+
+2A                              #  0 aload_0                   [args]
+BE                              #  1 arraylength               [n]
+3C                              #  2 istore_1                  n = args.length
+1B                              #  3 iload_1                   [n]
+04                              #  4 iconst_1                  [n, 1]
+A4 00 10                        #  5 if_icmple -> 21 (+16)     n <= 1 -> ok
+B2 00 10                        #  8 getstatic #16 System.err  [err]
+12 2A                           # 11 ldc #42 "Usage: java Greet [name]"   [err, str]
+B6 00 16                        # 13 invokevirtual #22 println(String)    []
+04                              # 16 iconst_1                  [1]
+B8 00 28                        # 17 invokestatic #40 System.exit(I)V     []
+B1                              # 20 return
+12 2C                           # 21 ldc #44 "World"           [str]
+4D                              # 23 astore_2                  name = "World"
+1B                              # 24 iload_1                   [n]
+99 00 07                        # 25 ifeq -> 32 (+7)           no args -> keep "World"
+2A                              # 28 aload_0                   [args]
+03                              # 29 iconst_0                  [args, 0]
+32                              # 30 aaload                    [args[0]]
+4D                              # 31 astore_2                  name = args[0]
+B2 00 0D                        # 32 getstatic #13 System.out  [out]
+BB 00 18                        # 35 new #24 StringBuilder     [out, sb?]
+59                              # 38 dup                       [out, sb?, sb?]
+B7 00 1C                        # 39 invokespecial #28 StringBuilder.<init>()V   [out, sb]
+12 2E                           # 42 ldc #46 "Hello, "         [out, sb, str]
+B6 00 20                        # 44 invokevirtual #32 append(String)  [out, sb]
+2C                              # 47 aload_2                   [out, sb, name]
+B6 00 20                        # 48 invokevirtual #32 append(String)  [out, sb]
+12 30                           # 51 ldc #48 "!"               [out, sb, str]
+B6 00 20                        # 53 invokevirtual #32 append(String)  [out, sb]
+B6 00 24                        # 56 invokevirtual #36 toString()      [out, str]
+B6 00 16                        # 59 invokevirtual #22 println(String) []
+B1                              # 62 return
+
+00 00                           # exception_table_length
+00 00                           # Code attributes_count
+
+00 00                           # class attributes_count

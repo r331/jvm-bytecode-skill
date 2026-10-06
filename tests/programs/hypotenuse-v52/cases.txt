@@ -1,0 +1,31 @@
+# args	exit	stdout	stderr
+# normal
+3 4	0	5.0	
+5 12	0	13.0	
+1 1	0	1.4142135623730951	
+0.5 0.5	0	0.7071067811865476	
+1.5e2 2e2	0	250.0	
+# edge: parseDouble syntax, extremes, whitespace trimming
+1e300 1e300	0	1.4142135623730952E300	
+1e-320 1e-320	0	1.414E-320	
+Infinity 1	0	Infinity	
+1e400 1	0	Infinity	
+0x1p3 6	0	10.0	
+1d 1f	0	1.4142135623730951	
+\s3\s 4	0	5.0	
+# invalid values
+0 4	1		Error: sides must be positive numbers
+3 0	1		Error: sides must be positive numbers
+-3 4	1		Error: sides must be positive numbers
+3 -4	1		Error: sides must be positive numbers
+-0 1	1		Error: sides must be positive numbers
+NaN 1	1		Error: sides must be positive numbers
+-Infinity 1	1		Error: sides must be positive numbers
+abc 4	1		Error: sides must be positive numbers
+3 x	1		Error: sides must be positive numbers
+0x10 1	1		Error: sides must be positive numbers
+\e 4	1		Error: sides must be positive numbers
+# wrong argument counts
+	1		Usage: java Hypotenuse <a> <b>
+3	1		Usage: java Hypotenuse <a> <b>
+3 4 5	1		Usage: java Hypotenuse <a> <b>

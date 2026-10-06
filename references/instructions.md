@@ -11,10 +11,19 @@ Format of each row: hex opcode, mnemonic, operand bytes after the opcode, stack 
 | 00 | nop | | -> |
 | 01 | aconst_null | | -> null |
 | 02 | iconst_m1 | | -> int -1 |
-| 03-08 | iconst_0..iconst_5 | | -> int 0..5 |
-| 09-0A | lconst_0, lconst_1 | | -> long |
-| 0B-0D | fconst_0..fconst_2 | | -> float |
-| 0E-0F | dconst_0, dconst_1 | | -> double |
+| 03 | iconst_0 | | -> int 0 |
+| 04 | iconst_1 | | -> int 1 |
+| 05 | iconst_2 | | -> int 2 |
+| 06 | iconst_3 | | -> int 3 |
+| 07 | iconst_4 | | -> int 4 |
+| 08 | iconst_5 | | -> int 5 |
+| 09 | lconst_0 | | -> long 0 |
+| 0A | lconst_1 | | -> long 1 |
+| 0B | fconst_0 | | -> float 0.0 |
+| 0C | fconst_1 | | -> float 1.0 |
+| 0D | fconst_2 | | -> float 2.0 |
+| 0E | dconst_0 | | -> double 0.0 |
+| 0F | dconst_1 | | -> double 1.0 |
 | 10 | bipush | s1 value | -> int (-128..127) |
 | 11 | sipush | s2 value | -> int (-32768..32767) |
 | 12 | ldc | u1 cp index | -> int/float/String/Class/MethodType/MethodHandle/Dynamic |
@@ -30,11 +39,26 @@ Format of each row: hex opcode, mnemonic, operand bytes after the opcode, stack 
 | 17 | fload | idx | -> float |
 | 18 | dload | idx | -> double |
 | 19 | aload | idx | -> ref |
-| 1A-1D | iload_0..3 | | -> int |
-| 1E-21 | lload_0..3 | | -> long |
-| 22-25 | fload_0..3 | | -> float |
-| 26-29 | dload_0..3 | | -> double |
-| 2A-2D | aload_0..3 | | -> ref |
+| 1A | iload_0 | | -> int |
+| 1B | iload_1 | | -> int |
+| 1C | iload_2 | | -> int |
+| 1D | iload_3 | | -> int |
+| 1E | lload_0 | | -> long |
+| 1F | lload_1 | | -> long |
+| 20 | lload_2 | | -> long |
+| 21 | lload_3 | | -> long |
+| 22 | fload_0 | | -> float |
+| 23 | fload_1 | | -> float |
+| 24 | fload_2 | | -> float |
+| 25 | fload_3 | | -> float |
+| 26 | dload_0 | | -> double |
+| 27 | dload_1 | | -> double |
+| 28 | dload_2 | | -> double |
+| 29 | dload_3 | | -> double |
+| 2A | aload_0 | | -> ref |
+| 2B | aload_1 | | -> ref |
+| 2C | aload_2 | | -> ref |
+| 2D | aload_3 | | -> ref |
 | 2E | iaload | | arrayref, index -> int |
 | 2F | laload | | arrayref, index -> long |
 | 30 | faload | | arrayref, index -> float |
@@ -53,11 +77,26 @@ Format of each row: hex opcode, mnemonic, operand bytes after the opcode, stack 
 | 38 | fstore | idx | float -> |
 | 39 | dstore | idx | double -> |
 | 3A | astore | idx | ref -> (also accepts returnAddress) |
-| 3B-3E | istore_0..3 | | int -> |
-| 3F-42 | lstore_0..3 | | long -> |
-| 43-46 | fstore_0..3 | | float -> |
-| 47-4A | dstore_0..3 | | double -> |
-| 4B-4E | astore_0..3 | | ref -> |
+| 3B | istore_0 | | int -> |
+| 3C | istore_1 | | int -> |
+| 3D | istore_2 | | int -> |
+| 3E | istore_3 | | int -> |
+| 3F | lstore_0 | | long -> |
+| 40 | lstore_1 | | long -> |
+| 41 | lstore_2 | | long -> |
+| 42 | lstore_3 | | long -> |
+| 43 | fstore_0 | | float -> |
+| 44 | fstore_1 | | float -> |
+| 45 | fstore_2 | | float -> |
+| 46 | fstore_3 | | float -> |
+| 47 | dstore_0 | | double -> |
+| 48 | dstore_1 | | double -> |
+| 49 | dstore_2 | | double -> |
+| 4A | dstore_3 | | double -> |
+| 4B | astore_0 | | ref -> |
+| 4C | astore_1 | | ref -> |
+| 4D | astore_2 | | ref -> |
+| 4E | astore_3 | | ref -> |
 | 4F | iastore | | arrayref, index, int -> |
 | 50 | lastore | | arrayref, index, long -> |
 | 51 | fastore | | arrayref, index, float -> |
@@ -71,15 +110,18 @@ Format of each row: hex opcode, mnemonic, operand bytes after the opcode, stack 
 
 | Hex | Mnemonic | Stack |
 |---|---|---|
-| 57 | pop | v1 -> (v1 is cat1) |
-| 58 | pop2 | v2, v1 -> (two cat1) or cat2 -> |
-| 59 | dup | v1 -> v1, v1 |
-| 5A | dup_x1 | v2, v1 -> v1, v2, v1 |
-| 5B | dup_x2 | v3, v2, v1 -> v1, v3, v2, v1 |
-| 5C | dup2 | v2, v1 -> v2, v1, v2, v1 (or cat2 -> cat2, cat2) |
-| 5D | dup2_x1 | v3, v2, v1 -> v2, v1, v3, v2, v1 |
-| 5E | dup2_x2 | v4, v3, v2, v1 -> v2, v1, v4, v3, v2, v1 |
+| 57 | pop | v1 -> (v1 must be cat1; use pop2 to drop a long/double) |
+| 58 | pop2 | form 1: v2, v1 -> (two cat1); form 2: cat2 -> |
+| 59 | dup | v1 -> v1, v1 (cat1 only) |
+| 5A | dup_x1 | v2, v1 -> v1, v2, v1 (both cat1) |
+| 5B | dup_x2 | form 1: v3, v2, v1 -> v1, v3, v2, v1 (all cat1); form 2: cat2, v1 -> v1, cat2, v1 |
+| 5C | dup2 | form 1: v2, v1 -> v2, v1, v2, v1 (two cat1); form 2: cat2 -> cat2, cat2 |
+| 5D | dup2_x1 | form 1: v3, v2, v1 -> v2, v1, v3, v2, v1 (all cat1); form 2: v2, cat2 -> cat2, v2, cat2 |
+| 5E | dup2_x2 | form 1: v4, v3, v2, v1 -> v2, v1, v4, v3, v2, v1 (all cat1); form 2: v3, v2, cat2 -> cat2, v3, v2, cat2; form 3: cat2, v2, v1 -> v2, v1, cat2, v2, v1; form 4: cat2b, cat2a -> cat2a, cat2b, cat2a |
 | 5F | swap | v2, v1 -> v1, v2 (cat1 only) |
+
+Useful idioms: to call `println(J)` when the long is already on the stack, push `System.out` then `dup_x2` + `pop` (form 2) to move the PrintStream below the long.
+To swap a cat1 value below a long, use `dup_x2` + `pop`; to swap a long below a cat1, use `dup2_x1` + `pop2`.
 
 ## Arithmetic and logic
 

@@ -29,7 +29,10 @@ Read the reference file relevant to the step you are on instead of guessing a va
 ## Deliverables
 
 1. One `<ClassName>.hex` per class: every byte of the class file, one logical item per line, with a `#` comment explaining it.
-2. `build.sh` - copy [build.sh](build.sh) next to the hex files and run `./build.sh <ClassName>` for each class; it rejects stray non-hex characters and odd digit counts, which `xxd` alone would silently mangle.
+2. `build.sh` - copy [build.sh](build.sh) next to the hex files and run `./build.sh [-d <out-dir>] <ClassName>...`.
+   It rejects stray non-hex characters, odd digit counts, empty files, and a wrong magic number, which `xxd` alone would silently mangle, and it deletes the stale `.class` when a build fails.
+   Classes that reference each other must end up in one classpath directory: `./build.sh -d out Shape Circle Main` then `java -cp out Main`.
+   Use `-d` with a temp or ignored directory to keep `.class` files out of version control.
 3. `<ClassName>.class` - produced by `build.sh`, never edited directly.
 
 Comments start with `#` and run to end of line; never put `#` inside the hex part.
@@ -93,8 +96,37 @@ B7 00 xx      invokespecial java/lang/Object.<init>:()V
 B1            return
 ```
 
-**Creating an object:** `BB new #Class`, `59 dup`, push constructor args, `B7 invokespecial #Class.<init>`.
-The value is "uninitialized" until `invokespecial <init>` runs; frames between `new` and `<init>` use `Uninitialized(offset_of_new)`.
+**Fields:** each `field_info` is `access, name, descriptor, attributes_count` (usually 0 attributes):
+```
+00 12 00 nn 00 dd 00 00    # private final (0002|0010), name "name", descriptor "Ljava/lang/String;"
+```
+Instance fields are read with `aload_0` + `B4 getfield #Fieldref` and written with `aload_0`, value, `B5 putfield #Fieldref`.
+The Fieldref's class is the declaring class (`this_class`).
+
+**Constructor with parameters**, e.g. `Point(II)V` storing two int fields (`max_stack 2`, `max_locals 3`):
+```
+2A            aload_0
+B7 00 xx      invokespecial java/lang/Object.<init>:()V
+2A            aload_0
+1B            iload_1
+B5 00 fx      putfield Point.x:I
+2A            aload_0
+1C            iload_2
+B5 00 fy      putfield Point.y:I
+B1            return
+```
+
+**Creating an object:** `BB new #Class`, `59 dup`, push constructor args, `B7 invokespecial #Class.<init>`; the `dup`ed reference remains on the stack, initialized.
+The value is "uninitialized" until `invokespecial <init>` runs; a frame that falls between `new` and `<init>` must type it as `Uninitialized(offset_of_new)`.
+
+**Interface and implementation** (abstract methods work at any version; static or default interface methods need 52+):
+- Interface class file: access `0601` (public interface abstract), `super_class` = `java/lang/Object`, methods `0401` (public abstract) with no Code attribute.
+- Implementing class: list the interface's Class index in `interfaces[]` (`00 01 00 ii`), and implement each method as `0001` with a Code attribute.
+- Callers use an `InterfaceMethodref` (tag 0B) with `B9 invokeinterface #ref count 00`, where `count` = 1 (receiver) + argument slots.
+- Build all class files into one directory (see Deliverables).
+
+**Large int constants:** values outside `sipush` range (-32768..32767) need an Integer pool entry (`03 00 01 86 A0` = 100000) loaded with `12 ii ldc`.
+Long/double constants need a Long/Double entry (two indices) loaded with `14 00 ii ldc2_w`.
 
 **String concatenation without `invokedynamic`:** `new java/lang/StringBuilder`, `dup`, `invokespecial <init>()V`, then `append(...)` calls, then `toString()`.
 
@@ -127,5 +159,10 @@ For stdin, use `java/util/Scanner` or `java/io/BufferedReader` over `System.in`.
 ## Testing tips
 
 `javap -v -p -c` validates the format; only running the class exercises the verifier and the logic.
+`javap` does not show trailing spaces in String constants (`"Unknown: "` prints as `Unknown:`); check string bytes in the hex itself.
 In zsh, `$var` holding `"3 4"` does not word-split; use `${=var}` or pass arguments literally when looping over test cases.
+In bash, unquoted `$var` splits and also expands globs, so an argument like `*` becomes file names; quote arguments or `set -f`.
+Non-ASCII arguments and output depend on the locale: the JVM decodes `argv` and encodes stdout with it, so `José` prints as `Jos?` under `LANG=C`.
+Test with a UTF-8 locale (`LC_ALL=en_US.UTF-8` or `C.UTF-8`) and, on Java 18+, `-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8`.
+An accidental infinite loop hangs `java`; run test cases with a time limit.
 Map errors to causes with the table in [references/verification.md](references/verification.md).

@@ -1,0 +1,31 @@
+# args	exit	stdout	stderr
+2 + 3	0	5	
+-7 - 5	0	-12	
+6 x -7	0	-42	
+7 / 2	0	3	
+-7 / 2	0	-3	
+-7 % 3	0	-1	
+7 % -3	0	1	
++5 + 1	0	6	
+9223372036854775807 + 1	0	-9223372036854775808	
+-9223372036854775808 - 1	0	9223372036854775807	
+-9223372036854775808 / -1	0	-9223372036854775808	
+-9223372036854775808 % -1	0	0	
+3037000500 x 3037000500	0	-9223372036709301616	
+9223372036854775807 x 9223372036854775807	0	1	
+5 / 0	3		Error: division by zero
+5 % 0	3		Error: division by zero
+0 / 0	3		Error: division by zero
+1 ^ 2	2		Error: unknown operator ^
+1 X 2	2		Error: unknown operator X
+1 ++ 2	2		Error: unknown operator ++
+1 xx 2	2		Error: unknown operator xx
+abc + 1	1		Error: invalid number
+1 + 2.5	1		Error: invalid number
+9223372036854775808 + 0	1		Error: invalid number
+\e + 1	1		Error: invalid number
+abc ^ 0	1		Error: invalid number
+7 / zero	1		Error: invalid number
+	1		Usage: java Calc <a> <op> <b>
+1 +	1		Usage: java Calc <a> <op> <b>
+1 + 2 3	1		Usage: java Calc <a> <op> <b>
