@@ -1,0 +1,6 @@
+*.class
+*.hex.bak
+build.log
+.DS_Store
+.idea/
+.vscode/
