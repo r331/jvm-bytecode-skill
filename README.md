@@ -23,7 +23,7 @@ The skill is plain Markdown and works with any model or agent that can read file
 
 - **Agents with skill support:** place or link this directory into the agent's skills directory, for example:
   ```sh
-  git clone https://github.com/r331/jvm-bytecode.git <agent-skills-dir>/jvm-bytecode
+  git clone https://github.com/r331/jvm-bytecode-skill.git <agent-skills-dir>/jvm-bytecode
   ```
   The agent picks the skill when a request matches the `description`, such as "write this only in JVM bytecode".
 - **Any other model:** include `SKILL.md` in the prompt or system instructions, and give the model access to the `references/` files and `build.sh`.
