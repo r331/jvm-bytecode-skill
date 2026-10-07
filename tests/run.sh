@@ -171,6 +171,19 @@ for s in build docs opcodes; do
   run_suite "$root/tests/$s/test-$s.sh"
 done
 
+echo "== task inputs"
+# Every committed input .class must be exactly what its maintainer hex in original/ builds to,
+# and every input .class must have such a source.
+for cf in "$root"/evals/tasks/*/inputs/*/*.class "$root"/evals/tasks/*/inputs/*.class; do
+  [ -f "$cf" ] || continue
+  task=${cf%%/inputs/*}; name=$(basename "$cf" .class); rel=${cf#$root/}
+  src="$task/original/$name.hex"
+  if [ ! -f "$src" ]; then fail "$rel has no maintainer source ${src#$root/}"; continue; fi
+  tdir=$(mktemp -d "$work/input.XXXX")
+  cp "$src" "$tdir/" && (cd "$tdir" && sh "$build" "$name" >/dev/null 2>&1)
+  if cmp -s "$tdir/$name.class" "$cf"; then pass "$rel is byte-identical to a build of ${src#$root/}"; else fail "$rel differs from a build of ${src#$root/}"; fi
+done
+
 echo "== repository hygiene"
 stray=$(find "$root" -name '*.class' -newer "$work/start-marker" -not -path '*/.git/*' 2>/dev/null)
 if [ -z "$stray" ]; then pass "no .class files written into the repository"; else fail "stray .class files written: $stray"; fi

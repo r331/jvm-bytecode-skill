@@ -1,0 +1,2 @@
+# The legacy binary is a task input and must be committed despite the repo-wide *.class rule.
+!inputs/legacy/Inventory.class

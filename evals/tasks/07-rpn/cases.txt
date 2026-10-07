@@ -1,0 +1,61 @@
+# args	exit	stdout	stderr
+# Each expression is ONE argument; \s is a literal space inside it.
+3\s4\s+	0	7.0	
+5\s1\s2\s+\s4\s*\s+\s3\s-	0	14.0	
+2\s-3\s-	0	5.0	
+-3\s-4\s*	0	12.0	
+2\s3\s^	0	8.0	
+2\s0.5\s^	0	1.4142135623730951	
+16\ssqrt	0	4.0	
+2\ssqrt	0	1.4142135623730951	
+1\s3\s/	0	0.3333333333333333	
+10\s3\s/	0	3.3333333333333335	
+0.1\s0.2\s+	0	0.30000000000000004	
+0.1\s3\s*	0	0.30000000000000004	
+-2.5\sneg	0	2.5	
+3\sdup\s*	0	9.0	
+10\s4\sswap\s-	0	-6.0	
+5\s2\s3\sswap\s-\s*	0	5.0	
+1\s0\s/	0	Infinity	
+-1\s0\s/	0	-Infinity	
+0\s0\s/	0	NaN	
+-1\ssqrt	0	NaN	
+-0	0	-0.0	
+0\sneg	0	-0.0	
+007.250	0	7.25	
+0.0001	0	1.0E-4	
+12345678\s1000\s*	0	1.2345678E10	
+\s\s\s7\s\s\s	0	7.0	
+1\s\s\s\s2\s\s+	0	3.0	
+1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+\s+	0	64.0	
+3\s-	1		Error: stack underflow
++	1		Error: stack underflow
+-	1		Error: stack underflow
+sqrt	1		Error: stack underflow
+neg	1		Error: stack underflow
+dup	1		Error: stack underflow
+1\sswap	1		Error: stack underflow
++\sfoo	1		Error: stack underflow
+1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1	1		Error: stack overflow
+1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\sdup	1		Error: stack overflow
+1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1\s1.2.3	1		Error: invalid number 1.2.3
+1\s2\sfoo	1		Error: unknown token foo
+foo\s+	1		Error: unknown token foo
++5	1		Error: unknown token +5
+4\sSQRT	1		Error: unknown token SQRT
+2\s3\sx	1		Error: unknown token x
+2\s3\s**	1		Error: unknown token **
+1.2.3	1		Error: invalid number 1.2.3
+5.	1		Error: invalid number 5.
+.5	1		Error: invalid number .5
+--5	1		Error: invalid number --5
+1e5	1		Error: invalid number 1e5
+-x	1		Error: invalid number -x
+-.5	1		Error: invalid number -.5
+.	1		Error: invalid number .
+1\s2	1		Error: expected one result, got 2
+1\s2\s3\s+\s+\s4	1		Error: expected one result, got 2
+\e	1		Error: expected one result, got 0
+\s\s	1		Error: expected one result, got 0
+	1		Usage: java Rpn "<expression>"
+1\s2\s+ 3	1		Usage: java Rpn "<expression>"

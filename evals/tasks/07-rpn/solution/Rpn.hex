@@ -1,0 +1,676 @@
+# Rpn.class - hand-written reference solution, major 65 (Java 21)
+#
+# java Rpn "<expr>": Reverse Polish Notation calculator over doubles.
+#
+# Pseudocode (all methods static):
+#
+# main([Ljava/lang/String;)V
+#   locals: 0 args, 1 s (String), 2 st (double[64]), 3 sp (int), 4 n (int), 5 i (int), 6 j (int)
+#   if (args.length != 1) { fail(USAGE, ""); return }
+#   s = args[0]; st = new double[64]; sp = 0; n = s.length(); i = 0
+#   loop: while (i < n) {
+#     if (s.charAt(i) == ' ') { i++; continue }
+#     j = i; while (j < n && s.charAt(j) != ' ') j++
+#     sp = apply(st, sp, s.substring(i, j)); i = j }
+#   if (sp != 1) { fail(EXPECTED, String.valueOf(sp)); return }
+#   System.out.println(st[0])                         (println(D) prints String.valueOf(double))
+#
+# apply([DILjava/lang/String;)I  -> new stack depth
+#   locals: 0 st, 1 sp, 2 tok, 3 c (int), 4-5 v (double)
+#   c = tok.charAt(0)                                 (tokens are never empty)
+#   if (tok.length() == 1) lookupswitch (c) { '*' '+' '-' '/' '^' -> BIN; default -> WORDS }
+#   BIN:   if (sp < 2) UNDER; st[sp-2] = binop(c, st[sp-2], st[sp-1]); return sp - 1
+#   WORDS: "sqrt" -> SQRT, "neg" -> NEG, "dup" -> DUP, "swap" -> SWAP
+#          if c is '-' or '.' or '0'..'9' -> NUM else UNK
+#   NUM:   v = toNumber(tok) (exits on invalid); if (sp >= 64) OVER; st[sp] = v; return sp + 1
+#   UNK:   fail(UNKNOWN, tok)
+#   SQRT:  if (sp <= 0) UNDER; st[sp-1] = Math.sqrt(st[sp-1]); return sp
+#   NEG:   if (sp <= 0) UNDER; st[sp-1] = -st[sp-1]; return sp
+#   DUP:   if (sp <= 0) UNDER; if (sp >= 64) OVER; st[sp] = st[sp-1]; return sp + 1
+#   SWAP:  if (sp < 2) UNDER; v = st[sp-1]; st[sp-1] = st[sp-2]; st[sp-2] = v; return sp
+#   UNDER: fail(UNDERFLOW, "")        OVER: fail(OVERFLOW, "")
+#   (after each fail: iconst_0; ireturn, never reached because fail exits)
+#
+# toNumber(Ljava/lang/String;)D   grammar: -?[0-9]+(\.[0-9]+)?
+#   locals: 0 s, 1 n, 2 i, 3 neg, 4-5 m (double), 6-7 p (double), 8 start, 9 d
+#   n = s.length(); i = 0; neg = 0
+#   if (s.charAt(0) == '-') { neg = 1; i = 1 }
+#   m = 0.0; p = 1.0; start = i
+#   while (i < n && (d = s.charAt(i) - '0') in 0..9) { m = m * 10.0 + d; i++ }
+#   if (i == start) BAD
+#   if (i < n) {
+#     if (s.charAt(i) != '.') BAD
+#     i++; start = i
+#     while (i < n && (d = s.charAt(i) - '0') in 0..9) { m = m * 10.0 + d; p = p * 10.0; i++ }
+#     if (i == start) BAD
+#     if (i < n) BAD }
+#   DONE: m = m / p; if (neg) m = -m (dneg, so "-0" gives -0.0); return m
+#   BAD: fail(INVALID, s)
+#
+# binop(IDD)D: lookupswitch (c) { '*' a*b  '+' a+b  '-' a-b  '/' a/b  '^' and default Math.pow(a,b) }
+#
+# fail(Ljava/lang/String;Ljava/lang/String;)V: System.err.print(a); System.err.println(b); System.exit(1)
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 41                         # major_version 65 (Java 21)
+00 6D                         # constant_pool_count 109 (entries 1..108; 107-108 is a Double)
+
+# ---- constant pool ----
+01 00 03 52 70 6E                                         # 1 Utf8 "Rpn"
+07 00 01                                                  # 2 Class Rpn
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 9 Utf8 "java/lang/System"
+07 00 09                                                  # 10 Class java/lang/System
+01 00 03 6F 75 74                                         # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                            # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                            # 14 Fieldref System.out
+01 00 03 65 72 72                                         # 15 Utf8 "err"
+0C 00 0F 00 0C                                            # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                            # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                  # 19 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 20 Utf8 "println"
+01 00 04 28 44 29 56                                      # 21 Utf8 "(D)V"
+0C 00 14 00 15                                            # 22 NameAndType println:(D)V
+0A 00 13 00 16                                            # 23 Methodref PrintStream.println(D)V
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 24 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 18                                            # 25 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 19                                            # 26 Methodref PrintStream.println(String)V
+01 00 05 70 72 69 6E 74                                   # 27 Utf8 "print"
+0C 00 1B 00 18                                            # 28 NameAndType print:(Ljava/lang/String;)V
+0A 00 13 00 1C                                            # 29 Methodref PrintStream.print(String)V
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 30 Utf8 "java/lang/String"
+07 00 1E                                                  # 31 Class java/lang/String
+01 00 06 6C 65 6E 67 74 68                                # 32 Utf8 "length"
+01 00 03 28 29 49                                         # 33 Utf8 "()I"
+0C 00 20 00 21                                            # 34 NameAndType length:()I
+0A 00 1F 00 22                                            # 35 Methodref String.length
+01 00 06 63 68 61 72 41 74                                # 36 Utf8 "charAt"
+01 00 04 28 49 29 43                                      # 37 Utf8 "(I)C"
+0C 00 24 00 25                                            # 38 NameAndType charAt:(I)C
+0A 00 1F 00 26                                            # 39 Methodref String.charAt
+01 00 09 73 75 62 73 74 72 69 6E 67                       # 40 Utf8 "substring"
+01 00 16 28 49 49 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 41 Utf8 "(II)Ljava/lang/String;"
+0C 00 28 00 29                                            # 42 NameAndType substring:(II)Ljava/lang/String;
+0A 00 1F 00 2A                                            # 43 Methodref String.substring
+01 00 06 65 71 75 61 6C 73                                # 44 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 45 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 2C 00 2D                                            # 46 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 1F 00 2E                                            # 47 Methodref String.equals
+01 00 07 76 61 6C 75 65 4F 66                             # 48 Utf8 "valueOf"
+01 00 15 28 49 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 49 Utf8 "(I)Ljava/lang/String;"
+0C 00 30 00 31                                            # 50 NameAndType valueOf:(I)Ljava/lang/String;
+0A 00 1F 00 32                                            # 51 Methodref String.valueOf(I)
+01 00 04 65 78 69 74                                      # 52 Utf8 "exit"
+01 00 04 28 49 29 56                                      # 53 Utf8 "(I)V"
+0C 00 34 00 35                                            # 54 NameAndType exit:(I)V
+0A 00 0A 00 36                                            # 55 Methodref System.exit
+01 00 0E 6A 61 76 61 2F 6C 61 6E 67 2F 4D 61 74 68        # 56 Utf8 "java/lang/Math"
+07 00 38                                                  # 57 Class java/lang/Math
+01 00 04 73 71 72 74                                      # 58 Utf8 "sqrt" (also the token text, see #100)
+01 00 04 28 44 29 44                                      # 59 Utf8 "(D)D"
+0C 00 3A 00 3B                                            # 60 NameAndType sqrt:(D)D
+0A 00 39 00 3C                                            # 61 Methodref Math.sqrt
+01 00 03 70 6F 77                                         # 62 Utf8 "pow"
+01 00 05 28 44 44 29 44                                   # 63 Utf8 "(DD)D"
+0C 00 3E 00 3F                                            # 64 NameAndType pow:(DD)D
+0A 00 39 00 40                                            # 65 Methodref Math.pow
+01 00 04 66 61 69 6C                                      # 66 Utf8 "fail"
+01 00 27 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 67 Utf8 "(Ljava/lang/String;Ljava/lang/String;)V" (39)
+0C 00 42 00 43                                            # 68 NameAndType fail
+0A 00 02 00 44                                            # 69 Methodref Rpn.fail
+01 00 05 61 70 70 6C 79                                   # 70 Utf8 "apply"
+01 00 18 28 5B 44 49 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 49  # 71 Utf8 "([DILjava/lang/String;)I"
+0C 00 46 00 47                                            # 72 NameAndType apply
+0A 00 02 00 48                                            # 73 Methodref Rpn.apply
+01 00 08 74 6F 4E 75 6D 62 65 72                          # 74 Utf8 "toNumber"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 44  # 75 Utf8 "(Ljava/lang/String;)D"
+0C 00 4A 00 4B                                            # 76 NameAndType toNumber
+0A 00 02 00 4C                                            # 77 Methodref Rpn.toNumber
+01 00 05 62 69 6E 6F 70                                   # 78 Utf8 "binop"
+01 00 06 28 49 44 44 29 44                                # 79 Utf8 "(IDD)D"
+0C 00 4E 00 4F                                            # 80 NameAndType binop
+0A 00 02 00 50                                            # 81 Methodref Rpn.binop
+01 00 02 5B 44                                            # 82 Utf8 "[D"
+07 00 52                                                  # 83 Class [D
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 84 Utf8 "[Ljava/lang/String;"
+07 00 54                                                  # 85 Class [Ljava/lang/String;
+01 00 00                                                  # 86 Utf8 "" (empty)
+08 00 56                                                  # 87 String ""
+01 00 1E 55 73 61 67 65 3A 20 6A 61 76 61 20 52 70 6E 20 22 3C 65 78 70 72 65 73 73 69 6F 6E 3E 22  # 88 Utf8 'Usage: java Rpn "<expression>"' (30)
+08 00 58                                                  # 89 String USAGE
+01 00 16 45 72 72 6F 72 3A 20 73 74 61 63 6B 20 75 6E 64 65 72 66 6C 6F 77  # 90 Utf8 "Error: stack underflow" (22)
+08 00 5A                                                  # 91 String UNDERFLOW
+01 00 15 45 72 72 6F 72 3A 20 73 74 61 63 6B 20 6F 76 65 72 66 6C 6F 77  # 92 Utf8 "Error: stack overflow" (21)
+08 00 5C                                                  # 93 String OVERFLOW
+01 00 15 45 72 72 6F 72 3A 20 75 6E 6B 6E 6F 77 6E 20 74 6F 6B 65 6E 20  # 94 Utf8 "Error: unknown token " (21, trailing space)
+08 00 5E                                                  # 95 String UNKNOWN
+01 00 16 45 72 72 6F 72 3A 20 69 6E 76 61 6C 69 64 20 6E 75 6D 62 65 72 20  # 96 Utf8 "Error: invalid number " (22, trailing space)
+08 00 60                                                  # 97 String INVALID
+01 00 20 45 72 72 6F 72 3A 20 65 78 70 65 63 74 65 64 20 6F 6E 65 20 72 65 73 75 6C 74 2C 20 67 6F 74 20  # 98 Utf8 "Error: expected one result, got " (32, trailing space)
+08 00 62                                                  # 99 String EXPECTED
+08 00 3A                                                  # 100 String "sqrt" (reuses Utf8 #58)
+01 00 03 6E 65 67                                         # 101 Utf8 "neg"
+08 00 65                                                  # 102 String "neg"
+01 00 03 64 75 70                                         # 103 Utf8 "dup"
+08 00 67                                                  # 104 String "dup"
+01 00 04 73 77 61 70                                      # 105 Utf8 "swap"
+08 00 69                                                  # 106 String "swap"
+06 40 24 00 00 00 00 00 00                                # 107 Double 10.0 (108 unusable)
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Rpn
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 05                         # methods_count (main, apply, toNumber, binop, fail)
+
+# ======== method main([Ljava/lang/String;)V ========
+00 09                         # access_flags public static
+00 05                         # name_index "main"
+00 06                         # descriptor_index
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 B6                   # attribute_length 182 = 12 + 132 + 0 + (6 + 32)
+00 05                         # max_stack 5 (st, sp, s, i, j before substring)
+00 07                         # max_locals 7
+00 00 00 84                   # code_length 132
+
+2A                            # 0   aload_0                    [args]
+BE                            # 1   arraylength
+04                            # 2   iconst_1
+9F 00 0B                      # 3   if_icmpeq -> 14 OK (+11)
+12 59                         # 6   ldc USAGE (#89)
+12 57                         # 8   ldc "" (#87)
+B8 00 45                      # 10  invokestatic Rpn.fail (#69)
+B1                            # 13  return
+2A                            # 14  OK: aload_0   [frame same]
+03                            # 15  iconst_0
+32                            # 16  aaload
+4C                            # 17  astore_1                   s
+10 40                         # 18  bipush 64
+BC 07                         # 20  newarray double
+4D                            # 22  astore_2                   st
+03                            # 23  iconst_0
+3E                            # 24  istore_3                   sp = 0
+2B                            # 25  aload_1
+B6 00 23                      # 26  invokevirtual String.length (#35)
+36 04                         # 29  istore 4                   n
+03                            # 31  iconst_0
+36 05                         # 32  istore 5                   i = 0
+15 05                         # 34  LOOP: iload 5   [frame full: args, String, [D, I, I, I]]
+15 04                         # 36  iload 4
+A2 00 45                      # 38  if_icmpge -> 107 END (+69)
+2B                            # 41  aload_1
+15 05                         # 42  iload 5
+B6 00 27                      # 44  invokevirtual String.charAt (#39)
+10 20                         # 47  bipush 32 ' '
+A0 00 09                      # 49  if_icmpne -> 58 TOK (+9)
+84 05 01                      # 52  iinc 5 1
+A7 FF EB                      # 55  goto -> 34 LOOP (-21)
+15 05                         # 58  TOK: iload 5   [frame same]
+36 06                         # 60  istore 6                   j = i
+15 06                         # 62  SCAN: iload 6  [frame append I]
+15 04                         # 64  iload 4
+A2 00 14                      # 66  if_icmpge -> 86 CUT (+20)
+2B                            # 69  aload_1
+15 06                         # 70  iload 6
+B6 00 27                      # 72  invokevirtual String.charAt (#39)
+10 20                         # 75  bipush 32
+9F 00 09                      # 77  if_icmpeq -> 86 CUT (+9)
+84 06 01                      # 80  iinc 6 1
+A7 FF EB                      # 83  goto -> 62 SCAN (-21)
+2C                            # 86  CUT: aload_2  [frame same]   [st]
+1D                            # 87  iload_3                    [st, sp]
+2B                            # 88  aload_1                    [st, sp, s]
+15 05                         # 89  iload 5
+15 06                         # 91  iload 6                    depth 5
+B6 00 2B                      # 93  invokevirtual String.substring (#43)  [st, sp, tok]
+B8 00 49                      # 96  invokestatic Rpn.apply (#73)  [sp']
+3E                            # 99  istore_3
+15 06                         # 100 iload 6
+36 05                         # 102 istore 5                   i = j
+A7 FF BA                      # 104 goto -> 34 LOOP (-70)
+1D                            # 107 END: iload_3  [frame chop 1]
+04                            # 108 iconst_1
+9F 00 0D                      # 109 if_icmpeq -> 122 PRINT (+13)
+12 63                         # 112 ldc EXPECTED (#99)
+1D                            # 114 iload_3
+B8 00 33                      # 115 invokestatic String.valueOf(I) (#51)
+B8 00 45                      # 118 invokestatic Rpn.fail (#69)
+B1                            # 121 return
+B2 00 0E                      # 122 PRINT: getstatic System.out (#14)  [frame same]
+2C                            # 125 aload_2
+03                            # 126 iconst_0
+31                            # 127 daload                     [out, double]
+B6 00 17                      # 128 invokevirtual println(D) (#23)
+B1                            # 131 return
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 08                         # StackMapTable
+00 00 00 20                   # attribute_length 32
+00 07                         # number_of_entries 7
+0E                            # @14  same_frame                      locals [args]
+FF 00 13 00 06 07 00 55 07 00 1F 07 00 53 01 01 01 00 00  # @34 full_frame, delta 19   locals [String[], String, [D, I sp, I n, I i] stack []
+17                            # @58  same_frame, delta 23
+FC 00 03 01                   # @62  append 1 (I j), delta 3         locals [.., I j]
+17                            # @86  same_frame, delta 23
+FA 00 14                      # @107 chop 1 (drop j), delta 20       locals [args, s, st, sp, n, i]
+0E                            # @122 same_frame, delta 14
+
+# ======== method apply([DILjava/lang/String;)I ========
+00 0A                         # access_flags private static
+00 46                         # name_index "apply"
+00 47                         # descriptor_index "([DILjava/lang/String;)I"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 01 41                   # attribute_length 321 = 12 + 288 + 0 + (6 + 15)
+00 08                         # max_stack 8 (st, idx, c, a(2), st, sp, 1 at offset 81)
+00 06                         # max_locals 6 (st, sp, tok, c, v x2)
+00 00 01 20                   # code_length 288
+
+2C                            # 0   aload_2                    [tok]
+03                            # 1   iconst_0
+B6 00 27                      # 2   invokevirtual String.charAt (#39)
+3E                            # 5   istore_3                   c
+2C                            # 6   aload_2
+B6 00 23                      # 7   invokevirtual String.length (#35)
+04                            # 10  iconst_1
+A0 00 51                      # 11  if_icmpne -> 92 WORDS (+81)
+1D                            # 14  iload_3                    [c]
+AB                            # 15  lookupswitch (no padding: operands start at 16)
+00 00 00 4D                   # 16  default -> 92 WORDS (+77)
+00 00 00 05                   # 20  npairs 5
+00 00 00 2A 00 00 00 31       # 24  '*' -> 64 BIN (+49)
+00 00 00 2B 00 00 00 31       # 32  '+' -> 64 BIN
+00 00 00 2D 00 00 00 31       # 40  '-' -> 64 BIN
+00 00 00 2F 00 00 00 31       # 48  '/' -> 64 BIN
+00 00 00 5E 00 00 00 31       # 56  '^' -> 64 BIN
+1B                            # 64  BIN: iload_1  [frame append I c]
+05                            # 65  iconst_2
+A1 00 CC                      # 66  if_icmplt -> 270 UNDER (+204)
+2A                            # 69  aload_0                    [st]
+1B                            # 70  iload_1
+05                            # 71  iconst_2
+64                            # 72  isub                       [st, sp-2]
+1D                            # 73  iload_3                    [st, sp-2, c]
+2A                            # 74  aload_0
+1B                            # 75  iload_1
+05                            # 76  iconst_2
+64                            # 77  isub
+31                            # 78  daload                     [st, sp-2, c, a]
+2A                            # 79  aload_0
+1B                            # 80  iload_1
+04                            # 81  iconst_1
+64                            # 82  isub
+31                            # 83  daload                     [st, sp-2, c, a, b] depth 7
+B8 00 51                      # 84  invokestatic Rpn.binop (#81)  [st, sp-2, r]
+52                            # 87  dastore
+1B                            # 88  iload_1
+04                            # 89  iconst_1
+64                            # 90  isub
+AC                            # 91  ireturn sp-1
+2C                            # 92  WORDS: aload_2  [frame same]
+12 64                         # 93  ldc "sqrt" (#100)
+B6 00 2F                      # 95  invokevirtual String.equals (#47)
+9A 00 53                      # 98  ifne -> 181 SQRT (+83)
+2C                            # 101 aload_2
+12 66                         # 102 ldc "neg" (#102)
+B6 00 2F                      # 104 invokevirtual String.equals
+9A 00 5D                      # 107 ifne -> 200 NEG (+93)
+2C                            # 110 aload_2
+12 68                         # 111 ldc "dup" (#104)
+B6 00 2F                      # 113 invokevirtual String.equals
+9A 00 65                      # 116 ifne -> 217 DUP (+101)
+2C                            # 119 aload_2
+12 6A                         # 120 ldc "swap" (#106)
+B6 00 2F                      # 122 invokevirtual String.equals
+9A 00 72                      # 125 ifne -> 239 SWAP (+114)
+1D                            # 128 iload_3
+10 2D                         # 129 bipush 45 '-'
+9F 00 15                      # 131 if_icmpeq -> 152 NUM (+21)
+1D                            # 134 iload_3
+10 2E                         # 135 bipush 46 '.'
+9F 00 0F                      # 137 if_icmpeq -> 152 NUM (+15)
+1D                            # 140 iload_3
+10 30                         # 141 bipush 48 '0'
+A1 00 1E                      # 143 if_icmplt -> 173 UNK (+30)
+1D                            # 146 iload_3
+10 39                         # 147 bipush 57 '9'
+A3 00 18                      # 149 if_icmpgt -> 173 UNK (+24)
+2C                            # 152 NUM: aload_2  [frame same]
+B8 00 4D                      # 153 invokestatic Rpn.toNumber (#77)  [v]
+39 04                         # 156 dstore 4
+1B                            # 158 iload_1
+10 40                         # 159 bipush 64
+A2 00 76                      # 161 if_icmpge -> 279 OVER (+118)
+2A                            # 164 aload_0
+1B                            # 165 iload_1
+18 04                         # 166 dload 4                    [st, sp, v]
+52                            # 168 dastore
+1B                            # 169 iload_1
+04                            # 170 iconst_1
+60                            # 171 iadd
+AC                            # 172 ireturn sp+1
+12 5F                         # 173 UNK: ldc UNKNOWN (#95)  [frame same]
+2C                            # 175 aload_2
+B8 00 45                      # 176 invokestatic Rpn.fail (#69)
+03                            # 179 iconst_0
+AC                            # 180 ireturn (not reached)
+1B                            # 181 SQRT: iload_1  [frame same]
+9E 00 58                      # 182 ifle -> 270 UNDER (+88)
+2A                            # 185 aload_0
+1B                            # 186 iload_1
+04                            # 187 iconst_1
+64                            # 188 isub                       [st, sp-1]
+2A                            # 189 aload_0
+1B                            # 190 iload_1
+04                            # 191 iconst_1
+64                            # 192 isub
+31                            # 193 daload                     [st, sp-1, x]
+B8 00 3D                      # 194 invokestatic Math.sqrt (#61)
+52                            # 197 dastore
+1B                            # 198 iload_1
+AC                            # 199 ireturn sp
+1B                            # 200 NEG: iload_1  [frame same]
+9E 00 45                      # 201 ifle -> 270 UNDER (+69)
+2A                            # 204 aload_0
+1B                            # 205 iload_1
+04                            # 206 iconst_1
+64                            # 207 isub
+2A                            # 208 aload_0
+1B                            # 209 iload_1
+04                            # 210 iconst_1
+64                            # 211 isub
+31                            # 212 daload
+77                            # 213 dneg
+52                            # 214 dastore
+1B                            # 215 iload_1
+AC                            # 216 ireturn sp
+1B                            # 217 DUP: iload_1  [frame same]
+9E 00 34                      # 218 ifle -> 270 UNDER (+52)
+1B                            # 221 iload_1
+10 40                         # 222 bipush 64
+A2 00 37                      # 224 if_icmpge -> 279 OVER (+55)
+2A                            # 227 aload_0
+1B                            # 228 iload_1                    [st, sp]
+2A                            # 229 aload_0
+1B                            # 230 iload_1
+04                            # 231 iconst_1
+64                            # 232 isub
+31                            # 233 daload                     [st, sp, x]
+52                            # 234 dastore
+1B                            # 235 iload_1
+04                            # 236 iconst_1
+60                            # 237 iadd
+AC                            # 238 ireturn sp+1
+1B                            # 239 SWAP: iload_1  [frame same]
+05                            # 240 iconst_2
+A1 00 1D                      # 241 if_icmplt -> 270 UNDER (+29)
+2A                            # 244 aload_0
+1B                            # 245 iload_1
+04                            # 246 iconst_1
+64                            # 247 isub
+31                            # 248 daload                     [top]
+39 04                         # 249 dstore 4                   v = st[sp-1]
+2A                            # 251 aload_0
+1B                            # 252 iload_1
+04                            # 253 iconst_1
+64                            # 254 isub
+2A                            # 255 aload_0
+1B                            # 256 iload_1
+05                            # 257 iconst_2
+64                            # 258 isub
+31                            # 259 daload
+52                            # 260 dastore                    st[sp-1] = st[sp-2]
+2A                            # 261 aload_0
+1B                            # 262 iload_1
+05                            # 263 iconst_2
+64                            # 264 isub
+18 04                         # 265 dload 4
+52                            # 267 dastore                    st[sp-2] = v
+1B                            # 268 iload_1
+AC                            # 269 ireturn sp
+12 5B                         # 270 UNDER: ldc UNDERFLOW (#91)  [frame same]
+12 57                         # 272 ldc "" (#87)
+B8 00 45                      # 274 invokestatic Rpn.fail (#69)
+03                            # 277 iconst_0
+AC                            # 278 ireturn (not reached)
+12 5D                         # 279 OVER: ldc OVERFLOW (#93)  [frame same]
+12 57                         # 281 ldc "" (#87)
+B8 00 45                      # 283 invokestatic Rpn.fail (#69)
+03                            # 286 iconst_0
+AC                            # 287 ireturn (not reached)
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 08                         # StackMapTable
+00 00 00 0F                   # attribute_length 15
+00 0A                         # number_of_entries 10
+FC 00 40 01                   # @64  append 1 (I c), delta 64        locals [[D, I sp, String tok, I c]
+1B                            # @92  same_frame, delta 27
+3B                            # @152 same_frame, delta 59
+14                            # @173 same_frame, delta 20
+07                            # @181 same_frame, delta 7
+12                            # @200 same_frame, delta 18
+10                            # @217 same_frame, delta 16
+15                            # @239 same_frame, delta 21
+1E                            # @270 same_frame, delta 30
+08                            # @279 same_frame, delta 8 (v is extra on the 161 path; not declared)
+
+# ======== method toNumber(Ljava/lang/String;)D ========
+00 0A                         # access_flags private static
+00 4A                         # name_index "toNumber"
+00 4B                         # descriptor_index "(Ljava/lang/String;)D"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 E9                   # attribute_length 233 = 12 + 195 + 0 + (6 + 20)
+00 04                         # max_stack 4 (double m + double 10.0)
+00 0A                         # max_locals 10 (s, n, i, neg, m x2, p x2, start, d)
+00 00 00 C3                   # code_length 195
+
+2A                            # 0   aload_0
+B6 00 23                      # 1   invokevirtual String.length (#35)
+3C                            # 4   istore_1                   n
+03                            # 5   iconst_0
+3D                            # 6   istore_2                   i = 0
+03                            # 7   iconst_0
+3E                            # 8   istore_3                   neg = 0
+2A                            # 9   aload_0
+03                            # 10  iconst_0
+B6 00 27                      # 11  invokevirtual String.charAt (#39)
+10 2D                         # 14  bipush 45 '-'
+A0 00 07                      # 16  if_icmpne -> 23 (+7)
+04                            # 19  iconst_1
+3E                            # 20  istore_3                   neg = 1
+04                            # 21  iconst_1
+3D                            # 22  istore_2                   i = 1
+0E                            # 23  dconst_0   [frame append I n, I i, I neg]
+39 04                         # 24  dstore 4                   m = 0.0
+0F                            # 26  dconst_1
+39 06                         # 27  dstore 6                   p = 1.0
+1C                            # 29  iload_2
+36 08                         # 30  istore 8                   start = i
+1C                            # 32  LOOP1: iload_2  [frame append D m, D p, I start]
+1B                            # 33  iload_1
+A2 00 2B                      # 34  if_icmpge -> 77 END1 (+43)
+2A                            # 37  aload_0
+1C                            # 38  iload_2
+B6 00 27                      # 39  invokevirtual String.charAt (#39)
+10 30                         # 42  bipush 48 '0'
+64                            # 44  isub
+36 09                         # 45  istore 9                   d
+15 09                         # 47  iload 9
+9B 00 1C                      # 49  iflt -> 77 END1 (+28)
+15 09                         # 52  iload 9
+10 09                         # 54  bipush 9
+A3 00 15                      # 56  if_icmpgt -> 77 END1 (+21)
+18 04                         # 59  dload 4                    [m]
+14 00 6B                      # 61  ldc2_w 10.0 (#107)          [m, 10.0] depth 4
+6B                            # 64  dmul
+15 09                         # 65  iload 9
+87                            # 67  i2d
+63                            # 68  dadd
+39 04                         # 69  dstore 4                   m = m * 10 + d
+84 02 01                      # 71  iinc 2 1
+A7 FF D6                      # 74  goto -> 32 LOOP1 (-42)
+1C                            # 77  END1: iload_2  [frame same]
+15 08                         # 78  iload 8
+9F 00 6B                      # 80  if_icmpeq -> 187 BAD (+107)   no integer digits
+1C                            # 83  iload_2
+1B                            # 84  iload_1
+A2 00 53                      # 85  if_icmpge -> 168 DONE (+83)   integer only
+2A                            # 88  aload_0
+1C                            # 89  iload_2
+B6 00 27                      # 90  invokevirtual String.charAt (#39)
+10 2E                         # 93  bipush 46 '.'
+A0 00 5C                      # 95  if_icmpne -> 187 BAD (+92)
+84 02 01                      # 98  iinc 2 1                   skip '.'
+1C                            # 101 iload_2
+36 08                         # 102 istore 8                   start = i
+1C                            # 104 LOOP2: iload_2  [frame same]
+1B                            # 105 iload_1
+A2 00 33                      # 106 if_icmpge -> 157 END2 (+51)
+2A                            # 109 aload_0
+1C                            # 110 iload_2
+B6 00 27                      # 111 invokevirtual String.charAt (#39)
+10 30                         # 114 bipush 48
+64                            # 116 isub
+36 09                         # 117 istore 9
+15 09                         # 119 iload 9
+9B 00 24                      # 121 iflt -> 157 END2 (+36)
+15 09                         # 124 iload 9
+10 09                         # 126 bipush 9
+A3 00 1D                      # 128 if_icmpgt -> 157 END2 (+29)
+18 04                         # 131 dload 4
+14 00 6B                      # 133 ldc2_w 10.0 (#107)
+6B                            # 136 dmul
+15 09                         # 137 iload 9
+87                            # 139 i2d
+63                            # 140 dadd
+39 04                         # 141 dstore 4                   m = m * 10 + d
+18 06                         # 143 dload 6
+14 00 6B                      # 145 ldc2_w 10.0 (#107)
+6B                            # 148 dmul
+39 06                         # 149 dstore 6                   p = p * 10
+84 02 01                      # 151 iinc 2 1
+A7 FF CE                      # 154 goto -> 104 LOOP2 (-50)
+1C                            # 157 END2: iload_2  [frame same]
+15 08                         # 158 iload 8
+9F 00 1B                      # 160 if_icmpeq -> 187 BAD (+27)   no fraction digits
+1C                            # 163 iload_2
+1B                            # 164 iload_1
+A1 00 16                      # 165 if_icmplt -> 187 BAD (+22)   trailing garbage
+18 04                         # 168 DONE: dload 4  [frame same]
+18 06                         # 170 dload 6
+6F                            # 172 ddiv
+39 04                         # 173 dstore 4                   m = m / p
+1D                            # 175 iload_3
+99 00 08                      # 176 ifeq -> 184 RET (+8)
+18 04                         # 179 dload 4
+77                            # 181 dneg
+39 04                         # 182 dstore 4                   m = -m
+18 04                         # 184 RET: dload 4  [frame same]
+AF                            # 186 dreturn
+12 61                         # 187 BAD: ldc INVALID (#97)  [frame same]
+2A                            # 189 aload_0
+B8 00 45                      # 190 invokestatic Rpn.fail (#69)
+0E                            # 193 dconst_0
+AF                            # 194 dreturn (not reached)
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 08                         # StackMapTable
+00 00 00 14                   # attribute_length 20
+00 08                         # number_of_entries 8
+FE 00 17 01 01 01             # @23  append 3 (I n, I i, I neg), delta 23
+FE 00 08 03 03 01             # @32  append 3 (D m, D p, I start), delta 8   locals [String, I, I, I, D, D, I]
+2C                            # @77  same_frame, delta 44
+1A                            # @104 same_frame, delta 26
+34                            # @157 same_frame, delta 52
+0A                            # @168 same_frame, delta 10
+0F                            # @184 same_frame, delta 15
+02                            # @187 same_frame, delta 2
+
+# ======== method binop(IDD)D ========
+00 0A                         # access_flags private static
+00 4E                         # name_index "binop"
+00 4F                         # descriptor_index "(IDD)D"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 63                   # attribute_length 99 = 12 + 74 + 0 + (6 + 7)
+00 04                         # max_stack 4 (two doubles)
+00 05                         # max_locals 5 (c, a x2, b x2)
+00 00 00 4A                   # code_length 74
+
+1A                            # 0   iload_0                    [c]
+AB                            # 1   lookupswitch
+00 00                         # 2   padding 2 bytes, operands start at 4
+00 00 00 43                   # 4   default -> 68 POW (+67)
+00 00 00 05                   # 8   npairs 5
+00 00 00 2A 00 00 00 33       # 12  '*' -> 52 MUL (+51)
+00 00 00 2B 00 00 00 37       # 20  '+' -> 56 ADD (+55)
+00 00 00 2D 00 00 00 3B       # 28  '-' -> 60 SUB (+59)
+00 00 00 2F 00 00 00 3F       # 36  '/' -> 64 DIV (+63)
+00 00 00 5E 00 00 00 43       # 44  '^' -> 68 POW (+67)
+27                            # 52  MUL: dload_1  [frame same]
+29                            # 53  dload_3
+6B                            # 54  dmul
+AF                            # 55  dreturn
+27                            # 56  ADD: dload_1  [frame same]
+29                            # 57  dload_3
+63                            # 58  dadd
+AF                            # 59  dreturn
+27                            # 60  SUB: dload_1  [frame same]
+29                            # 61  dload_3
+67                            # 62  dsub
+AF                            # 63  dreturn
+27                            # 64  DIV: dload_1  [frame same]
+29                            # 65  dload_3
+6F                            # 66  ddiv (IEEE: x/0 is +-Infinity, 0/0 is NaN)
+AF                            # 67  dreturn
+27                            # 68  POW: dload_1  [frame same]
+29                            # 69  dload_3
+B8 00 41                      # 70  invokestatic Math.pow (#65)
+AF                            # 73  dreturn
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 08                         # StackMapTable
+00 00 00 07                   # attribute_length 7
+00 05                         # number_of_entries 5
+34                            # @52 same_frame, delta 52   locals [I, D, D]
+03                            # @56 same_frame, delta 3
+03                            # @60 same_frame, delta 3
+03                            # @64 same_frame, delta 3
+03                            # @68 same_frame, delta 3
+
+# ======== method fail(Ljava/lang/String;Ljava/lang/String;)V ========
+00 0A                         # access_flags private static
+00 42                         # name_index "fail"
+00 43                         # descriptor_index
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 1F                   # attribute_length 31 = 12 + 19 (no exceptions, no attributes)
+00 02                         # max_stack 2
+00 02                         # max_locals 2
+00 00 00 13                   # code_length 19
+
+B2 00 11                      # 0   getstatic System.err (#17)
+2A                            # 3   aload_0
+B6 00 1D                      # 4   invokevirtual PrintStream.print(String) (#29)
+B2 00 11                      # 7   getstatic System.err (#17)
+2B                            # 10  aload_1
+B6 00 1A                      # 11  invokevirtual PrintStream.println(String) (#26)
+04                            # 14  iconst_1
+B8 00 37                      # 15  invokestatic System.exit (#55)
+B1                            # 18  return
+00 00                         # exception_table_length 0
+00 00                         # attributes_count 0
+
+00 00                         # class attributes_count 0

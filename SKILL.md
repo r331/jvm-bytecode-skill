@@ -10,7 +10,7 @@ No Java, Kotlin, Scala, Groovy, Clojure, Jasmin, Krakatau, ASM, ByteBuddy, or ge
 The only tooling allowed is turning hex into bytes (`xxd -r -p`) and inspecting/running the result (`javap`, `java`).
 Reading `javac` output for inspiration is also not allowed; derive everything from the spec.
 
-One helper is allowed because it only encodes text, not bytecode: getting the bytes and byte length of string data for Utf8 entries.
+Two kinds of helpers are allowed because they only encode text or display bytes, never produce bytecode: getting the bytes and byte length of string data for Utf8 entries, and dumping an existing class file you were given (`xxd -p`, `xxd -g1`, `javap`) when the task is to read or patch it.
 ```
 printf '%s' 'java/lang/String' | xxd -p -c 256 | sed 's/../& /g'   # hex bytes
 printf '%s' 'java/lang/String' | wc -c                             # Utf8 length
@@ -23,6 +23,7 @@ The reference files below are condensed from it:
 - [references/class-file.md](references/class-file.md) - ClassFile layout, versions, constant pool, descriptors, flags, attributes, limits.
 - [references/instructions.md](references/instructions.md) - every opcode with hex value, operand bytes, and stack effect.
 - [references/verification.md](references/verification.md) - StackMapTable encoding, where frames are required, code constraints, common verifier errors.
+- [references/advanced.md](references/advanced.md) - recipes for `invokedynamic` string concatenation, records and `ObjectMethods`, sealed classes, try/catch/finally, and patching an existing class file.
 
 Read the reference file relevant to the step you are on instead of guessing a value.
 
@@ -54,6 +55,7 @@ Comments start with `#` and run to end of line; never put `#` inside the hex par
 6. **Add stack map frames** if the version is 50 or above and the method has any branch, switch, or exception handler; follow "Building frames step by step" in [references/verification.md](references/verification.md).
 7. **Build and inspect**: `./build.sh <ClassName> && javap -v -p -c <ClassName>.class`.
    `javap` must parse cleanly and show exactly the intended constant pool, instructions, and frames.
+   Compare the offsets `javap -c` prints with the offsets in your comments; a mismatch means an instruction width was miscounted somewhere above it.
 8. **Run and test** with normal inputs, edge cases, and invalid inputs; check stdout, stderr, and exit codes.
    Loading proves verification passed; `javap` alone does not run the verifier.
 
@@ -129,13 +131,20 @@ The value is "uninitialized" until `invokespecial <init>` runs; a frame that fal
 Long/double constants need a Long/Double entry (two indices) loaded with `14 00 ii ldc2_w`.
 
 **String concatenation without `invokedynamic`:** `new java/lang/StringBuilder`, `dup`, `invokespecial <init>()V`, then `append(...)` calls, then `toString()`.
+With `invokedynamic` (`StringConcatFactory`, what javac emits since Java 9) see [references/advanced.md](references/advanced.md).
 
 **Exit code:** `iconst_1` + `invokestatic java/lang/System.exit:(I)V`, then still emit a `return` so code never falls off the end.
+The same applies after calling your own helper that never returns: in a non-void method, follow the call with a dummy value and matching return (`iconst_0; ireturn`, `dconst_0; dreturn`, `aconst_null; areturn`).
 
 **Parsing input:** `Integer.parseInt(String)I`, `Long.parseLong(String)J`, `Double.parseDouble(String)D` take `args[i]` loaded via `aload_0`, index const, `aaload`.
 For stdin, use `java/util/Scanner` or `java/io/BufferedReader` over `System.in`.
+When library parsing is not allowed, loop over `String.length()`/`charAt(I)C`: `c - '0'` (`10 30` bipush 0x30, then `64` isub) gives a digit, accumulate with `value * 10 + digit` (in double: `ldc2_w 10.0; dmul`, push the digit, `i2d; dadd`), and range-check characters against `10 30` ('0') and `10 39` ('9') with `if_icmplt`/`if_icmpgt`.
+`println(D)` prints the same text as `String.valueOf(double)`.
 
 **Catching an exception:** exception table entry `[start, end) -> handler, catch_type`; the handler starts with the exception object as the only stack item.
+For `finally`, nested handlers, and `return` inside `try`, follow the layout in [references/advanced.md](references/advanced.md).
+
+**Records, sealed types, patching an existing class:** see [references/advanced.md](references/advanced.md); records and sealing that are encoded incompletely still load, but reflection (`isRecord()`, `isSealed()`) quietly reports false.
 
 ## Rules that are easy to get wrong
 

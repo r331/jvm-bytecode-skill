@@ -1,0 +1,598 @@
+# Inventory.class - ORIGINAL (deliberately buggy) legacy class, major 65 (Java 21).
+# Maintainer source for inputs/legacy/Inventory.class; never shown to agents.
+# Rebuild: ./build.sh -d <tmp> Inventory (from this dir), then copy to ../inputs/legacy/.
+#
+# It imitates javac output: default constructor, ConstantValue on a static final,
+# a static field table set up in <clinit>, LineNumberTable in every method,
+# StackMapTable, an exception table, and a SourceFile attribute.
+#
+# Pseudo source (line numbers match the LineNumberTable entries):
+#  1 public class Inventory {
+#  2   static final int CAPACITY = 8;
+#  3   static String[] names = new String[CAPACITY];
+#  4   static int[] qtys = new int[CAPACITY];
+#  5   static int count;
+#  7   main(args):                                    locals 0 args, 1 i, 2 cmd, 3 name, 4 q
+#  8     if (args.length == 0)
+#  9       fail("Usage: java Inventory <command>...", 1);
+# 11     i = 0;
+# 12     while (i < args.length) {
+# 13       cmd = args[i];
+# 14       if (cmd.equals("add") || cmd.equals("remove")) {
+# 15         if (i + 2 >= args.length)
+# 16           fail("Error: missing argument for ".concat(cmd), 2);
+# 18         name = args[i + 1];
+# 19         q = parseQty(args[i + 2]);
+# 20         if (cmd.equals("add"))
+# 21           add(name, q);
+# 23         else remove(name, q);
+# 25         i += 3;
+# 26       } else if (cmd.equals("total")) {
+# 27         System.out.println(total());
+# 28         i++;
+# 29       } else if (cmd.equals("list")) {
+# 30         list();
+# 31         i++;
+# 33       } else fail("Error: unknown command ".concat(cmd), 2);
+# 36   }
+# 38   find(name): for (i = 0; i < count; i++) if (names[i].equals(name)) return i; return -1;
+# 47   parseQty(s): try { q = Integer.parseInt(s); } catch (NumberFormatException e) { q = 0; }
+# 54                if (q <= 0) fail("Error: invalid quantity ".concat(s), 3); return q;
+# 60   add(name, q): i = find(name); if (i >= 0) { qtys[i] += q; return; }
+# 66                 if (count == CAPACITY) fail("Error: inventory full", 5);
+# 69                 names[count] = name; qtys[count] = q; count++;
+# 74   remove(name, q): i = find(name); if (i < 0) fail("Error: unknown item ".concat(name), 4);
+# 79                    if (qtys[i] < q) fail("Error: insufficient stock for ".concat(name), 4);
+# 82                    qtys[i] -= q;
+# 85   total(): sum = 0; for (i = 0; i < count; i++) sum += qtys[i]; return sum;
+# 93   list(): for (i = 0; i < count; i++) { out.print(names[i]); out.print('='); out.println(qtys[i]); }
+#101   fail(msg, code): System.err.println(msg); System.exit(code);
+#105 }
+#
+# DELIBERATE BUGS (the task is to fix exactly these):
+#  (a) list() loop bound is count - 1 (extra iconst_1/isub), so the last item is never printed.
+#  (b) parseQty() tests q with ifne instead of ifgt, so negative quantities are accepted.
+#  (c) remove() loads the "Error: invalid quantity " String (#112) for the unknown-item
+#      error instead of "Error: unknown item " (which is not in the pool at all).
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 41                         # major_version 65 (Java 21)
+00 75                         # constant_pool_count 117 (entries 1..116)
+
+# ---- constant pool ----
+01 00 09 49 6E 76 65 6E 74 6F 72 79                       # 1 Utf8 "Inventory"
+07 00 01                                                  # 2 Class Inventory
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 06 3C 69 6E 69 74 3E                                # 5 Utf8 "<init>"
+01 00 03 28 29 56                                         # 6 Utf8 "()V"
+0C 00 05 00 06                                            # 7 NameAndType <init>:()V
+0A 00 04 00 07                                            # 8 Methodref Object.<init>:()V
+01 00 04 43 6F 64 65                                      # 9 Utf8 "Code"
+01 00 0F 4C 69 6E 65 4E 75 6D 62 65 72 54 61 62 6C 65     # 10 Utf8 "LineNumberTable"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 11 Utf8 "StackMapTable"
+01 00 0A 53 6F 75 72 63 65 46 69 6C 65                    # 12 Utf8 "SourceFile"
+01 00 0E 49 6E 76 65 6E 74 6F 72 79 2E 6A 61 76 61        # 13 Utf8 "Inventory.java"
+01 00 08 43 41 50 41 43 49 54 59                          # 14 Utf8 "CAPACITY"
+01 00 01 49                                               # 15 Utf8 "I"
+01 00 0D 43 6F 6E 73 74 61 6E 74 56 61 6C 75 65           # 16 Utf8 "ConstantValue"
+03 00 00 00 08                                            # 17 Integer 8
+01 00 05 6E 61 6D 65 73                                   # 18 Utf8 "names"
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 19 Utf8 "[Ljava/lang/String;"
+01 00 04 71 74 79 73                                      # 20 Utf8 "qtys"
+01 00 02 5B 49                                            # 21 Utf8 "[I"
+01 00 05 63 6F 75 6E 74                                   # 22 Utf8 "count"
+0C 00 12 00 13                                            # 23 NameAndType names:[Ljava/lang/String;
+09 00 02 00 17                                            # 24 Fieldref Inventory.names
+0C 00 14 00 15                                            # 25 NameAndType qtys:[I
+09 00 02 00 19                                            # 26 Fieldref Inventory.qtys
+0C 00 16 00 0F                                            # 27 NameAndType count:I
+09 00 02 00 1B                                            # 28 Fieldref Inventory.count
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 29 Utf8 "java/lang/String"
+07 00 1D                                                  # 30 Class java/lang/String
+07 00 13                                                  # 31 Class [Ljava/lang/String;
+01 00 04 6D 61 69 6E                                      # 32 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 33 Utf8 "([Ljava/lang/String;)V"
+01 00 04 66 69 6E 64                                      # 34 Utf8 "find"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 49  # 35 Utf8 "(Ljava/lang/String;)I"
+01 00 08 70 61 72 73 65 51 74 79                          # 36 Utf8 "parseQty"
+01 00 04 66 61 69 6C                                      # 37 Utf8 "fail"
+01 00 16 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 49 29 56  # 38 Utf8 "(Ljava/lang/String;I)V"
+01 00 03 61 64 64                                         # 39 Utf8 "add"
+01 00 06 72 65 6D 6F 76 65                                # 40 Utf8 "remove"
+01 00 05 74 6F 74 61 6C                                   # 41 Utf8 "total"
+01 00 03 28 29 49                                         # 42 Utf8 "()I"
+01 00 04 6C 69 73 74                                      # 43 Utf8 "list"
+01 00 08 3C 63 6C 69 6E 69 74 3E                          # 44 Utf8 "<clinit>"
+0C 00 22 00 23                                            # 45 NameAndType find:(Ljava/lang/String;)I
+0A 00 02 00 2D                                            # 46 Methodref Inventory.find
+0C 00 24 00 23                                            # 47 NameAndType parseQty:(Ljava/lang/String;)I
+0A 00 02 00 2F                                            # 48 Methodref Inventory.parseQty
+0C 00 25 00 26                                            # 49 NameAndType fail:(Ljava/lang/String;I)V
+0A 00 02 00 31                                            # 50 Methodref Inventory.fail
+0C 00 27 00 26                                            # 51 NameAndType add:(Ljava/lang/String;I)V
+0A 00 02 00 33                                            # 52 Methodref Inventory.add
+0C 00 28 00 26                                            # 53 NameAndType remove:(Ljava/lang/String;I)V
+0A 00 02 00 35                                            # 54 Methodref Inventory.remove
+0C 00 29 00 2A                                            # 55 NameAndType total:()I
+0A 00 02 00 37                                            # 56 Methodref Inventory.total
+0C 00 2B 00 06                                            # 57 NameAndType list:()V
+0A 00 02 00 39                                            # 58 Methodref Inventory.list
+08 00 27                                                  # 59 String "add"
+08 00 28                                                  # 60 String "remove"
+08 00 29                                                  # 61 String "total"
+08 00 2B                                                  # 62 String "list"
+01 00 06 65 71 75 61 6C 73                                # 63 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 64 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 3F 00 40                                            # 65 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 1E 00 41                                            # 66 Methodref String.equals
+01 00 06 63 6F 6E 63 61 74                                # 67 Utf8 "concat"
+01 00 26 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 68 Utf8 "(Ljava/lang/String;)Ljava/lang/String;"
+0C 00 43 00 44                                            # 69 NameAndType concat:(Ljava/lang/String;)Ljava/lang/String;
+0A 00 1E 00 45                                            # 70 Methodref String.concat
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 71 Utf8 "java/lang/System"
+07 00 47                                                  # 72 Class java/lang/System
+01 00 03 6F 75 74                                         # 73 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 74 Utf8 "Ljava/io/PrintStream;"
+0C 00 49 00 4A                                            # 75 NameAndType out:Ljava/io/PrintStream;
+09 00 48 00 4B                                            # 76 Fieldref System.out
+01 00 03 65 72 72                                         # 77 Utf8 "err"
+0C 00 4D 00 4A                                            # 78 NameAndType err:Ljava/io/PrintStream;
+09 00 48 00 4E                                            # 79 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 80 Utf8 "java/io/PrintStream"
+07 00 50                                                  # 81 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 82 Utf8 "println"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 83 Utf8 "(Ljava/lang/String;)V"
+0C 00 52 00 53                                            # 84 NameAndType println:(Ljava/lang/String;)V
+0A 00 51 00 54                                            # 85 Methodref PrintStream.println(String)
+01 00 04 28 49 29 56                                      # 86 Utf8 "(I)V"
+0C 00 52 00 56                                            # 87 NameAndType println:(I)V
+0A 00 51 00 57                                            # 88 Methodref PrintStream.println(I)
+01 00 05 70 72 69 6E 74                                   # 89 Utf8 "print"
+0C 00 59 00 53                                            # 90 NameAndType print:(Ljava/lang/String;)V
+0A 00 51 00 5A                                            # 91 Methodref PrintStream.print(String)
+01 00 04 28 43 29 56                                      # 92 Utf8 "(C)V"
+0C 00 59 00 5C                                            # 93 NameAndType print:(C)V
+0A 00 51 00 5D                                            # 94 Methodref PrintStream.print(C)
+01 00 04 65 78 69 74                                      # 95 Utf8 "exit"
+0C 00 5F 00 56                                            # 96 NameAndType exit:(I)V
+0A 00 48 00 60                                            # 97 Methodref System.exit
+01 00 11 6A 61 76 61 2F 6C 61 6E 67 2F 49 6E 74 65 67 65 72  # 98 Utf8 "java/lang/Integer"
+07 00 62                                                  # 99 Class java/lang/Integer
+01 00 08 70 61 72 73 65 49 6E 74                          # 100 Utf8 "parseInt"
+0C 00 64 00 23                                            # 101 NameAndType parseInt:(Ljava/lang/String;)I
+0A 00 63 00 65                                            # 102 Methodref Integer.parseInt
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 103 Utf8 "java/lang/NumberFormatException"
+07 00 67                                                  # 104 Class java/lang/NumberFormatException
+01 00 22 55 73 61 67 65 3A 20 6A 61 76 61 20 49 6E 76 65 6E 74 6F 72 79 20 3C 63 6F 6D 6D 61 6E 64 3E 2E 2E 2E  # 105 Utf8 "Usage: java Inventory <command>..."
+08 00 69                                                  # 106 String usage
+01 00 1C 45 72 72 6F 72 3A 20 6D 69 73 73 69 6E 67 20 61 72 67 75 6D 65 6E 74 20 66 6F 72 20  # 107 Utf8 "Error: missing argument for "
+08 00 6B                                                  # 108 String missing argument
+01 00 17 45 72 72 6F 72 3A 20 75 6E 6B 6E 6F 77 6E 20 63 6F 6D 6D 61 6E 64 20  # 109 Utf8 "Error: unknown command "
+08 00 6D                                                  # 110 String unknown command
+01 00 18 45 72 72 6F 72 3A 20 69 6E 76 61 6C 69 64 20 71 75 61 6E 74 69 74 79 20  # 111 Utf8 "Error: invalid quantity "
+08 00 6F                                                  # 112 String invalid quantity
+01 00 15 45 72 72 6F 72 3A 20 69 6E 76 65 6E 74 6F 72 79 20 66 75 6C 6C  # 113 Utf8 "Error: inventory full"
+08 00 71                                                  # 114 String inventory full
+01 00 1E 45 72 72 6F 72 3A 20 69 6E 73 75 66 66 69 63 69 65 6E 74 20 73 74 6F 63 6B 20 66 6F 72 20  # 115 Utf8 "Error: insufficient stock for "
+08 00 73                                                  # 116 String insufficient stock
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Inventory
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+
+# ---- fields ----
+00 04                         # fields_count
+00 18 00 0E 00 0F             # static final CAPACITY:I
+00 01                         #   attributes_count
+00 10 00 00 00 02 00 11       #   ConstantValue, length 2, #17 Integer 8
+00 08 00 12 00 13 00 00       # static names:[Ljava/lang/String;
+00 08 00 14 00 15 00 00       # static qtys:[I
+00 08 00 16 00 0F 00 00       # static count:I
+
+00 0A                         # methods_count 10
+
+# ---- method public <init>()V ----
+00 01 00 05 00 06             # ACC_PUBLIC, "<init>", "()V"
+00 01                         # attributes_count
+00 09 00 00 00 1D             # Code, length 29 = 12 + 5 + (6+6)
+00 01 00 01                   # max_stack 1, max_locals 1
+00 00 00 05                   # code_length 5
+2A                            # 0 aload_0
+B7 00 08                      # 1 invokespecial Object.<init>
+B1                            # 4 return
+00 00                         # exception_table_length
+00 01                         # Code attributes_count
+00 0A 00 00 00 06             # LineNumberTable, length 6
+00 01                         # 1 entry
+00 00 00 01                   # pc 0 -> line 1
+
+# ---- method public static main([Ljava/lang/String;)V ----
+00 09 00 20 00 21             # ACC_PUBLIC|ACC_STATIC, "main", "([Ljava/lang/String;)V"
+00 01                         # attributes_count
+00 09 00 00 01 31             # Code, length 305 = 12 + 161 + (6+90) + (6+30)
+00 03 00 05                   # max_stack 3, max_locals 5 (args, i, cmd, name, q)
+00 00 00 A1                   # code_length 161
+2A                            # 0 aload_0
+BE                            # 1 arraylength
+9A 00 09                      # 2 ifne -> 11
+12 6A                         # 5 ldc #106 usage
+04                            # 7 iconst_1
+B8 00 32                      # 8 invokestatic fail
+03                            # 11 iconst_0
+3C                            # 12 istore_1 i
+1B                            # 13 iload_1           LOOP
+2A                            # 14 aload_0
+BE                            # 15 arraylength
+A2 00 90                      # 16 if_icmpge -> 160 END
+2A                            # 19 aload_0
+1B                            # 20 iload_1
+32                            # 21 aaload
+4D                            # 22 astore_2 cmd
+2C                            # 23 aload_2
+12 3B                         # 24 ldc #59 "add"
+B6 00 42                      # 26 invokevirtual String.equals
+9A 00 0C                      # 29 ifne -> 41
+2C                            # 32 aload_2
+12 3C                         # 33 ldc #60 "remove"
+B6 00 42                      # 35 invokevirtual String.equals
+99 00 43                      # 38 ifeq -> 105 TOTAL
+1B                            # 41 iload_1
+05                            # 42 iconst_2
+60                            # 43 iadd
+2A                            # 44 aload_0
+BE                            # 45 arraylength
+A1 00 0D                      # 46 if_icmplt -> 59
+12 6C                         # 49 ldc #108 missing argument
+2C                            # 51 aload_2
+B6 00 46                      # 52 invokevirtual String.concat
+05                            # 55 iconst_2
+B8 00 32                      # 56 invokestatic fail
+2A                            # 59 aload_0
+1B                            # 60 iload_1
+04                            # 61 iconst_1
+60                            # 62 iadd
+32                            # 63 aaload
+4E                            # 64 astore_3 name
+2A                            # 65 aload_0
+1B                            # 66 iload_1
+05                            # 67 iconst_2
+60                            # 68 iadd
+32                            # 69 aaload
+B8 00 30                      # 70 invokestatic parseQty
+36 04                         # 73 istore 4 q
+2C                            # 75 aload_2
+12 3B                         # 76 ldc #59 "add"
+B6 00 42                      # 78 invokevirtual String.equals
+99 00 0C                      # 81 ifeq -> 93
+2D                            # 84 aload_3
+15 04                         # 85 iload 4
+B8 00 34                      # 87 invokestatic add
+A7 00 09                      # 90 goto -> 99
+2D                            # 93 aload_3
+15 04                         # 94 iload 4
+B8 00 36                      # 96 invokestatic remove
+84 01 03                      # 99 iinc 1 3
+A7 FF A7                      # 102 goto -> 13 (-89)
+2C                            # 105 aload_2          TOTAL
+12 3D                         # 106 ldc #61 "total"
+B6 00 42                      # 108 invokevirtual String.equals
+99 00 12                      # 111 ifeq -> 129
+B2 00 4C                      # 114 getstatic System.out
+B8 00 38                      # 117 invokestatic total
+B6 00 58                      # 120 invokevirtual println(I)
+84 01 01                      # 123 iinc 1 1
+A7 FF 8F                      # 126 goto -> 13 (-113)
+2C                            # 129 aload_2
+12 3E                         # 130 ldc #62 "list"
+B6 00 42                      # 132 invokevirtual String.equals
+99 00 0C                      # 135 ifeq -> 147
+B8 00 3A                      # 138 invokestatic list
+84 01 01                      # 141 iinc 1 1
+A7 FF 7D                      # 144 goto -> 13 (-131)
+12 6E                         # 147 ldc #110 unknown command
+2C                            # 149 aload_2
+B6 00 46                      # 150 invokevirtual String.concat
+05                            # 153 iconst_2
+B8 00 32                      # 154 invokestatic fail
+A7 FF 70                      # 157 goto -> 13 (-144)
+B1                            # 160 return           END
+00 00                         # exception_table_length
+00 02                         # Code attributes_count
+00 0A 00 00 00 5A             # LineNumberTable, length 90
+00 16                         # 22 entries (pc line)
+00 00 00 08  00 05 00 09  00 0B 00 0B  00 0D 00 0C   # 0:8 5:9 11:11 13:12
+00 13 00 0D  00 17 00 0E  00 29 00 0F  00 31 00 10   # 19:13 23:14 41:15 49:16
+00 3B 00 12  00 41 00 13  00 4B 00 14  00 54 00 15   # 59:18 65:19 75:20 84:21
+00 5D 00 17  00 63 00 19  00 69 00 1A  00 72 00 1B   # 93:23 99:25 105:26 114:27
+00 7B 00 1C  00 81 00 1D  00 8A 00 1E  00 8D 00 1F   # 123:28 129:29 138:30 141:31
+00 93 00 21  00 A0 00 24                             # 147:33 160:36
+00 0B 00 00 00 1E             # StackMapTable, length 30
+00 0A                         # 10 frames
+0B                            # @11 same                 [args]
+FC 00 01 01                   # @13 append int           [args, int]
+FC 00 1B 07 00 1E             # @41 append String        [args, int, String]
+11                            # @59 same
+FD 00 21 07 00 1E 01          # @93 append String, int   [args, int, String, String, int]
+05                            # @99 same
+F9 00 05                      # @105 chop 2              [args, int, String]
+17                            # @129 same
+11                            # @147 same
+FA 00 0C                      # @160 chop 1              [args, int]
+
+# ---- method static find(Ljava/lang/String;)I ----
+00 08 00 22 00 23             # ACC_STATIC, "find", "(Ljava/lang/String;)I"
+00 01
+00 09 00 00 00 57             # Code, length 87 = 12 + 31 + (6+22) + (6+10)
+00 02 00 02                   # max_stack 2, max_locals 2 (name, i)
+00 00 00 1F                   # code_length 31
+03                            # 0 iconst_0
+3C                            # 1 istore_1 i
+1B                            # 2 iload_1            LOOP
+B2 00 1C                      # 3 getstatic count
+A2 00 17                      # 6 if_icmpge -> 29
+B2 00 18                      # 9 getstatic names
+1B                            # 12 iload_1
+32                            # 13 aaload
+2A                            # 14 aload_0
+B6 00 42                      # 15 invokevirtual String.equals
+99 00 05                      # 18 ifeq -> 23
+1B                            # 21 iload_1
+AC                            # 22 ireturn
+84 01 01                      # 23 iinc 1 1
+A7 FF E8                      # 26 goto -> 2 (-24)
+02                            # 29 iconst_m1
+AC                            # 30 ireturn
+00 00                         # exception_table_length
+00 02
+00 0A 00 00 00 16             # LineNumberTable, length 22
+00 05
+00 00 00 27  00 09 00 28  00 15 00 29  00 17 00 27  00 1D 00 2C   # 0:39 9:40 21:41 23:39 29:44
+00 0B 00 00 00 0A             # StackMapTable, length 10
+00 03
+FC 00 02 01                   # @2 append int        [String, int]
+14                            # @23 same
+FA 00 05                      # @29 chop 1           [String]
+
+# ---- method static parseQty(Ljava/lang/String;)I ----
+00 08 00 24 00 23             # ACC_STATIC, "parseQty", "(Ljava/lang/String;)I"
+00 01
+00 09 00 00 00 60             # Code, length 96 = 12 + 27 + 8 + (6+26) + (6+11)
+00 02 00 03                   # max_stack 2, max_locals 3 (s, q, e)
+00 00 00 1B                   # code_length 27
+2A                            # 0 aload_0            try start
+B8 00 66                      # 1 invokestatic Integer.parseInt
+3C                            # 4 istore_1 q         try end (5)
+A7 00 06                      # 5 goto -> 11
+4D                            # 8 astore_2 e         handler
+03                            # 9 iconst_0
+3C                            # 10 istore_1
+1B                            # 11 iload_1
+9A 00 0D                      # 12 ifne -> 25        BUG (b): should be ifgt (9D)
+12 70                         # 15 ldc #112 invalid quantity
+2A                            # 17 aload_0
+B6 00 46                      # 18 invokevirtual String.concat
+06                            # 21 iconst_3
+B8 00 32                      # 22 invokestatic fail
+1B                            # 25 iload_1
+AC                            # 26 ireturn
+00 01                         # exception_table_length
+00 00 00 05 00 08 00 68       # [0, 5) -> 8, NumberFormatException
+00 02
+00 0A 00 00 00 1A             # LineNumberTable, length 26
+00 06
+00 00 00 32  00 08 00 33  00 09 00 34  00 0B 00 36  00 0F 00 37  00 19 00 39   # 0:50 8:51 9:52 11:54 15:55 25:57
+00 0B 00 00 00 0B             # StackMapTable, length 11
+00 03
+48 07 00 68                   # @8 same_locals_1_stack [String] stack [NumberFormatException]
+FC 00 02 01                   # @11 append int       [String, int]
+0D                            # @25 same
+
+# ---- method static add(Ljava/lang/String;I)V ----
+00 08 00 27 00 26             # ACC_STATIC, "add", "(Ljava/lang/String;I)V"
+00 01
+00 09 00 00 00 83             # Code, length 131 = 12 + 58 + (6+42) + (6+7)
+00 04 00 03                   # max_stack 4, max_locals 3 (name, q, i)
+00 00 00 3A                   # code_length 58
+2A                            # 0 aload_0
+B8 00 2E                      # 1 invokestatic find
+3D                            # 4 istore_2 i
+1C                            # 5 iload_2
+9B 00 0D                      # 6 iflt -> 19
+B2 00 1A                      # 9 getstatic qtys
+1C                            # 12 iload_2
+5C                            # 13 dup2
+2E                            # 14 iaload
+1B                            # 15 iload_1
+60                            # 16 iadd
+4F                            # 17 iastore
+B1                            # 18 return
+B2 00 1C                      # 19 getstatic count
+10 08                         # 22 bipush 8 (CAPACITY)
+A0 00 09                      # 24 if_icmpne -> 33
+12 72                         # 27 ldc #114 inventory full
+08                            # 29 iconst_5
+B8 00 32                      # 30 invokestatic fail
+B2 00 18                      # 33 getstatic names
+B2 00 1C                      # 36 getstatic count
+2A                            # 39 aload_0
+53                            # 40 aastore
+B2 00 1A                      # 41 getstatic qtys
+B2 00 1C                      # 44 getstatic count
+1B                            # 47 iload_1
+4F                            # 48 iastore
+B2 00 1C                      # 49 getstatic count
+04                            # 52 iconst_1
+60                            # 53 iadd
+B3 00 1C                      # 54 putstatic count
+B1                            # 57 return
+00 00
+00 02
+00 0A 00 00 00 2A             # LineNumberTable, length 42
+00 0A
+00 00 00 3D  00 05 00 3E  00 09 00 3F  00 12 00 40  00 13 00 42   # 0:61 5:62 9:63 18:64 19:66
+00 1B 00 43  00 21 00 45  00 29 00 46  00 31 00 47  00 39 00 48   # 27:67 33:69 41:70 49:71 57:72
+00 0B 00 00 00 07             # StackMapTable, length 7
+00 02
+FC 00 13 01                   # @19 append int       [String, int, int]
+0D                            # @33 same
+
+# ---- method static remove(Ljava/lang/String;I)V ----
+00 08 00 28 00 26             # ACC_STATIC, "remove", "(Ljava/lang/String;I)V"
+00 01
+00 09 00 00 00 6D             # Code, length 109 = 12 + 48 + (6+30) + (6+7)
+00 04 00 03                   # max_stack 4, max_locals 3 (name, q, i)
+00 00 00 30                   # code_length 48
+2A                            # 0 aload_0
+B8 00 2E                      # 1 invokestatic find
+3D                            # 4 istore_2 i
+1C                            # 5 iload_2
+9C 00 0D                      # 6 ifge -> 19
+12 70                         # 9 ldc #112 invalid quantity    BUG (c): should be "Error: unknown item "
+2A                            # 11 aload_0
+B6 00 46                      # 12 invokevirtual String.concat
+07                            # 15 iconst_4
+B8 00 32                      # 16 invokestatic fail
+B2 00 1A                      # 19 getstatic qtys
+1C                            # 22 iload_2
+2E                            # 23 iaload
+1B                            # 24 iload_1
+A2 00 0D                      # 25 if_icmpge -> 38
+12 74                         # 28 ldc #116 insufficient stock
+2A                            # 30 aload_0
+B6 00 46                      # 31 invokevirtual String.concat
+07                            # 34 iconst_4
+B8 00 32                      # 35 invokestatic fail
+B2 00 1A                      # 38 getstatic qtys
+1C                            # 41 iload_2
+5C                            # 42 dup2
+2E                            # 43 iaload
+1B                            # 44 iload_1
+64                            # 45 isub
+4F                            # 46 iastore
+B1                            # 47 return
+00 00
+00 02
+00 0A 00 00 00 1E             # LineNumberTable, length 30
+00 07
+00 00 00 4B  00 05 00 4C  00 09 00 4D  00 13 00 4F  00 1C 00 50  00 26 00 52  00 2F 00 53   # 0:75 5:76 9:77 19:79 28:80 38:82 47:83
+00 0B 00 00 00 07             # StackMapTable, length 7
+00 02
+FC 00 13 01                   # @19 append int       [String, int, int]
+12                            # @38 same
+
+# ---- method static total()I ----
+00 08 00 29 00 2A             # ACC_STATIC, "total", "()I"
+00 01
+00 09 00 00 00 53             # Code, length 83 = 12 + 27 + (6+22) + (6+10)
+00 03 00 02                   # max_stack 3, max_locals 2 (sum, i)
+00 00 00 1B                   # code_length 27
+03                            # 0 iconst_0
+3B                            # 1 istore_0 sum
+03                            # 2 iconst_0
+3C                            # 3 istore_1 i
+1B                            # 4 iload_1            LOOP
+B2 00 1C                      # 5 getstatic count
+A2 00 11                      # 8 if_icmpge -> 25
+1A                            # 11 iload_0
+B2 00 1A                      # 12 getstatic qtys
+1B                            # 15 iload_1
+2E                            # 16 iaload
+60                            # 17 iadd
+3B                            # 18 istore_0
+84 01 01                      # 19 iinc 1 1
+A7 FF EE                      # 22 goto -> 4 (-18)
+1A                            # 25 iload_0
+AC                            # 26 ireturn
+00 00
+00 02
+00 0A 00 00 00 16             # LineNumberTable, length 22
+00 05
+00 00 00 56  00 02 00 57  00 0B 00 58  00 13 00 57  00 19 00 5A   # 0:86 2:87 11:88 19:87 25:90
+00 0B 00 00 00 0A             # StackMapTable, length 10
+00 02
+FD 00 04 01 01                # @4 append int, int   [int, int]
+FA 00 14                      # @25 chop 1           [int]
+
+# ---- method static list()V ----
+00 08 00 2B 00 06             # ACC_STATIC, "list", "()V"
+00 01
+00 09 00 00 00 6B             # Code, length 107 = 12 + 48 + (6+26) + (6+9)
+00 03 00 01                   # max_stack 3, max_locals 1 (i)
+00 00 00 30                   # code_length 48
+03                            # 0 iconst_0
+3B                            # 1 istore_0 i
+1A                            # 2 iload_0            LOOP
+B2 00 1C                      # 3 getstatic count
+04                            # 6 iconst_1           BUG (a): bound is count - 1
+64                            # 7 isub
+A2 00 27                      # 8 if_icmpge -> 47
+B2 00 4C                      # 11 getstatic System.out
+B2 00 18                      # 14 getstatic names
+1A                            # 17 iload_0
+32                            # 18 aaload
+B6 00 5B                      # 19 invokevirtual print(String)
+B2 00 4C                      # 22 getstatic System.out
+10 3D                         # 25 bipush 61 '='
+B6 00 5E                      # 27 invokevirtual print(C)
+B2 00 4C                      # 30 getstatic System.out
+B2 00 1A                      # 33 getstatic qtys
+1A                            # 36 iload_0
+2E                            # 37 iaload
+B6 00 58                      # 38 invokevirtual println(I)
+84 00 01                      # 41 iinc 0 1
+A7 FF D6                      # 44 goto -> 2 (-42)
+B1                            # 47 return
+00 00
+00 02
+00 0A 00 00 00 1A             # LineNumberTable, length 26
+00 06
+00 00 00 5E  00 0B 00 5F  00 16 00 60  00 1E 00 61  00 29 00 5E  00 2F 00 63   # 0:94 11:95 22:96 30:97 41:94 47:99
+00 0B 00 00 00 09             # StackMapTable, length 9
+00 02
+FC 00 02 01                   # @2 append int        [int]
+FA 00 2C                      # @47 chop 1           []
+
+# ---- method static fail(Ljava/lang/String;I)V ----
+00 08 00 25 00 26             # ACC_STATIC, "fail", "(Ljava/lang/String;I)V"
+00 01
+00 09 00 00 00 2C             # Code, length 44 = 12 + 12 + (6+14)
+00 02 00 02                   # max_stack 2, max_locals 2 (msg, code)
+00 00 00 0C                   # code_length 12
+B2 00 4F                      # 0 getstatic System.err
+2A                            # 3 aload_0
+B6 00 55                      # 4 invokevirtual println(String)
+1B                            # 7 iload_1
+B8 00 61                      # 8 invokestatic System.exit
+B1                            # 11 return
+00 00
+00 01
+00 0A 00 00 00 0E             # LineNumberTable, length 14
+00 03
+00 00 00 66  00 07 00 67  00 0B 00 68   # 0:102 7:103 11:104
+
+# ---- method static <clinit>()V ----
+00 08 00 2C 00 06             # ACC_STATIC, "<clinit>", "()V"
+00 01
+00 09 00 00 00 2C             # Code, length 44 = 12 + 16 + (6+10)
+00 01 00 00                   # max_stack 1, max_locals 0
+00 00 00 10                   # code_length 16
+10 08                         # 0 bipush 8
+BD 00 1E                      # 2 anewarray java/lang/String
+B3 00 18                      # 5 putstatic names
+10 08                         # 8 bipush 8
+BC 0A                         # 10 newarray int
+B3 00 1A                      # 12 putstatic qtys
+B1                            # 15 return
+00 00
+00 01
+00 0A 00 00 00 0A             # LineNumberTable, length 10
+00 02
+00 00 00 03  00 08 00 04      # 0:3 8:4
+
+# ---- class attributes ----
+00 01                         # attributes_count
+00 0C 00 00 00 02 00 0D       # SourceFile "Inventory.java"

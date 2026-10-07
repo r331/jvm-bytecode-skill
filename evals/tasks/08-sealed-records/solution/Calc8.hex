@@ -1,0 +1,637 @@
+# Calc8.class - hand-written, major 61 (Java 17)
+#
+# public class Calc8 {
+#   private static int pos;                       next token index for parse
+#
+#   main([Ljava/lang/String;)V, static. locals: 0 = args, 1 = t1 (Expr), 2 = t2 (Expr), 3-4 = v (long)
+#     if (args.length == 0) { err.println(USAGE); exit(1); return }
+#     if (args.length == 1 && args[0].equals("--introspect")) { introspect(); return }
+#     pos = 0; t1 = parse(args)
+#     if (pos != args.length) { err.print("Trailing token: "); err.println(args[pos]); exit(4); return }
+#     pos = 0; t2 = parse(args)                    second, independent tree from the same tokens
+#     out.println(t1.toString())                   invokevirtual Object.toString -> record toString
+#     v = eval(t1); out.print("= "); out.println(v)
+#     out.print("equal: ");     out.println(t1.equals(t2))                 record equals (indy)
+#     out.print("hash: ");      out.println(t1.hashCode() == t2.hashCode()) record hashCode (indy)
+#     out.print("identical: "); out.println(t1 == t2)                       always false
+#     out.print("literal: ");   out.println(new Num(v).equals(t1))
+#
+#   parse([Ljava/lang/String;)LExpr;, private static. locals: 0 = a, 1 = tok, 2-3 = n (long)
+#     if (pos >= a.length) { err.println("Missing operand"); exit(3); return null }
+#     tok = a[pos]; pos = pos + 1
+#     if (tok.equals("add")) return new Add(parse(a), parse(a))   left operand parsed first
+#     if (tok.equals("mul")) return new Mul(parse(a), parse(a))
+#     try { n = Long.parseLong(tok) }
+#     catch (NumberFormatException) { err.print("Unknown token: "); err.println(tok); exit(2); return null }
+#     return new Num(n)
+#
+#   eval(LExpr;)J, static. locals: 0 = e
+#     if (e instanceof Num) return ((Num) e).value()
+#     if (e instanceof Add) return eval(((Add) e).left()) + eval(((Add) e).right())
+#     return eval(((Mul) e).left()) * eval(((Mul) e).right())   Expr is sealed: only Mul is left
+#
+#   introspect()V, private static. locals: 0 = arr (Class[]), 1 = i
+#     describe(Num.class); describe(Add.class); describe(Mul.class)
+#     out.print("Expr.isSealed()="); out.print(Expr.class.isSealed()); out.print(" permitted=")
+#     arr = Expr.class.getPermittedSubclasses()
+#     for (i = 0; i < arr.length; i++) { if (i != 0) out.print(','); out.print(arr[i].getSimpleName()) }
+#     out.println()
+#
+#   describe(Ljava/lang/Class;)V, private static. locals: 0 = c, 1 = arr (RecordComponent[]), 2 = i, 3 = rc
+#     out.print(c.getSimpleName()); out.print(".isRecord()="); out.print(c.isRecord()); out.print(" components=")
+#     arr = c.getRecordComponents()
+#     for (i = 0; i < arr.length; i++) {
+#       if (i != 0) out.print(','); rc = arr[i]
+#       out.print(rc.getName()); out.print(':'); out.print(rc.getType().getSimpleName())
+#     }
+#     out.println()
+# }
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 3D                         # major_version 61 (Java 17)
+00 B6                         # constant_pool_count 182 (entries 1..181)
+
+# ---- constant pool ----
+01 00 05 43 61 6C 63 38                                   # 1 Utf8 "Calc8"
+07 00 01                                                  # 2 Class Calc8
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 04 43 6F 64 65                                      # 7 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 8 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 9 Utf8 "java/lang/System"
+07 00 09                                                  # 10 Class java/lang/System
+01 00 03 6F 75 74                                         # 11 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 12 Utf8 "Ljava/io/PrintStream;"
+0C 00 0B 00 0C                                            # 13 NameAndType out:Ljava/io/PrintStream;
+09 00 0A 00 0D                                            # 14 Fieldref System.out
+01 00 03 65 72 72                                         # 15 Utf8 "err"
+0C 00 0F 00 0C                                            # 16 NameAndType err:Ljava/io/PrintStream;
+09 00 0A 00 10                                            # 17 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 18 Utf8 "java/io/PrintStream"
+07 00 12                                                  # 19 Class java/io/PrintStream
+01 00 05 70 72 69 6E 74                                   # 20 Utf8 "print"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 21 Utf8 "(Ljava/lang/String;)V"
+0C 00 14 00 15                                            # 22 NameAndType print:(Ljava/lang/String;)V
+0A 00 13 00 16                                            # 23 Methodref PrintStream.print(String)V
+01 00 07 70 72 69 6E 74 6C 6E                             # 24 Utf8 "println"
+0C 00 18 00 15                                            # 25 NameAndType println:(Ljava/lang/String;)V
+0A 00 13 00 19                                            # 26 Methodref PrintStream.println(String)V
+01 00 04 28 5A 29 56                                      # 27 Utf8 "(Z)V"
+0C 00 14 00 1B                                            # 28 NameAndType print:(Z)V
+0A 00 13 00 1C                                            # 29 Methodref PrintStream.print(Z)V
+0C 00 18 00 1B                                            # 30 NameAndType println:(Z)V
+0A 00 13 00 1E                                            # 31 Methodref PrintStream.println(Z)V
+01 00 04 28 4A 29 56                                      # 32 Utf8 "(J)V"
+0C 00 18 00 20                                            # 33 NameAndType println:(J)V
+0A 00 13 00 21                                            # 34 Methodref PrintStream.println(J)V
+01 00 04 28 43 29 56                                      # 35 Utf8 "(C)V"
+0C 00 14 00 23                                            # 36 NameAndType print:(C)V
+0A 00 13 00 24                                            # 37 Methodref PrintStream.print(C)V
+01 00 03 28 29 56                                         # 38 Utf8 "()V"
+0C 00 18 00 26                                            # 39 NameAndType println:()V
+0A 00 13 00 27                                            # 40 Methodref PrintStream.println()V
+01 00 04 65 78 69 74                                      # 41 Utf8 "exit"
+01 00 04 28 49 29 56                                      # 42 Utf8 "(I)V"
+0C 00 29 00 2A                                            # 43 NameAndType exit:(I)V
+0A 00 0A 00 2B                                            # 44 Methodref System.exit(I)V
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 45 Utf8 "java/lang/String"
+07 00 2D                                                  # 46 Class java/lang/String
+01 00 06 65 71 75 61 6C 73                                # 47 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 48 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 2F 00 30                                            # 49 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 2E 00 31                                            # 50 Methodref String.equals(Object)Z
+0A 00 04 00 31                                            # 51 Methodref Object.equals(Object)Z
+01 00 08 74 6F 53 74 72 69 6E 67                          # 52 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 53 Utf8 "()Ljava/lang/String;"
+0C 00 34 00 35                                            # 54 NameAndType toString:()Ljava/lang/String;
+0A 00 04 00 36                                            # 55 Methodref Object.toString()String
+01 00 08 68 61 73 68 43 6F 64 65                          # 56 Utf8 "hashCode"
+01 00 03 28 29 49                                         # 57 Utf8 "()I"
+0C 00 38 00 39                                            # 58 NameAndType hashCode:()I
+0A 00 04 00 3A                                            # 59 Methodref Object.hashCode()I
+01 00 0E 6A 61 76 61 2F 6C 61 6E 67 2F 4C 6F 6E 67        # 60 Utf8 "java/lang/Long"
+07 00 3C                                                  # 61 Class java/lang/Long
+01 00 09 70 61 72 73 65 4C 6F 6E 67                       # 62 Utf8 "parseLong"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4A  # 63 Utf8 "(Ljava/lang/String;)J"
+0C 00 3E 00 3F                                            # 64 NameAndType parseLong:(Ljava/lang/String;)J
+0A 00 3D 00 40                                            # 65 Methodref Long.parseLong(String)J
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 4E 75 6D 62 65 72 46 6F 72 6D 61 74 45 78 63 65 70 74 69 6F 6E  # 66 Utf8 "java/lang/NumberFormatException"
+07 00 42                                                  # 67 Class java/lang/NumberFormatException
+01 00 04 45 78 70 72                                      # 68 Utf8 "Expr"
+07 00 44                                                  # 69 Class Expr
+01 00 03 4E 75 6D                                         # 70 Utf8 "Num"
+07 00 46                                                  # 71 Class Num
+01 00 03 41 64 64                                         # 72 Utf8 "Add"
+07 00 48                                                  # 73 Class Add
+01 00 03 4D 75 6C                                         # 74 Utf8 "Mul"
+07 00 4A                                                  # 75 Class Mul
+01 00 06 3C 69 6E 69 74 3E                                # 76 Utf8 "<init>"
+0C 00 4C 00 20                                            # 77 NameAndType <init>:(J)V
+0A 00 47 00 4D                                            # 78 Methodref Num.<init>(J)V
+01 00 0F 28 4C 45 78 70 72 3B 4C 45 78 70 72 3B 29 56     # 79 Utf8 "(LExpr;LExpr;)V"
+0C 00 4C 00 4F                                            # 80 NameAndType <init>:(LExpr;LExpr;)V
+0A 00 49 00 50                                            # 81 Methodref Add.<init>(Expr,Expr)V
+0A 00 4B 00 50                                            # 82 Methodref Mul.<init>(Expr,Expr)V
+01 00 05 76 61 6C 75 65                                   # 83 Utf8 "value"
+01 00 03 28 29 4A                                         # 84 Utf8 "()J"
+0C 00 53 00 54                                            # 85 NameAndType value:()J
+0A 00 47 00 55                                            # 86 Methodref Num.value()J
+01 00 04 6C 65 66 74                                      # 87 Utf8 "left"
+01 00 08 28 29 4C 45 78 70 72 3B                          # 88 Utf8 "()LExpr;"
+0C 00 57 00 58                                            # 89 NameAndType left:()LExpr;
+0A 00 49 00 59                                            # 90 Methodref Add.left()Expr
+01 00 05 72 69 67 68 74                                   # 91 Utf8 "right"
+0C 00 5B 00 58                                            # 92 NameAndType right:()LExpr;
+0A 00 49 00 5C                                            # 93 Methodref Add.right()Expr
+0A 00 4B 00 59                                            # 94 Methodref Mul.left()Expr
+0A 00 4B 00 5C                                            # 95 Methodref Mul.right()Expr
+01 00 03 70 6F 73                                         # 96 Utf8 "pos"
+01 00 01 49                                               # 97 Utf8 "I"
+0C 00 60 00 61                                            # 98 NameAndType pos:I
+09 00 02 00 62                                            # 99 Fieldref Calc8.pos:I
+01 00 05 70 61 72 73 65                                   # 100 Utf8 "parse"
+01 00 1B 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4C 45 78 70 72 3B  # 101 Utf8 "([Ljava/lang/String;)LExpr;"
+0C 00 64 00 65                                            # 102 NameAndType parse:([Ljava/lang/String;)LExpr;
+0A 00 02 00 66                                            # 103 Methodref Calc8.parse
+01 00 04 65 76 61 6C                                      # 104 Utf8 "eval"
+01 00 09 28 4C 45 78 70 72 3B 29 4A                       # 105 Utf8 "(LExpr;)J"
+0C 00 68 00 69                                            # 106 NameAndType eval:(LExpr;)J
+0A 00 02 00 6A                                            # 107 Methodref Calc8.eval
+01 00 0A 69 6E 74 72 6F 73 70 65 63 74                    # 108 Utf8 "introspect"
+0C 00 6C 00 26                                            # 109 NameAndType introspect:()V
+0A 00 02 00 6D                                            # 110 Methodref Calc8.introspect
+01 00 08 64 65 73 63 72 69 62 65                          # 111 Utf8 "describe"
+01 00 14 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B 29 56  # 112 Utf8 "(Ljava/lang/Class;)V"
+0C 00 6F 00 70                                            # 113 NameAndType describe:(Ljava/lang/Class;)V
+0A 00 02 00 71                                            # 114 Methodref Calc8.describe
+01 00 0F 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73     # 115 Utf8 "java/lang/Class"
+07 00 73                                                  # 116 Class java/lang/Class
+01 00 0D 67 65 74 53 69 6D 70 6C 65 4E 61 6D 65           # 117 Utf8 "getSimpleName"
+0C 00 75 00 35                                            # 118 NameAndType getSimpleName:()Ljava/lang/String;
+0A 00 74 00 76                                            # 119 Methodref Class.getSimpleName
+01 00 08 69 73 52 65 63 6F 72 64                          # 120 Utf8 "isRecord"
+01 00 03 28 29 5A                                         # 121 Utf8 "()Z"
+0C 00 78 00 79                                            # 122 NameAndType isRecord:()Z
+0A 00 74 00 7A                                            # 123 Methodref Class.isRecord
+01 00 08 69 73 53 65 61 6C 65 64                          # 124 Utf8 "isSealed"
+0C 00 7C 00 79                                            # 125 NameAndType isSealed:()Z
+0A 00 74 00 7D                                            # 126 Methodref Class.isSealed
+01 00 13 67 65 74 52 65 63 6F 72 64 43 6F 6D 70 6F 6E 65 6E 74 73  # 127 Utf8 "getRecordComponents"
+01 00 26 28 29 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 72 65 66 6C 65 63 74 2F 52 65 63 6F 72 64 43 6F 6D 70 6F 6E 65 6E 74 3B  # 128 Utf8 "()[Ljava/lang/reflect/RecordComponent;"
+0C 00 7F 00 80                                            # 129 NameAndType getRecordComponents
+0A 00 74 00 81                                            # 130 Methodref Class.getRecordComponents
+01 00 16 67 65 74 50 65 72 6D 69 74 74 65 64 53 75 62 63 6C 61 73 73 65 73  # 131 Utf8 "getPermittedSubclasses"
+01 00 14 28 29 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B  # 132 Utf8 "()[Ljava/lang/Class;"
+0C 00 83 00 84                                            # 133 NameAndType getPermittedSubclasses
+0A 00 74 00 85                                            # 134 Methodref Class.getPermittedSubclasses
+01 00 21 6A 61 76 61 2F 6C 61 6E 67 2F 72 65 66 6C 65 63 74 2F 52 65 63 6F 72 64 43 6F 6D 70 6F 6E 65 6E 74  # 135 Utf8 "java/lang/reflect/RecordComponent"
+07 00 87                                                  # 136 Class java/lang/reflect/RecordComponent
+01 00 07 67 65 74 4E 61 6D 65                             # 137 Utf8 "getName"
+0C 00 89 00 35                                            # 138 NameAndType getName:()Ljava/lang/String;
+0A 00 88 00 8A                                            # 139 Methodref RecordComponent.getName
+01 00 07 67 65 74 54 79 70 65                             # 140 Utf8 "getType"
+01 00 13 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B  # 141 Utf8 "()Ljava/lang/Class;"
+0C 00 8C 00 8D                                            # 142 NameAndType getType:()Ljava/lang/Class;
+0A 00 88 00 8E                                            # 143 Methodref RecordComponent.getType
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 144 Utf8 "[Ljava/lang/String;"
+07 00 90                                                  # 145 Class [Ljava/lang/String; (stack map frames)
+01 00 24 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 72 65 66 6C 65 63 74 2F 52 65 63 6F 72 64 43 6F 6D 70 6F 6E 65 6E 74 3B  # 146 Utf8 "[Ljava/lang/reflect/RecordComponent;"
+07 00 92                                                  # 147 Class [Ljava/lang/reflect/RecordComponent; (stack map frames)
+01 00 12 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B  # 148 Utf8 "[Ljava/lang/Class;"
+07 00 94                                                  # 149 Class [Ljava/lang/Class; (stack map frames)
+01 00 0C 2D 2D 69 6E 74 72 6F 73 70 65 63 74              # 150 Utf8 "--introspect"
+08 00 96                                                  # 151 String "--introspect"
+01 00 03 61 64 64                                         # 152 Utf8 "add"
+08 00 98                                                  # 153 String "add"
+01 00 03 6D 75 6C                                         # 154 Utf8 "mul"
+08 00 9A                                                  # 155 String "mul"
+01 00 2E 55 73 61 67 65 3A 20 6A 61 76 61 20 43 61 6C 63 38 20 3C 70 72 65 66 69 78 2D 65 78 70 72 3E 20 7C 20 2D 2D 69 6E 74 72 6F 73 70 65 63 74  # 156 Utf8 "Usage: java Calc8 <prefix-expr> | --introspect" (46 bytes)
+08 00 9C                                                  # 157 String USAGE
+01 00 0F 4D 69 73 73 69 6E 67 20 6F 70 65 72 61 6E 64     # 158 Utf8 "Missing operand"
+08 00 9E                                                  # 159 String "Missing operand"
+01 00 0F 55 6E 6B 6E 6F 77 6E 20 74 6F 6B 65 6E 3A 20     # 160 Utf8 "Unknown token: " (trailing space)
+08 00 A0                                                  # 161 String "Unknown token: "
+01 00 10 54 72 61 69 6C 69 6E 67 20 74 6F 6B 65 6E 3A 20  # 162 Utf8 "Trailing token: " (trailing space)
+08 00 A2                                                  # 163 String "Trailing token: "
+01 00 02 3D 20                                            # 164 Utf8 "= "
+08 00 A4                                                  # 165 String "= "
+01 00 07 65 71 75 61 6C 3A 20                             # 166 Utf8 "equal: "
+08 00 A6                                                  # 167 String "equal: "
+01 00 06 68 61 73 68 3A 20                                # 168 Utf8 "hash: "
+08 00 A8                                                  # 169 String "hash: "
+01 00 0B 69 64 65 6E 74 69 63 61 6C 3A 20                 # 170 Utf8 "identical: "
+08 00 AA                                                  # 171 String "identical: "
+01 00 09 6C 69 74 65 72 61 6C 3A 20                       # 172 Utf8 "literal: "
+08 00 AC                                                  # 173 String "literal: "
+01 00 0C 2E 69 73 52 65 63 6F 72 64 28 29 3D              # 174 Utf8 ".isRecord()="
+08 00 AE                                                  # 175 String ".isRecord()="
+01 00 0C 20 63 6F 6D 70 6F 6E 65 6E 74 73 3D              # 176 Utf8 " components=" (leading space)
+08 00 B0                                                  # 177 String " components="
+01 00 10 45 78 70 72 2E 69 73 53 65 61 6C 65 64 28 29 3D  # 178 Utf8 "Expr.isSealed()="
+08 00 B2                                                  # 179 String "Expr.isSealed()="
+01 00 0B 20 70 65 72 6D 69 74 74 65 64 3D                 # 180 Utf8 " permitted=" (leading space)
+08 00 B4                                                  # 181 String " permitted="
+
+# ---- class header ----
+00 21                         # access_flags ACC_PUBLIC | ACC_SUPER
+00 02                         # this_class #2 Calc8
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count
+
+# ---- fields ----
+00 01                         # fields_count
+00 0A 00 60 00 61 00 00       # private static int pos  (flags 000A, name "pos", descriptor "I", 0 attributes)
+
+00 05                         # methods_count
+
+# ---- method main([Ljava/lang/String;)V ----
+00 09                         # access_flags ACC_PUBLIC | ACC_STATIC
+00 05                         # name_index "main"
+00 06                         # descriptor_index "([Ljava/lang/String;)V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 01 39                   # attribute_length 313 = 12 + 219 + 0 + (6 + 76)
+00 05                         # max_stack 5 (PrintStream, Num, Num, long x2)
+00 05                         # max_locals 5 (args, t1, t2, v x2)
+00 00 00 DB                   # code_length 219
+2A                            # 0   aload_0                       [args]
+BE                            # 1   arraylength                   [int]
+9A 00 10                      # 2   ifne +16 -> 18
+B2 00 11                      # 5   getstatic System.err
+12 9D                         # 8   ldc #157 USAGE
+B6 00 1A                      # 10  invokevirtual println(String)
+04                            # 13  iconst_1
+B8 00 2C                      # 14  invokestatic System.exit
+B1                            # 17  return
+2A                            # 18  aload_0                       (frame)
+BE                            # 19  arraylength
+04                            # 20  iconst_1
+A0 00 12                      # 21  if_icmpne +18 -> 39
+2A                            # 24  aload_0
+03                            # 25  iconst_0
+32                            # 26  aaload                        [String]
+12 97                         # 27  ldc #151 "--introspect"
+B6 00 32                      # 29  invokevirtual String.equals   [int]
+99 00 07                      # 32  ifeq +7 -> 39
+B8 00 6E                      # 35  invokestatic Calc8.introspect
+B1                            # 38  return
+03                            # 39  iconst_0                      (frame)
+B3 00 63                      # 40  putstatic Calc8.pos
+2A                            # 43  aload_0
+B8 00 67                      # 44  invokestatic Calc8.parse      [Expr]
+4C                            # 47  astore_1                      t1
+B2 00 63                      # 48  getstatic Calc8.pos           [int]
+2A                            # 51  aload_0
+BE                            # 52  arraylength                   [int, int]
+9F 00 1B                      # 53  if_icmpeq +27 -> 80
+B2 00 11                      # 56  getstatic System.err
+12 A3                         # 59  ldc #163 "Trailing token: "
+B6 00 17                      # 61  invokevirtual print(String)
+B2 00 11                      # 64  getstatic System.err
+2A                            # 67  aload_0
+B2 00 63                      # 68  getstatic Calc8.pos
+32                            # 71  aaload                        [err, String]
+B6 00 1A                      # 72  invokevirtual println(String)
+07                            # 75  iconst_4
+B8 00 2C                      # 76  invokestatic System.exit
+B1                            # 79  return
+03                            # 80  iconst_0                      (frame: locals [args, Expr])
+B3 00 63                      # 81  putstatic Calc8.pos
+2A                            # 84  aload_0
+B8 00 67                      # 85  invokestatic Calc8.parse
+4D                            # 88  astore_2                      t2
+B2 00 0E                      # 89  getstatic System.out
+2B                            # 92  aload_1
+B6 00 37                      # 93  invokevirtual Object.toString
+B6 00 1A                      # 96  invokevirtual println(String)
+2B                            # 99  aload_1
+B8 00 6B                      # 100 invokestatic Calc8.eval       [long]
+42                            # 103 lstore_3                      v
+B2 00 0E                      # 104 getstatic System.out
+12 A5                         # 107 ldc #165 "= "
+B6 00 17                      # 109 invokevirtual print(String)
+B2 00 0E                      # 112 getstatic System.out
+21                            # 115 lload_3                       [out, long]
+B6 00 22                      # 116 invokevirtual println(J)
+B2 00 0E                      # 119 getstatic System.out
+12 A7                         # 122 ldc #167 "equal: "
+B6 00 17                      # 124 invokevirtual print(String)
+B2 00 0E                      # 127 getstatic System.out
+2B                            # 130 aload_1
+2C                            # 131 aload_2
+B6 00 33                      # 132 invokevirtual Object.equals   [out, int]
+B6 00 1F                      # 135 invokevirtual println(Z)
+B2 00 0E                      # 138 getstatic System.out
+12 A9                         # 141 ldc #169 "hash: "
+B6 00 17                      # 143 invokevirtual print(String)
+B2 00 0E                      # 146 getstatic System.out          [out]
+2B                            # 149 aload_1
+B6 00 3B                      # 150 invokevirtual Object.hashCode [out, int]
+2C                            # 153 aload_2
+B6 00 3B                      # 154 invokevirtual Object.hashCode [out, int, int]
+A0 00 07                      # 157 if_icmpne +7 -> 164           [out]
+04                            # 160 iconst_1                      [out, 1]
+A7 00 04                      # 161 goto +4 -> 165
+03                            # 164 iconst_0                      (frame: stack [out]) [out, 0]
+B6 00 1F                      # 165 invokevirtual println(Z)      (frame: stack [out, int])
+B2 00 0E                      # 168 getstatic System.out
+12 AB                         # 171 ldc #171 "identical: "
+B6 00 17                      # 173 invokevirtual print(String)
+B2 00 0E                      # 176 getstatic System.out          [out]
+2B                            # 179 aload_1
+2C                            # 180 aload_2                       [out, t1, t2]
+A6 00 07                      # 181 if_acmpne +7 -> 188           [out]
+04                            # 184 iconst_1
+A7 00 04                      # 185 goto +4 -> 189
+03                            # 188 iconst_0                      (frame: stack [out])
+B6 00 1F                      # 189 invokevirtual println(Z)      (frame: stack [out, int])
+B2 00 0E                      # 192 getstatic System.out
+12 AD                         # 195 ldc #173 "literal: "
+B6 00 17                      # 197 invokevirtual print(String)
+B2 00 0E                      # 200 getstatic System.out          [out]
+BB 00 47                      # 203 new Num                       [out, U203]
+59                            # 206 dup                           [out, U203, U203]
+21                            # 207 lload_3                       [out, U203, U203, long]  depth 5
+B7 00 4E                      # 208 invokespecial Num.<init>(J)V  [out, Num]
+2B                            # 211 aload_1                       [out, Num, t1]
+B6 00 33                      # 212 invokevirtual Object.equals   [out, int]
+B6 00 1F                      # 215 invokevirtual println(Z)
+B1                            # 218 return
+00 00                         # exception_table_length
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 4C                   # attribute_length 76 = 2 + 74
+00 07                         # number_of_entries
+12                            # @18  same_frame                    locals [args]
+14                            # @39  same_frame, delta 20
+FC 00 28 07 00 45             # @80  append_frame 1, delta 40      locals [args, Expr]
+FF 00 53 00 04 07 00 91 07 00 45 07 00 45 04 00 01 07 00 13  # @164 full_frame, delta 83: locals [String[], Expr, Expr, long] stack [PrintStream]
+FF 00 00 00 04 07 00 91 07 00 45 07 00 45 04 00 02 07 00 13 01  # @165 full_frame, delta 0: same locals, stack [PrintStream, int]
+56 07 00 13                   # @188 same_locals_1_stack_item, delta 22, stack [PrintStream]
+FF 00 00 00 04 07 00 91 07 00 45 07 00 45 04 00 02 07 00 13 01  # @189 full_frame, delta 0: stack [PrintStream, int]
+
+# ---- method parse([Ljava/lang/String;)LExpr; ----
+00 0A                         # access_flags ACC_PRIVATE | ACC_STATIC
+00 64                         # name_index "parse"
+00 65                         # descriptor_index "([Ljava/lang/String;)LExpr;"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 A9                   # attribute_length 169 = 12 + 125 + 8*1 + (6 + 18)
+00 04                         # max_stack 4 (U, U, Expr, Expr) / (U, U, long)
+00 04                         # max_locals 4 (a, tok, n x2)
+00 00 00 7D                   # code_length 125
+B2 00 63                      # 0   getstatic Calc8.pos           [int]
+2A                            # 3   aload_0
+BE                            # 4   arraylength                   [int, int]
+A1 00 11                      # 5   if_icmplt +17 -> 22
+B2 00 11                      # 8   getstatic System.err
+12 9F                         # 11  ldc #159 "Missing operand"
+B6 00 1A                      # 13  invokevirtual println(String)
+06                            # 16  iconst_3
+B8 00 2C                      # 17  invokestatic System.exit
+01                            # 20  aconst_null                   (never reached at run time)
+B0                            # 21  areturn
+2A                            # 22  aload_0                       (frame)
+B2 00 63                      # 23  getstatic Calc8.pos
+32                            # 26  aaload                        [String]
+4C                            # 27  astore_1                      tok
+B2 00 63                      # 28  getstatic Calc8.pos
+04                            # 31  iconst_1
+60                            # 32  iadd
+B3 00 63                      # 33  putstatic Calc8.pos           pos++
+2B                            # 36  aload_1
+12 99                         # 37  ldc #153 "add"
+B6 00 32                      # 39  invokevirtual String.equals
+99 00 13                      # 42  ifeq +19 -> 61
+BB 00 49                      # 45  new Add                       [U45]
+59                            # 48  dup                           [U45, U45]
+2A                            # 49  aload_0
+B8 00 67                      # 50  invokestatic Calc8.parse      [U45, U45, left]
+2A                            # 53  aload_0
+B8 00 67                      # 54  invokestatic Calc8.parse      [U45, U45, left, right]
+B7 00 51                      # 57  invokespecial Add.<init>      [Add]
+B0                            # 60  areturn
+2B                            # 61  aload_1                       (frame: locals [a, String])
+12 9B                         # 62  ldc #155 "mul"
+B6 00 32                      # 64  invokevirtual String.equals
+99 00 13                      # 67  ifeq +19 -> 86
+BB 00 4B                      # 70  new Mul                       [U70]
+59                            # 73  dup
+2A                            # 74  aload_0
+B8 00 67                      # 75  invokestatic Calc8.parse
+2A                            # 78  aload_0
+B8 00 67                      # 79  invokestatic Calc8.parse
+B7 00 52                      # 82  invokespecial Mul.<init>      [Mul]
+B0                            # 85  areturn
+2B                            # 86  aload_1                       (frame) try start
+B8 00 41                      # 87  invokestatic Long.parseLong   [long]
+41                            # 90  lstore_2                      n   (try end = 91)
+A7 00 19                      # 91  goto +25 -> 116
+57                            # 94  pop                           (handler, frame: stack [NFE])
+B2 00 11                      # 95  getstatic System.err
+12 A1                         # 98  ldc #161 "Unknown token: "
+B6 00 17                      # 100 invokevirtual print(String)
+B2 00 11                      # 103 getstatic System.err
+2B                            # 106 aload_1
+B6 00 1A                      # 107 invokevirtual println(String)
+05                            # 110 iconst_2
+B8 00 2C                      # 111 invokestatic System.exit
+01                            # 114 aconst_null                   (never reached at run time)
+B0                            # 115 areturn
+BB 00 47                      # 116 new Num                       (frame: locals [a, String, long]) [U116]
+59                            # 119 dup
+20                            # 120 lload_2                       [U116, U116, long]  depth 4
+B7 00 4E                      # 121 invokespecial Num.<init>(J)V  [Num]
+B0                            # 124 areturn
+00 01                         # exception_table_length
+00 56 00 5B 00 5E 00 43       # [86, 91) -> 94, catch #67 NumberFormatException
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 12                   # attribute_length 18 = 2 + 16
+00 05                         # number_of_entries
+16                            # @22  same_frame                    locals [a]
+FC 00 26 07 00 2E             # @61  append_frame 1, delta 38      locals [a, String]
+18                            # @86  same_frame, delta 24
+47 07 00 43                   # @94  same_locals_1_stack_item, delta 7, stack [NumberFormatException]
+FC 00 15 04                   # @116 append_frame 1, delta 21      locals [a, String, long]
+
+# ---- method eval(LExpr;)J ----
+00 08                         # access_flags ACC_STATIC
+00 68                         # name_index "eval"
+00 69                         # descriptor_index "(LExpr;)J"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 58                   # attribute_length 88 = 12 + 66 + 0 + (6 + 4)
+00 04                         # max_stack 4 (long + long)
+00 01                         # max_locals 1 (e)
+00 00 00 42                   # code_length 66
+2A                            # 0  aload_0
+C1 00 47                      # 1  instanceof Num                 [int]
+99 00 0B                      # 4  ifeq +11 -> 15
+2A                            # 7  aload_0
+C0 00 47                      # 8  checkcast Num
+B6 00 56                      # 11 invokevirtual Num.value()J     [long]
+AD                            # 14 lreturn
+2A                            # 15 aload_0                        (frame)
+C1 00 49                      # 16 instanceof Add
+99 00 19                      # 19 ifeq +25 -> 44
+2A                            # 22 aload_0
+C0 00 49                      # 23 checkcast Add
+B6 00 5A                      # 26 invokevirtual Add.left()       [Expr]
+B8 00 6B                      # 29 invokestatic Calc8.eval        [long]
+2A                            # 32 aload_0
+C0 00 49                      # 33 checkcast Add
+B6 00 5D                      # 36 invokevirtual Add.right()
+B8 00 6B                      # 39 invokestatic Calc8.eval        [long, long]  depth 4
+61                            # 42 ladd
+AD                            # 43 lreturn
+2A                            # 44 aload_0                        (frame)
+C0 00 4B                      # 45 checkcast Mul                  (sealed: the only remaining subtype)
+B6 00 5E                      # 48 invokevirtual Mul.left()
+B8 00 6B                      # 51 invokestatic Calc8.eval
+2A                            # 54 aload_0
+C0 00 4B                      # 55 checkcast Mul
+B6 00 5F                      # 58 invokevirtual Mul.right()
+B8 00 6B                      # 61 invokestatic Calc8.eval
+69                            # 64 lmul
+AD                            # 65 lreturn
+00 00                         # exception_table_length
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 04                   # attribute_length 4
+00 02                         # number_of_entries
+0F                            # @15 same_frame                    locals [Expr]
+1C                            # @44 same_frame, delta 28
+
+# ---- method introspect()V ----
+00 0A                         # access_flags ACC_PRIVATE | ACC_STATIC
+00 6C                         # name_index "introspect"
+00 26                         # descriptor_index "()V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 7A                   # attribute_length 122 = 12 + 93 + 0 + (6 + 11)
+00 03                         # max_stack 3 (out, arr, i before aaload)
+00 02                         # max_locals 2 (arr, i)
+00 00 00 5D                   # code_length 93
+12 47                         # 0  ldc #71 Class Num
+B8 00 72                      # 2  invokestatic Calc8.describe
+12 49                         # 5  ldc #73 Class Add
+B8 00 72                      # 7  invokestatic Calc8.describe
+12 4B                         # 10 ldc #75 Class Mul
+B8 00 72                      # 12 invokestatic Calc8.describe
+B2 00 0E                      # 15 getstatic System.out
+12 B3                         # 18 ldc #179 "Expr.isSealed()="
+B6 00 17                      # 20 invokevirtual print(String)
+B2 00 0E                      # 23 getstatic System.out
+12 45                         # 26 ldc #69 Class Expr             [out, Class]
+B6 00 7E                      # 28 invokevirtual Class.isSealed   [out, int]
+B6 00 1D                      # 31 invokevirtual print(Z)
+B2 00 0E                      # 34 getstatic System.out
+12 B5                         # 37 ldc #181 " permitted="
+B6 00 17                      # 39 invokevirtual print(String)
+12 45                         # 42 ldc #69 Class Expr
+B6 00 86                      # 44 invokevirtual Class.getPermittedSubclasses  [Class[]]
+4B                            # 47 astore_0                       arr
+03                            # 48 iconst_0
+3C                            # 49 istore_1                       i = 0
+1B                            # 50 iload_1                        (frame: loop head)
+2A                            # 51 aload_0
+BE                            # 52 arraylength
+A2 00 21                      # 53 if_icmpge +33 -> 86
+1B                            # 56 iload_1
+99 00 0B                      # 57 ifeq +11 -> 68
+B2 00 0E                      # 60 getstatic System.out
+10 2C                         # 63 bipush 44 ','
+B6 00 25                      # 65 invokevirtual print(C)
+B2 00 0E                      # 68 getstatic System.out           (frame)
+2A                            # 71 aload_0
+1B                            # 72 iload_1
+32                            # 73 aaload                         [out, Class]
+B6 00 77                      # 74 invokevirtual Class.getSimpleName
+B6 00 17                      # 77 invokevirtual print(String)
+84 01 01                      # 80 iinc 1 1
+A7 FF DF                      # 83 goto -33 -> 50
+B2 00 0E                      # 86 getstatic System.out           (frame)
+B6 00 28                      # 89 invokevirtual println()V
+B1                            # 92 return
+00 00                         # exception_table_length
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 0B                   # attribute_length 11 = 2 + 9
+00 03                         # number_of_entries
+FD 00 32 07 00 95 01          # @50 append_frame 2, delta 50       locals [Class[], int]
+11                            # @68 same_frame, delta 17
+11                            # @86 same_frame, delta 17
+
+# ---- method describe(Ljava/lang/Class;)V ----
+00 0A                         # access_flags ACC_PRIVATE | ACC_STATIC
+00 6F                         # name_index "describe"
+00 70                         # descriptor_index "(Ljava/lang/Class;)V"
+00 01                         # attributes_count
+00 07                         # Code
+00 00 00 8A                   # attribute_length 138 = 12 + 109 + 0 + (6 + 11)
+00 02                         # max_stack 2 (rc is stored to a local before use)
+00 04                         # max_locals 4 (c, arr, i, rc)
+00 00 00 6D                   # code_length 109
+B2 00 0E                      # 0   getstatic System.out
+2A                            # 3   aload_0
+B6 00 77                      # 4   invokevirtual Class.getSimpleName
+B6 00 17                      # 7   invokevirtual print(String)
+B2 00 0E                      # 10  getstatic System.out
+12 AF                         # 13  ldc #175 ".isRecord()="
+B6 00 17                      # 15  invokevirtual print(String)
+B2 00 0E                      # 18  getstatic System.out
+2A                            # 21  aload_0
+B6 00 7B                      # 22  invokevirtual Class.isRecord  [out, int]
+B6 00 1D                      # 25  invokevirtual print(Z)
+B2 00 0E                      # 28  getstatic System.out
+12 B1                         # 31  ldc #177 " components="
+B6 00 17                      # 33  invokevirtual print(String)
+2A                            # 36  aload_0
+B6 00 82                      # 37  invokevirtual Class.getRecordComponents  [RecordComponent[]]
+4C                            # 40  astore_1                      arr
+03                            # 41  iconst_0
+3D                            # 42  istore_2                      i = 0
+1C                            # 43  iload_2                       (frame: loop head)
+2B                            # 44  aload_1
+BE                            # 45  arraylength
+A2 00 38                      # 46  if_icmpge +56 -> 102
+1C                            # 49  iload_2
+99 00 0B                      # 50  ifeq +11 -> 61
+B2 00 0E                      # 53  getstatic System.out
+10 2C                         # 56  bipush 44 ','
+B6 00 25                      # 58  invokevirtual print(C)
+2B                            # 61  aload_1                       (frame)
+1C                            # 62  iload_2
+32                            # 63  aaload                        [RecordComponent]
+4E                            # 64  astore_3                      rc
+B2 00 0E                      # 65  getstatic System.out
+2D                            # 68  aload_3
+B6 00 8B                      # 69  invokevirtual RecordComponent.getName
+B6 00 17                      # 72  invokevirtual print(String)
+B2 00 0E                      # 75  getstatic System.out
+10 3A                         # 78  bipush 58 ':'
+B6 00 25                      # 80  invokevirtual print(C)
+B2 00 0E                      # 83  getstatic System.out
+2D                            # 86  aload_3
+B6 00 8F                      # 87  invokevirtual RecordComponent.getType     [out, Class]
+B6 00 77                      # 90  invokevirtual Class.getSimpleName         [out, String]
+B6 00 17                      # 93  invokevirtual print(String)
+84 02 01                      # 96  iinc 2 1
+A7 FF C8                      # 99  goto -56 -> 43
+B2 00 0E                      # 102 getstatic System.out          (frame)
+B6 00 28                      # 105 invokevirtual println()V
+B1                            # 108 return
+00 00                         # exception_table_length
+00 01                         # Code attributes_count
+00 08                         # StackMapTable
+00 00 00 0B                   # attribute_length 11 = 2 + 9
+00 03                         # number_of_entries
+FD 00 2B 07 00 93 01          # @43  append_frame 2, delta 43     locals [Class, RecordComponent[], int]
+11                            # @61  same_frame, delta 17
+28                            # @102 same_frame, delta 40 (rc in slot 3 is dropped)
+
+00 00                         # class attributes_count

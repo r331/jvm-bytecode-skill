@@ -12,6 +12,23 @@
 #   --timeout S       per-trial wall-clock limit in seconds (default: 1200)
 #   --out DIR         results directory (default: evals/results/<timestamp>)
 #   --keep            keep trial workdirs (path recorded in the trial dir)
+#   --agent-error-patterns FILE
+#                     extended regexes (one per line) that mark an agent error in
+#                     agent.log (default: evals/agent-error-patterns.txt)
+#   --agent-error-grace S
+#                     kill the agent after S seconds if agent.log matches an agent
+#                     error pattern, has been idle for S/2 seconds, and the agent
+#                     has produced no files (default: 120; 0 disables)
+#   --retry-agent-errors N
+#                     rerun a trial that ended as an agent error up to N times,
+#                     after a backoff of 30s, then 90s (env EVAL_RETRY_BACKOFF
+#                     overrides, e.g. "1 1"); only the last attempt counts (default: 2)
+#   --fail-on-leak    fail trials whose agent.log suggests the agent read the
+#                     repository (default: only record leak_suspect)
+#   --isolate         copy the harness, skill, and the tasks' prompt.md, expect,
+#                     cases.txt, check.sh, stdin/, and inputs/ (no solution/)
+#                     into a temp dir and run from there; solutions stay
+#                     readable only by the grader
 #   --oracle          expose the task's reference solution to the agent via
 #                     env ORACLE_SOLUTION_DIR (self-test only, never for real agents)
 #   -h, --help        show this help
@@ -30,6 +47,13 @@ limit=1200
 out=""
 keep=0
 oracle=0
+patterns_file="$EVALS_DIR/agent-error-patterns.txt"
+grace=120
+retries=2
+fail_on_leak=0
+isolate=0
+backoff="${EVAL_RETRY_BACKOFF:-30 90}"
+orig_args=("$@")
 
 usage() { sed -n '2,/^$/s/^# \{0,1\}//p' "$0"; }
 die() { echo "run-evals.sh: $*" >&2; exit 2; }
@@ -45,6 +69,11 @@ while [ $# -gt 0 ]; do
     --out) out="${2:?}"; shift 2 ;;
     --keep) keep=1; shift ;;
     --oracle) oracle=1; shift ;;
+    --agent-error-patterns) patterns_file="${2:?}"; shift 2 ;;
+    --agent-error-grace) grace="${2:?}"; shift 2 ;;
+    --retry-agent-errors) retries="${2:?}"; shift 2 ;;
+    --fail-on-leak) fail_on_leak=1; shift ;;
+    --isolate) isolate=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown option: $1 (see --help)" ;;
   esac
@@ -57,6 +86,13 @@ case "$mode" in skill) modes=skill ;; baseline) modes=baseline ;; both) modes="s
   *) die "--mode must be skill, baseline, or both" ;; esac
 case "$trials" in ''|*[!0-9]*|0) die "--trials must be a positive integer" ;; esac
 case "$limit" in ''|*[!0-9]*|0) die "--timeout must be a positive integer" ;; esac
+case "$grace" in ''|*[!0-9]*) die "--agent-error-grace must be a non-negative integer" ;; esac
+case "$retries" in ''|*[!0-9]*) die "--retry-agent-errors must be a non-negative integer" ;; esac
+for b in $backoff; do
+  case "$b" in *[!0-9]*) die "EVAL_RETRY_BACKOFF must be whole seconds separated by spaces" ;; esac
+done
+[ -f "$patterns_file" ] || die "agent error pattern file not found: $patterns_file"
+patterns_file=$(abs_path "$patterns_file")
 [ -d "$tasks_dir" ] || die "tasks directory not found: $tasks_dir"
 tasks_dir=$(abs_path "$tasks_dir")
 
@@ -82,6 +118,40 @@ done
 if [ -z "$out" ]; then out="$EVALS_DIR/results/$(date +%Y%m%d-%H%M%S)"; fi
 mkdir -p "$out" || die "cannot create $out"
 out=$(abs_path "$out")
+
+# Solutions live here; differs from tasks_dir only inside an --isolate run.
+sol_root="${EVAL_SOLUTIONS_DIR:-$tasks_dir}"
+
+# ---- --isolate: rerun this script from a copy that has no solutions ----
+if [ "$isolate" = 1 ] && [ -z "${EVAL_ISOLATED:-}" ]; then
+  iso=$(mktemp -d "${TMPDIR:-/tmp}/jvm-eval-harness.XXXXXX") || die "cannot create temp dir"
+  iso=$(abs_path "$iso")
+  mkdir -p "$iso/evals/lib" "$iso/evals/tasks" "$iso/tests/lib"
+  cp "$REPO_DIR/SKILL.md" "$REPO_DIR/build.sh" "$iso/" &&
+    cp -R "$REPO_DIR/references" "$iso/references" &&
+    cp "$REPO_DIR/tests/lib/run-cases.sh" "$iso/tests/lib/" &&
+    cp "$EVALS_DIR/run-evals.sh" "$EVALS_DIR/grade.sh" "$EVALS_DIR/summarize.sh" "$iso/evals/" &&
+    cp "$EVALS_DIR/lib/common.sh" "$iso/evals/lib/" &&
+    cp "$patterns_file" "$iso/evals/agent-error-patterns.txt" || { rm -rf "$iso"; die "cannot copy the harness to $iso"; }
+  # Only what the harness and grader read; solution/ and maintainer files stay behind.
+  for task in $selected; do
+    mkdir -p "$iso/evals/tasks/$task"
+    for f in prompt.md expect cases.txt check.sh stdin inputs; do
+      [ -e "$tasks_dir/$task/$f" ] || continue
+      cp -R "$tasks_dir/$task/$f" "$iso/evals/tasks/$task/" || { rm -rf "$iso"; die "cannot copy task $task to $iso"; }
+    done
+  done
+  echo "isolated harness: $iso"
+  leak_paths=$(printf '%s\n%s\n%s' "$REPO_DIR" "$(cd "$REPO_DIR" && pwd)" "$iso" | sort -u)
+  EVAL_ISOLATED=1 EVAL_SOLUTIONS_DIR="$sol_root" EVAL_LEAK_PATHS="$leak_paths" \
+    bash "$iso/evals/run-evals.sh" "${orig_args[@]}" --agent-cmd "$agent_cmd" \
+    --tasks-dir "$iso/evals/tasks" --out "$out" --agent-error-patterns "$iso/evals/agent-error-patterns.txt"
+  rc=$?
+  rm -rf "$iso"
+  exit "$rc"
+fi
+leak_paths="${EVAL_LEAK_PATHS:-$(printf '%s\n%s' "$REPO_DIR" "$(cd "$REPO_DIR" && pwd)" | sort -u)}"
+
 results="$out/results.jsonl"
 : >>"$results"
 
@@ -112,6 +182,9 @@ write_prompt() { # <workdir> <taskdir> <mode>
     echo "- Any .class file left in this directory must be exactly the bytes of the .hex file with the same name."
     echo "- You may use java and javap to inspect and test your classes."
     echo "- Work non-interactively: do not ask questions, and stop when you are done."
+    if [ -d "$td/inputs" ]; then
+      echo "- Input files provided by the task are in this directory; do not modify, move, or delete them (the .class rule above does not apply to them): $(cd "$td/inputs" && find . ! -type d | sed 's|^\./||' | sort | tr '\n' ' ' | sed 's/ $//')"
+    fi
     echo
     echo "Required files: $(for c in $files; do printf '%s.hex ' "$(printf '%s' "$c" | tr . /)"; done | sed 's/ $//')"
     echo "Main class: $cls"
@@ -155,9 +228,97 @@ EOF
   chmod +x "$sd/java"
 }
 
+# ---- agent error watchdog (runs inside run_with_timeout's watcher) ----
+# Globals: wd, manifest, alog, clean_patterns, abort_file, grace.
+early_abort_check() {
+  local line idle
+  [ -z "$(changed_files "$wd" "$manifest" | head -n 1)" ] || return 1
+  line=$(first_match_line "$alog" "$clean_patterns") || return 1
+  idle=$(( $(date +%s) - $(file_mtime "$alog") ))
+  [ "$idle" -ge $(( (grace + 1) / 2 )) ] || return 1
+  printf '%s\n' "$line" >"$abort_file"
+}
+
+# backoff_for <retry-number>: seconds to wait before that retry.
+backoff_for() {
+  local i=0 b last=0
+  for b in $backoff; do
+    i=$((i + 1)); last=$b
+    [ "$i" -lt "$1" ] || { echo "$b"; return; }
+  done
+  echo "$last"
+}
+
+# run_attempt <task> <taskdir> <mode> <trial> <attempt> <trial-results-dir>
+# Runs the agent once in a fresh workdir and grades it; leaves the result line
+# in <trial-results-dir>/result.json.
+run_attempt() {
+  local task=$1 td=$2 m=$3 t=$4 a=$5 tdir=$6 start dur rc to ea line f
+  mkdir -p "$tdir"
+  wd=$(mktemp -d "${TMPDIR:-/tmp}/jvm-eval.XXXXXX")
+  wd=$(abs_path "$wd")
+  manifest="$hdir/manifest"
+  abort_file="$hdir/abort"
+  alog="$tdir/agent.log"
+  rm -f "$abort_file"
+  [ -d "$td/inputs" ] && cp -R "$td/inputs/." "$wd/"
+  if [ "$m" = skill ]; then
+    mkdir -p "$wd/skill"
+    cp "$REPO_DIR/SKILL.md" "$REPO_DIR/build.sh" "$wd/skill/"
+    cp -R "$REPO_DIR/references" "$wd/skill/references"
+  fi
+  write_prompt "$wd" "$td" "$m"
+  write_shims "$wd"
+  cp "$wd/PROMPT.md" "$tdir/PROMPT.md"
+  workdir_manifest "$wd" >"$manifest"
+
+  start=$(date +%s)
+  (
+    cd "$wd" || exit 1
+    unset OLDPWD ORACLE_SOLUTION_DIR EVAL_SOLUTIONS_DIR EVAL_LEAK_PATHS EVAL_ISOLATED
+    export PROMPT_FILE="$wd/PROMPT.md" WORKDIR="$wd" EVAL_TASK="$task" EVAL_MODE="$m" EVAL_TRIAL="$t" EVAL_ATTEMPT="$a"
+    export PATH="$wd/.shims:$PATH"
+    [ "$oracle" = 1 ] && [ -d "$sol_root/$task/solution" ] && export ORACLE_SOLUTION_DIR="$sol_root/$task/solution"
+    RWT_GRACE=$grace
+    RWT_ABORT_CHECK=""
+    [ "$grace" -gt 0 ] && RWT_ABORT_CHECK=early_abort_check
+    run_with_timeout "$limit" "$wd/PROMPT.md" "$alog" "$alog" bash -c "$agent_cmd"
+  )
+  rc=$?
+  dur=$(( $(date +%s) - start ))
+  to=0; ea=0
+  [ "$rc" = 124 ] && to=1
+  [ "$rc" = 125 ] && [ -f "$abort_file" ] && ea=1
+
+  line=$(EVAL_MODE="$m" EVAL_TRIAL="$t" EVAL_DURATION_S="$dur" EVAL_TIMED_OUT="$to" \
+    EVAL_AGENT_EXIT="$rc" EVAL_ALLOW_SOLUTION="$oracle" EVAL_ATTEMPTS="$a" EVAL_EARLY_ABORT="$ea" \
+    EVAL_AGENT_LOG="$alog" EVAL_MANIFEST="$manifest" EVAL_AGENT_ERROR_PATTERNS="$patterns_file" \
+    EVAL_SOLUTIONS_DIR="$sol_root" EVAL_LEAK_PATHS="$leak_paths" EVAL_FAIL_ON_LEAK="$fail_on_leak" \
+    bash "$EVALS_DIR/grade.sh" "$wd" "$td" 2>"$tdir/grade.log")
+  [ -n "$line" ] || line="{\"task\":$(json_str "$task"),\"mode\":\"$m\",\"trial\":$t,\"pass\":false,\"reason\":\"grader error\",\"cases_passed\":0,\"cases_total\":0,\"duration_s\":$dur,\"timed_out\":false,\"agent_exit\":$rc,\"agent_error\":false,\"early_abort\":false,\"leak_suspect\":false,\"attempts\":$a}"
+  printf '%s\n' "$line" >"$tdir/result.json"
+  f=""
+  case "$line" in *'"leak_suspect":true'*) f=" [leak suspect]" ;; esac
+  printf '%s%s\n' "$(printf '%s' "$line" | sed -n 's/.*"pass":\([a-z]*\),"reason":"\(.*\)","cases_passed":\([0-9]*\),"cases_total":\([0-9]*\).*/\1 (\3\/\4 cases) \2/p') ${dur}s" "$f"
+
+  # keep the agent's .hex files (not unchanged inputs or skill files) and the violation log
+  changed_files "$wd" "$manifest" | while IFS= read -r f; do
+    case "$f" in *.hex) ;; *) continue ;; esac
+    case "$f" in ./skill/*|./.shims/*) continue ;; esac
+    mkdir -p "$tdir/files/$(dirname "$f")" && cp "$wd/$f" "$tdir/files/$f"
+  done
+  [ -s "$wd/.shims/violations.log" ] && cp "$wd/.shims/violations.log" "$tdir/violations.log"
+  if [ "$keep" = 1 ]; then echo "$wd" >"$tdir/workdir.txt"; else rm -rf "$wd"; fi
+  return 0
+}
+
 # ---- run ----
+hdir=$(mktemp -d "${TMPDIR:-/tmp}/jvm-eval-state.XXXXXX") || die "cannot create temp dir"
+trap 'rm -rf "$hdir"' EXIT
+load_patterns "$patterns_file" "$hdir/patterns"
+clean_patterns="$hdir/patterns"
 echo "tasks:$selected"
-echo "modes: $modes, trials: $trials, timeout: ${limit}s"
+echo "modes: $modes, trials: $trials, timeout: ${limit}s, agent error grace: ${grace}s, retries: $retries"
 echo "results: $out"
 for task in $selected; do
   td="$tasks_dir/$task"
@@ -165,47 +326,24 @@ for task in $selected; do
   while [ "$t" -le "$trials" ]; do
     for m in $modes; do
       tdir="$out/trials/$task/$m-$t"
-      mkdir -p "$tdir"
-      wd=$(mktemp -d "${TMPDIR:-/tmp}/jvm-eval.XXXXXX")
-      wd=$(abs_path "$wd")
-      if [ "$m" = skill ]; then
-        mkdir -p "$wd/skill"
-        cp "$REPO_DIR/SKILL.md" "$REPO_DIR/build.sh" "$wd/skill/"
-        cp -R "$REPO_DIR/references" "$wd/skill/references"
-      fi
-      write_prompt "$wd" "$td" "$m"
-      write_shims "$wd"
-      cp "$wd/PROMPT.md" "$tdir/PROMPT.md"
-
-      printf '%-28s %-8s trial %s ... ' "$task" "$m" "$t"
-      start=$(date +%s)
-      (
-        cd "$wd" || exit 1
-        export PROMPT_FILE="$wd/PROMPT.md" WORKDIR="$wd" EVAL_TASK="$task" EVAL_MODE="$m" EVAL_TRIAL="$t"
-        export PATH="$wd/.shims:$PATH"
-        unset ORACLE_SOLUTION_DIR
-        [ "$oracle" = 1 ] && [ -d "$td/solution" ] && export ORACLE_SOLUTION_DIR="$td/solution"
-        run_with_timeout "$limit" "$wd/PROMPT.md" "$tdir/agent.log" "$tdir/agent.log" bash -c "$agent_cmd"
-      )
-      rc=$?
-      dur=$(( $(date +%s) - start ))
-      to=0
-      [ "$rc" = 124 ] && to=1
-
-      line=$(EVAL_MODE="$m" EVAL_TRIAL="$t" EVAL_DURATION_S="$dur" EVAL_TIMED_OUT="$to" \
-        EVAL_AGENT_EXIT="$rc" EVAL_ALLOW_SOLUTION="$oracle" \
-        bash "$EVALS_DIR/grade.sh" "$wd" "$td" 2>"$tdir/grade.log")
-      [ -n "$line" ] || line="{\"task\":$(json_str "$task"),\"mode\":\"$m\",\"trial\":$t,\"pass\":false,\"reason\":\"grader error\",\"cases_passed\":0,\"cases_total\":0,\"duration_s\":$dur,\"timed_out\":false,\"agent_exit\":$rc}"
-      printf '%s\n' "$line" >>"$results"
-      printf '%s\n' "$line" >"$tdir/result.json"
-      printf '%s\n' "$(printf '%s' "$line" | sed -n 's/.*"pass":\([a-z]*\),"reason":"\(.*\)","cases_passed":\([0-9]*\),"cases_total":\([0-9]*\).*/\1 (\3\/\4 cases) \2/p') ${dur}s"
-
-      # keep the agent's .hex files and the violation log for inspection
-      (cd "$wd" && find . -name '*.hex' ! -path './skill/*' ! -type d) | while IFS= read -r f; do
-        mkdir -p "$tdir/files/$(dirname "$f")" && cp "$wd/$f" "$tdir/files/$f"
+      a=1
+      while :; do
+        printf '%-28s %-8s trial %s%s ... ' "$task" "$m" "$t" "$([ "$a" -gt 1 ] && echo " (attempt $a)")"
+        run_attempt "$task" "$td" "$m" "$t" "$a" "$tdir"
+        line=$(cat "$tdir/result.json")
+        case "$line" in *'"agent_error":true'*) ;; *) break ;; esac
+        [ "$a" -le "$retries" ] || break
+        # keep this attempt, then retry after a backoff
+        mkdir -p "$tdir/attempt-$a"
+        for f in PROMPT.md agent.log grade.log result.json files violations.log workdir.txt; do
+          [ -e "$tdir/$f" ] && mv "$tdir/$f" "$tdir/attempt-$a/"
+        done
+        b=$(backoff_for "$a")
+        echo "    agent error; retrying in ${b}s"
+        sleep "$b"
+        a=$((a + 1))
       done
-      [ -s "$wd/.shims/violations.log" ] && cp "$wd/.shims/violations.log" "$tdir/violations.log"
-      if [ "$keep" = 1 ]; then echo "$wd" >"$tdir/workdir.txt"; else rm -rf "$wd"; fi
+      printf '%s\n' "$line" >>"$results"
     done
     t=$((t + 1))
   done

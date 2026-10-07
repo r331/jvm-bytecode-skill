@@ -1,0 +1,40 @@
+# Expr.class - hand-written, major 61 (Java 17)
+#
+# public sealed interface Expr permits Num, Add, Mul { }
+# No methods: Calc8.eval dispatches with instanceof + checkcast.
+# Sealing is expressed only by the PermittedSubclasses class attribute (JVMS 4.7.31).
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 3D                         # major_version 61 (Java 17)
+00 0C                         # constant_pool_count 12 (entries 1..11)
+
+# ---- constant pool ----
+01 00 04 45 78 70 72                                      # 1 Utf8 "Expr"
+07 00 01                                                  # 2 Class Expr
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 03 4E 75 6D                                         # 5 Utf8 "Num"
+07 00 05                                                  # 6 Class Num
+01 00 03 41 64 64                                         # 7 Utf8 "Add"
+07 00 07                                                  # 8 Class Add
+01 00 03 4D 75 6C                                         # 9 Utf8 "Mul"
+07 00 09                                                  # 10 Class Mul
+01 00 13 50 65 72 6D 69 74 74 65 64 53 75 62 63 6C 61 73 73 65 73  # 11 Utf8 "PermittedSubclasses" (19 bytes)
+
+# ---- class header ----
+06 01                         # access_flags ACC_PUBLIC | ACC_INTERFACE | ACC_ABSTRACT
+00 02                         # this_class #2 Expr
+00 04                         # super_class #4 java/lang/Object (required for interfaces)
+00 00                         # interfaces_count
+00 00                         # fields_count
+00 00                         # methods_count
+
+# ---- class attributes ----
+00 01                         # attributes_count
+00 0B                         # attribute_name_index "PermittedSubclasses"
+00 00 00 08                   # attribute_length 8 = 2 + 2*3
+00 03                         # number_of_classes
+00 06                         # classes[0] #6 Num
+00 08                         # classes[1] #8 Add
+00 0A                         # classes[2] #10 Mul

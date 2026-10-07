@@ -1,0 +1,24 @@
+# args	exit	stdout	stderr
+	1		Usage: java Steps <step>...
+ok	0	step 1 ok\ncleanup 1\ndone	
+ok ok ok	0	step 1 ok\ncleanup 1\nstep 2 ok\ncleanup 2\nstep 3 ok\ncleanup 3\ndone	
+fail	0	caught: step 1 failed\ncleanup 1\ndone	
+ok fail ok	0	step 1 ok\ncleanup 1\ncaught: step 2 failed\ncleanup 2\nstep 3 ok\ncleanup 3\ndone	
+npe	0	cleanup 1\nouter: NullPointerException\ndone	
+div	0	cleanup 1\nouter: ArithmeticException\ndone	
+exit	0	cleanup 1\ndone	
+ok exit ok	0	step 1 ok\ncleanup 1\ncleanup 2\ndone	
+fail exit fail	0	caught: step 1 failed\ncleanup 1\ncleanup 2\ndone	
+exit npe	0	cleanup 1\ndone	
+exit exit	0	cleanup 1\ndone	
+bogus	0	cleanup 1\nouter: IllegalArgumentException\ndone	
+ok OK ok	0	step 1 ok\ncleanup 1\ncleanup 2\nouter: IllegalArgumentException\ndone	
+\e	0	cleanup 1\nouter: IllegalArgumentException\ndone	
+fail npe ok	0	caught: step 1 failed\ncleanup 1\ncleanup 2\nouter: NullPointerException\ndone	
+ok fail div ok	0	step 1 ok\ncleanup 1\ncaught: step 2 failed\ncleanup 2\ncleanup 3\nouter: ArithmeticException\ndone	
+fail fail fail	0	caught: step 1 failed\ncleanup 1\ncaught: step 2 failed\ncleanup 2\ncaught: step 3 failed\ncleanup 3\ndone	
+ok ok ok ok ok ok ok ok ok ok fail ok	0	step 1 ok\ncleanup 1\nstep 2 ok\ncleanup 2\nstep 3 ok\ncleanup 3\nstep 4 ok\ncleanup 4\nstep 5 ok\ncleanup 5\nstep 6 ok\ncleanup 6\nstep 7 ok\ncleanup 7\nstep 8 ok\ncleanup 8\nstep 9 ok\ncleanup 9\nstep 10 ok\ncleanup 10\ncaught: step 11 failed\ncleanup 11\nstep 12 ok\ncleanup 12\ndone	
+ok div	0	step 1 ok\ncleanup 1\ncleanup 2\nouter: ArithmeticException\ndone	
+fail ok exit div	0	caught: step 1 failed\ncleanup 1\nstep 2 ok\ncleanup 2\ncleanup 3\ndone	
+ok unknown\sstep exit	0	step 1 ok\ncleanup 1\ncleanup 2\nouter: IllegalArgumentException\ndone	
+ok \e ok	0	step 1 ok\ncleanup 1\ncleanup 2\nouter: IllegalArgumentException\ndone	

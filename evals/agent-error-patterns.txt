@@ -1,0 +1,35 @@
+# Agent error patterns: one extended regular expression per line, matched
+# case-insensitively against agent.log. Blank lines and lines starting with #
+# are ignored. A match marks a trial as an agent error (infrastructure, not a
+# model result) only when the agent also produced no files. Keep the patterns
+# specific: with a transcript output format, the agent's tool output lands in
+# agent.log too. Override with run-evals.sh --agent-error-patterns FILE.
+
+# credentials and authentication
+error getting [a-z ]*credentials
+fail(ed|ure)? to (resolve|fetch|refresh|load|get|obtain) [^.]*credentials
+credentials? (check|resolution|fetch|refresh|export)[^.]*(fail|not return|invalid)
+(invalid|missing|expired) (api[ _-]?key|access token|auth token|credentials)
+invalid x-api-key
+authentication_error|authentication (failed|required)|not authenticated
+not logged in|please run /?login|please log ?in
+(status|error)[ :]*401|401 unauthorized
+(status|error)[ :]*403|403 forbidden
+expiredtoken|unrecognizedclientexception|invalidclienttokenid|accessdeniedexception
+
+# rate limits, quotas, overload
+rate[ _-]?limit
+too many requests|(status|error)[ :]*429
+(quota|usage limit|credit balance)[^.]*(exceed|exhaust|reach|too low)
+insufficient_quota|resource_exhausted|throttlingexception|servicequotaexceeded
+overloaded_error|(status|error)[ :]*529
+api error: ?5[0-9][0-9]
+
+# network
+econnrefused|econnreset|etimedout|enotfound|eai_again|enetunreach|ehostunreach
+(could not|couldn't|unable to|failed to) (connect|resolve host)
+network (error|is unreachable)|connection (refused|reset|timed out)
+unable to get local issuer certificate|certificate verify failed|self[- ]signed certificate in certificate chain
+
+# agent not runnable
+command not found

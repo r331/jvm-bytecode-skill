@@ -161,12 +161,12 @@ Unknown attributes are ignored by the JVM.
 | InnerClasses | ClassFile | 45 | Needed for nested class metadata. |
 | StackMapTable | Code | 50 | Required for type-checking verification (see verification.md). |
 | Signature | ClassFile, field, method | 49 | Generic signatures; optional at run time. |
-| BootstrapMethods | ClassFile | 51 | Required when Dynamic/InvokeDynamic constants exist. |
+| BootstrapMethods | ClassFile | 51 | Required when Dynamic/InvokeDynamic constants exist; its Utf8 name must be in the pool. |
 | MethodParameters | method_info | 52 | Optional. |
 | Module, ModulePackages, ModuleMainClass | ClassFile | 53 | module-info only. |
 | NestHost, NestMembers | ClassFile | 55 | Private access between nest members. |
-| Record | ClassFile | 60 | Record components. |
-| PermittedSubclasses | ClassFile | 61 | Sealed classes. |
+| Record | ClassFile | 60 | `u2 count, {u2 name, u2 descriptor, u2 attributes_count, attributes[]}[count]`; see advanced.md. |
+| PermittedSubclasses | ClassFile | 61 | `u2 count, u2 classes[count]` (Class indices); see advanced.md. |
 
 ### Code (§4.7.3)
 
@@ -207,7 +207,10 @@ BootstrapMethods_attribute {
 }
 ```
 
-String concatenation via `invokedynamic` uses bootstrap `java/lang/invoke/StringConcatFactory.makeConcatWithConstants` (REF_invokeStatic) with descriptor `(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;` and a recipe String argument where `\u0001` (encoded `01`) marks each dynamic argument.
+`CONSTANT_InvokeDynamic`/`CONSTANT_Dynamic` `bootstrap_method_attr_index` is a 0-based index into this `bootstrap_methods` array, not a constant pool index.
+Bootstrap arguments must be loadable constants: a recipe text is a `CONSTANT_String` (tag 08), never a bare Utf8.
+
+String concatenation via `invokedynamic` uses bootstrap `java/lang/invoke/StringConcatFactory.makeConcatWithConstants` (REF_invokeStatic) with descriptor `(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;` and a recipe String argument where `\u0001` (encoded `01`) marks each dynamic argument; the full recipe is in [advanced.md](advanced.md).
 
 ### SourceFile (§4.7.10)
 

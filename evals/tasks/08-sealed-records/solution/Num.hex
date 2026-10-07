@@ -1,0 +1,196 @@
+# Num.class - hand-written, major 61 (Java 17)
+#
+# public final record Num(long value) implements Expr
+#   class: ACC_PUBLIC|ACC_FINAL|ACC_SUPER, super java/lang/Record, interfaces [Expr]
+#   private final long value;
+#   public Num(long value)       (J)V   locals: 0 = this, 1-2 = value
+#     super(); this.value = value;      (Record.<init>()V is protected)
+#   public long value()          ()J
+#   public final String toString()            -> invokedynamic toString:(LNum;)Ljava/lang/String;
+#   public final int hashCode()               -> invokedynamic hashCode:(LNum;)I
+#   public final boolean equals(Object o)     -> invokedynamic equals:(LNum;Ljava/lang/Object;)Z
+#   All three call sites share BootstrapMethods[0]:
+#     REF_invokeStatic java/lang/runtime/ObjectMethods.bootstrap
+#     (Lookup, String, TypeDescriptor, Class, String, MethodHandle[])Object
+#     static args: Class Num, String "value" (component names joined by ';'),
+#                  MethodHandle REF_getField Num.value:J
+#   The bootstrap picks the generated method from the indy name (toString/hashCode/equals).
+#   Record attribute: one component value:J, no component attributes.
+# All methods are straight-line, so no StackMapTable is needed.
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 3D                         # major_version 61 (Java 17)
+00 2C                         # constant_pool_count 44 (entries 1..43)
+
+# ---- constant pool ----
+01 00 03 4E 75 6D                                         # 1 Utf8 "Num"
+07 00 01                                                  # 2 Class Num
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 52 65 63 6F 72 64  # 3 Utf8 "java/lang/Record"
+07 00 03                                                  # 4 Class java/lang/Record
+01 00 04 45 78 70 72                                      # 5 Utf8 "Expr"
+07 00 05                                                  # 6 Class Expr
+01 00 05 76 61 6C 75 65                                   # 7 Utf8 "value" (field, accessor, component name, and bootstrap names arg)
+01 00 01 4A                                               # 8 Utf8 "J"
+0C 00 07 00 08                                            # 9 NameAndType value:J
+09 00 02 00 09                                            # 10 Fieldref Num.value:J
+01 00 06 3C 69 6E 69 74 3E                                # 11 Utf8 "<init>"
+01 00 03 28 29 56                                         # 12 Utf8 "()V"
+0C 00 0B 00 0C                                            # 13 NameAndType <init>:()V
+0A 00 04 00 0D                                            # 14 Methodref Record.<init>:()V
+01 00 04 28 4A 29 56                                      # 15 Utf8 "(J)V"
+01 00 03 28 29 4A                                         # 16 Utf8 "()J"
+01 00 08 74 6F 53 74 72 69 6E 67                          # 17 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 18 Utf8 "()Ljava/lang/String;"
+01 00 08 68 61 73 68 43 6F 64 65                          # 19 Utf8 "hashCode"
+01 00 03 28 29 49                                         # 20 Utf8 "()I"
+01 00 06 65 71 75 61 6C 73                                # 21 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 22 Utf8 "(Ljava/lang/Object;)Z"
+01 00 04 43 6F 64 65                                      # 23 Utf8 "Code"
+01 00 06 52 65 63 6F 72 64                                # 24 Utf8 "Record"
+01 00 10 42 6F 6F 74 73 74 72 61 70 4D 65 74 68 6F 64 73  # 25 Utf8 "BootstrapMethods"
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 72 75 6E 74 69 6D 65 2F 4F 62 6A 65 63 74 4D 65 74 68 6F 64 73  # 26 Utf8 "java/lang/runtime/ObjectMethods" (31 bytes)
+07 00 1A                                                  # 27 Class java/lang/runtime/ObjectMethods
+01 00 09 62 6F 6F 74 73 74 72 61 70                       # 28 Utf8 "bootstrap"
+# 29 Utf8 (177 bytes) "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;"
+01 00 B1
+28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 69 6E 76 6F 6B 65 2F 4D 65 74 68 6F 64 48 61 6E 64 6C 65 73 24 4C 6F 6F 6B 75 70 3B  # (Ljava/lang/invoke/MethodHandles$Lookup;
+4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B     # Ljava/lang/String;
+4C 6A 61 76 61 2F 6C 61 6E 67 2F 69 6E 76 6F 6B 65 2F 54 79 70 65 44 65 73 63 72 69 70 74 6F 72 3B  # Ljava/lang/invoke/TypeDescriptor;
+4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B        # Ljava/lang/Class;
+4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B     # Ljava/lang/String;
+5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 69 6E 76 6F 6B 65 2F 4D 65 74 68 6F 64 48 61 6E 64 6C 65 3B 29  # [Ljava/lang/invoke/MethodHandle;)
+4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B     # Ljava/lang/Object;
+0C 00 1C 00 1D                                            # 30 NameAndType bootstrap:(...)Ljava/lang/Object;
+0A 00 1B 00 1E                                            # 31 Methodref ObjectMethods.bootstrap
+0F 06 00 1F                                               # 32 MethodHandle REF_invokeStatic #31 (bootstrap method)
+08 00 07                                                  # 33 String "value" (component names, ';'-separated)
+0F 01 00 0A                                               # 34 MethodHandle REF_getField #10 Num.value:J
+01 00 19 28 4C 4E 75 6D 3B 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 35 Utf8 "(LNum;)Ljava/lang/String;"
+0C 00 11 00 23                                            # 36 NameAndType toString:(LNum;)Ljava/lang/String;
+12 00 00 00 24                                            # 37 InvokeDynamic bsm[0] toString:(LNum;)Ljava/lang/String;
+01 00 08 28 4C 4E 75 6D 3B 29 49                          # 38 Utf8 "(LNum;)I"
+0C 00 13 00 26                                            # 39 NameAndType hashCode:(LNum;)I
+12 00 00 00 27                                            # 40 InvokeDynamic bsm[0] hashCode:(LNum;)I
+01 00 1A 28 4C 4E 75 6D 3B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 41 Utf8 "(LNum;Ljava/lang/Object;)Z"
+0C 00 15 00 29                                            # 42 NameAndType equals:(LNum;Ljava/lang/Object;)Z
+12 00 00 00 2A                                            # 43 InvokeDynamic bsm[0] equals:(LNum;Ljava/lang/Object;)Z
+
+# ---- class header ----
+00 31                         # access_flags ACC_PUBLIC | ACC_FINAL | ACC_SUPER
+00 02                         # this_class #2 Num
+00 04                         # super_class #4 java/lang/Record
+00 01                         # interfaces_count
+00 06                         # interfaces[0] #6 Expr
+
+# ---- fields ----
+00 01                         # fields_count
+00 12                         # access_flags ACC_PRIVATE | ACC_FINAL
+00 07                         # name_index "value"
+00 08                         # descriptor_index "J"
+00 00                         # attributes_count
+
+00 05                         # methods_count
+
+# ---- method <init>(J)V (canonical constructor) ----
+00 01                         # access_flags ACC_PUBLIC
+00 0B                         # name_index "<init>"
+00 0F                         # descriptor_index "(J)V"
+00 01                         # attributes_count
+00 17                         # Code
+00 00 00 16                   # attribute_length 22 = 12 + 10
+00 03                         # max_stack 3 (this + long)
+00 03                         # max_locals 3 (this, value x2)
+00 00 00 0A                   # code_length 10
+2A                            # 0 aload_0                         [this]
+B7 00 0E                      # 1 invokespecial Record.<init>:()V  []
+2A                            # 4 aload_0                         [this]
+1F                            # 5 lload_1                         [this, long]  depth 3
+B5 00 0A                      # 6 putfield Num.value:J            []
+B1                            # 9 return
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method value()J (accessor) ----
+00 01                         # access_flags ACC_PUBLIC
+00 07                         # name_index "value"
+00 10                         # descriptor_index "()J"
+00 01                         # attributes_count
+00 17                         # Code
+00 00 00 11                   # attribute_length 17 = 12 + 5
+00 02                         # max_stack 2 (long)
+00 01                         # max_locals 1 (this)
+00 00 00 05                   # code_length 5
+2A                            # 0 aload_0
+B4 00 0A                      # 1 getfield Num.value:J            [long]
+AD                            # 4 lreturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method toString()Ljava/lang/String; ----
+00 11                         # access_flags ACC_PUBLIC | ACC_FINAL
+00 11                         # name_index "toString"
+00 12                         # descriptor_index "()Ljava/lang/String;"
+00 01                         # attributes_count
+00 17                         # Code
+00 00 00 13                   # attribute_length 19 = 12 + 7
+00 01                         # max_stack 1
+00 01                         # max_locals 1 (this)
+00 00 00 07                   # code_length 7
+2A                            # 0 aload_0                         [this]
+BA 00 25 00 00                # 1 invokedynamic #37 toString:(LNum;)Ljava/lang/String;  [String]
+B0                            # 6 areturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method hashCode()I ----
+00 11                         # access_flags ACC_PUBLIC | ACC_FINAL
+00 13                         # name_index "hashCode"
+00 14                         # descriptor_index "()I"
+00 01                         # attributes_count
+00 17                         # Code
+00 00 00 13                   # attribute_length 19 = 12 + 7
+00 01                         # max_stack 1
+00 01                         # max_locals 1 (this)
+00 00 00 07                   # code_length 7
+2A                            # 0 aload_0                         [this]
+BA 00 28 00 00                # 1 invokedynamic #40 hashCode:(LNum;)I  [int]
+AC                            # 6 ireturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- method equals(Ljava/lang/Object;)Z ----
+00 11                         # access_flags ACC_PUBLIC | ACC_FINAL
+00 15                         # name_index "equals"
+00 16                         # descriptor_index "(Ljava/lang/Object;)Z"
+00 01                         # attributes_count
+00 17                         # Code
+00 00 00 14                   # attribute_length 20 = 12 + 8
+00 02                         # max_stack 2
+00 02                         # max_locals 2 (this, o)
+00 00 00 08                   # code_length 8
+2A                            # 0 aload_0                         [this]
+2B                            # 1 aload_1                         [this, o]
+BA 00 2B 00 00                # 2 invokedynamic #43 equals:(LNum;Ljava/lang/Object;)Z  [int]
+AC                            # 7 ireturn
+00 00                         # exception_table_length
+00 00                         # Code attributes_count
+
+# ---- class attributes ----
+00 02                         # attributes_count
+
+00 18                         # attribute_name_index "Record"
+00 00 00 08                   # attribute_length 8 = 2 + 6*1
+00 01                         # components_count
+00 07                         #   component[0] name_index "value"
+00 08                         #   component[0] descriptor_index "J"
+00 00                         #   component[0] attributes_count
+
+00 19                         # attribute_name_index "BootstrapMethods"
+00 00 00 0C                   # attribute_length 12 = 2 + (2 + 2 + 2*3)
+00 01                         # num_bootstrap_methods
+00 20                         #   [0] bootstrap_method_ref #32 ObjectMethods.bootstrap
+00 03                         #   [0] num_bootstrap_arguments
+00 02                         #   [0] arg #2 Class Num (record class)
+00 21                         #   [0] arg #33 String "value" (names)
+00 22                         #   [0] arg #34 MethodHandle getField Num.value:J

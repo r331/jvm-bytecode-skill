@@ -1,0 +1,24 @@
+# args	exit	stdout	stderr
+add 1 mul 2 3	0	Add[left=Num[value=1], right=Mul[left=Num[value=2], right=Num[value=3]]]\n= 7\nequal: true\nhash: true\nidentical: false\nliteral: false	
+42	0	Num[value=42]\n= 42\nequal: true\nhash: true\nidentical: false\nliteral: true	
+-0	0	Num[value=0]\n= 0\nequal: true\nhash: true\nidentical: false\nliteral: true	
+mul add 1 2 add -3 +4	0	Mul[left=Add[left=Num[value=1], right=Num[value=2]], right=Add[left=Num[value=-3], right=Num[value=4]]]\n= 3\nequal: true\nhash: true\nidentical: false\nliteral: false	
+mul 9223372036854775807 2	0	Mul[left=Num[value=9223372036854775807], right=Num[value=2]]\n= -2\nequal: true\nhash: true\nidentical: false\nliteral: false	
+add -9223372036854775808 -1	0	Add[left=Num[value=-9223372036854775808], right=Num[value=-1]]\n= 9223372036854775807\nequal: true\nhash: true\nidentical: false\nliteral: false	
+add add add 1 2 3 mul 0 5	0	Add[left=Add[left=Add[left=Num[value=1], right=Num[value=2]], right=Num[value=3]], right=Mul[left=Num[value=0], right=Num[value=5]]]\n= 6\nequal: true\nhash: true\nidentical: false\nliteral: false	
+--introspect	0	Num.isRecord()=true components=value:long\nAdd.isRecord()=true components=left:Expr,right:Expr\nMul.isRecord()=true components=left:Expr,right:Expr\nExpr.isSealed()=true permitted=Num,Add,Mul	
+	1		Usage: java Calc8 <prefix-expr> | --introspect
+--introspect 1	2		Unknown token: --introspect
+add --introspect 1	2		Unknown token: --introspect
+ADD 1 2	2		Unknown token: ADD
+add 1 x	2		Unknown token: x
+add x	2		Unknown token: x
+1.5	2		Unknown token: 1.5
+9223372036854775808	2		Unknown token: 9223372036854775808
+\e	2		Unknown token: 
+add 1	3		Missing operand
+add	3		Missing operand
+add 1 mul 2	3		Missing operand
+1 2	4		Trailing token: 2
+add 1 2 3 x	4		Trailing token: 3
+mul 2 3 add	4		Trailing token: add

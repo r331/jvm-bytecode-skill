@@ -1,0 +1,29 @@
+# args	exit	stdout	stderr
+alice 3 -1 7	0	Report for alice: count=3, sum=9, min=-1, max=7, avg=3.0\nValues: [3, -1, 7]	
+solo 5	0	Report for solo: count=1, sum=5, min=5, max=5, avg=5.0\nValues: [5]	
+bob 1 2 2	0	Report for bob: count=3, sum=5, min=1, max=2, avg=1.6666666666666667\nValues: [1, 2, 2]	
+neg -5 -10 -3	0	Report for neg: count=3, sum=-18, min=-10, max=-3, avg=-6.0\nValues: [-5, -10, -3]	
+half -7 2	0	Report for half: count=2, sum=-5, min=-7, max=2, avg=-2.5\nValues: [-7, 2]	
+big 2147483647 2147483647 2147483647	0	Report for big: count=3, sum=6442450941, min=2147483647, max=2147483647, avg=2.147483647E9\nValues: [2147483647, 2147483647, 2147483647]	
+low -2147483648 -2147483648	0	Report for low: count=2, sum=-4294967296, min=-2147483648, max=-2147483648, avg=-2.147483648E9\nValues: [-2147483648, -2147483648]	
+sign +5 -0 0	0	Report for sign: count=3, sum=5, min=0, max=5, avg=1.6666666666666667\nValues: [5, 0, 0]	
+\e 1 2	0	Report for : count=2, sum=3, min=1, max=2, avg=1.5\nValues: [1, 2]	
+John\sSmith 10 20 30 40	0	Report for John Smith: count=4, sum=100, min=10, max=40, avg=25.0\nValues: [10, 20, 30, 40]	
+42 1 2 3 4 5 6 7 8 9 10	0	Report for 42: count=10, sum=55, min=1, max=10, avg=5.5\nValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	
+tenth 1 0 0 0 0 0 0 0 0 0	0	Report for tenth: count=10, sum=1, min=0, max=1, avg=0.1\nValues: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]	
+third 1 0 0	0	Report for third: count=3, sum=1, min=0, max=1, avg=0.3333333333333333\nValues: [1, 0, 0]	
+e7 10000000	0	Report for e7: count=1, sum=10000000, min=10000000, max=10000000, avg=1.0E7\nValues: [10000000]	
+sub7 9999999	0	Report for sub7: count=1, sum=9999999, min=9999999, max=9999999, avg=9999999.0\nValues: [9999999]	
+Zoë 1 -1	0	Report for Zoë: count=2, sum=0, min=-1, max=1, avg=0.0\nValues: [1, -1]	
+	1		Usage: java Report <name> <int>...
+name	1		Error: no values
+\e	1		Error: no values
+x 1 abc	1		Error: invalid int: abc
+x 1 2.5	1		Error: invalid int: 2.5
+x 2147483648	1		Error: invalid int: 2147483648
+x -2147483649 1	1		Error: invalid int: -2147483649
+x 1 zz 3 yy	1		Error: invalid int: zz
+x 0x10	1		Error: invalid int: 0x10
+x 1 -	1		Error: invalid int: -
+x 1 \e	1		Error: invalid int: 
+x 1\s2	1		Error: invalid int: 1 2

@@ -1,0 +1,414 @@
+# Steps.class - hand-written reference solution, major 65 (Java 21)
+#
+# main([Ljava/lang/String;)V, public static, locals: 0 = args
+#   if (args.length == 0) { System.err.println(USAGE); System.exit(1); return }
+#   run(args); return
+#
+# run([Ljava/lang/String;)V, private static
+#   locals: 0 = steps (String[]), 1 = i (int, 1-based step number), 2 = s (String),
+#           3 = inner caught exception (ISE in the catch, Throwable in the finally handler)
+#   In the outer handlers slot 1 is reused for the caught exception (i is out of scope).
+#
+#   i = 1
+#   OUTER TRY {
+#     loop: if (i > steps.length) goto loopEnd
+#       INNER TRY {
+#         s = steps[i - 1]
+#         if s.equals("ok")   -> printOk
+#         if s.equals("fail") -> throw new IllegalStateException("step " + i + " failed")
+#         if s.equals("npe")  -> ((String) null).length()       (real NullPointerException)
+#         if s.equals("div")  -> i / 0                          (ArithmeticException)
+#         if s.equals("exit") -> [inner finally copy] [outer finally copy] return
+#                                (the two copies are excluded from the ranges of the
+#                                 handlers whose finally they inline, like javac does)
+#         throw new IllegalArgumentException("unknown step: " + s)
+#         printOk: println("step " + i + " ok")
+#       } -> [inner finally copy] goto next
+#       catch (IllegalStateException e) { println("caught: " + e.getMessage()) } -> [inner finally copy] goto next
+#       any (Throwable t) { [inner finally copy] throw t }
+#     next: i++; goto loop
+#   } loopEnd: [outer finally copy] goto end
+#   catch (RuntimeException e) { println("outer: " + e.getClass().getSimpleName()) } -> [outer finally copy] goto end
+#   any (Throwable t) { [outer finally copy] throw t }
+#   end: return
+#
+#   inner finally body: println("cleanup " + i)      outer finally body: println("done")
+
+CA FE BA BE                   # magic
+00 00                         # minor_version 0
+00 41                         # major_version 65 (Java 21)
+00 6E                         # constant_pool_count 110 (entries 1..109)
+
+# ---- constant pool ----
+01 00 05 53 74 65 70 73                                   # 1 Utf8 "Steps"
+07 00 01                                                  # 2 Class Steps
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74  # 3 Utf8 "java/lang/Object"
+07 00 03                                                  # 4 Class java/lang/Object
+01 00 04 6D 61 69 6E                                      # 5 Utf8 "main"
+01 00 16 28 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 6 Utf8 "([Ljava/lang/String;)V"
+01 00 03 72 75 6E                                         # 7 Utf8 "run"
+01 00 04 43 6F 64 65                                      # 8 Utf8 "Code"
+01 00 0D 53 74 61 63 6B 4D 61 70 54 61 62 6C 65           # 9 Utf8 "StackMapTable"
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 79 73 74 65 6D  # 10 Utf8 "java/lang/System"
+07 00 0A                                                  # 11 Class java/lang/System
+01 00 03 6F 75 74                                         # 12 Utf8 "out"
+01 00 15 4C 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D 3B  # 13 Utf8 "Ljava/io/PrintStream;"
+0C 00 0C 00 0D                                            # 14 NameAndType out:Ljava/io/PrintStream;
+09 00 0B 00 0E                                            # 15 Fieldref System.out
+01 00 03 65 72 72                                         # 16 Utf8 "err"
+0C 00 10 00 0D                                            # 17 NameAndType err:Ljava/io/PrintStream;
+09 00 0B 00 11                                            # 18 Fieldref System.err
+01 00 13 6A 61 76 61 2F 69 6F 2F 50 72 69 6E 74 53 74 72 65 61 6D  # 19 Utf8 "java/io/PrintStream"
+07 00 13                                                  # 20 Class java/io/PrintStream
+01 00 07 70 72 69 6E 74 6C 6E                             # 21 Utf8 "println"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 56  # 22 Utf8 "(Ljava/lang/String;)V"
+0C 00 15 00 16                                            # 23 NameAndType println:(Ljava/lang/String;)V
+0A 00 14 00 17                                            # 24 Methodref PrintStream.println(String)V
+01 00 04 65 78 69 74                                      # 25 Utf8 "exit" (also the step name)
+01 00 04 28 49 29 56                                      # 26 Utf8 "(I)V"
+0C 00 19 00 1A                                            # 27 NameAndType exit:(I)V
+0A 00 0B 00 1B                                            # 28 Methodref System.exit(I)V
+0C 00 07 00 06                                            # 29 NameAndType run:([Ljava/lang/String;)V
+0A 00 02 00 1D                                            # 30 Methodref Steps.run
+01 00 10 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67  # 31 Utf8 "java/lang/String"
+07 00 1F                                                  # 32 Class java/lang/String
+01 00 06 65 71 75 61 6C 73                                # 33 Utf8 "equals"
+01 00 15 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 4F 62 6A 65 63 74 3B 29 5A  # 34 Utf8 "(Ljava/lang/Object;)Z"
+0C 00 21 00 22                                            # 35 NameAndType equals:(Ljava/lang/Object;)Z
+0A 00 20 00 23                                            # 36 Methodref String.equals
+01 00 06 6C 65 6E 67 74 68                                # 37 Utf8 "length"
+01 00 03 28 29 49                                         # 38 Utf8 "()I"
+0C 00 25 00 26                                            # 39 NameAndType length:()I
+0A 00 20 00 27                                            # 40 Methodref String.length
+01 00 17 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72  # 41 Utf8 "java/lang/StringBuilder"
+07 00 29                                                  # 42 Class java/lang/StringBuilder
+01 00 06 3C 69 6E 69 74 3E                                # 43 Utf8 "<init>"
+01 00 03 28 29 56                                         # 44 Utf8 "()V"
+0C 00 2B 00 2C                                            # 45 NameAndType <init>:()V
+0A 00 2A 00 2D                                            # 46 Methodref StringBuilder.<init>()V
+01 00 06 61 70 70 65 6E 64                                # 47 Utf8 "append"
+01 00 2D 28 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B  # 48 Utf8 "(Ljava/lang/String;)Ljava/lang/StringBuilder;"
+0C 00 2F 00 30                                            # 49 NameAndType append:(String)StringBuilder
+0A 00 2A 00 31                                            # 50 Methodref StringBuilder.append(String)
+01 00 1C 28 49 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 42 75 69 6C 64 65 72 3B  # 51 Utf8 "(I)Ljava/lang/StringBuilder;"
+0C 00 2F 00 33                                            # 52 NameAndType append:(I)StringBuilder
+0A 00 2A 00 34                                            # 53 Methodref StringBuilder.append(I)
+01 00 08 74 6F 53 74 72 69 6E 67                          # 54 Utf8 "toString"
+01 00 14 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 55 Utf8 "()Ljava/lang/String;"
+0C 00 36 00 37                                            # 56 NameAndType toString:()Ljava/lang/String;
+0A 00 2A 00 38                                            # 57 Methodref StringBuilder.toString
+01 00 1F 6A 61 76 61 2F 6C 61 6E 67 2F 49 6C 6C 65 67 61 6C 53 74 61 74 65 45 78 63 65 70 74 69 6F 6E  # 58 Utf8 "java/lang/IllegalStateException"
+07 00 3A                                                  # 59 Class java/lang/IllegalStateException
+0C 00 2B 00 16                                            # 60 NameAndType <init>:(Ljava/lang/String;)V
+0A 00 3B 00 3C                                            # 61 Methodref IllegalStateException.<init>(String)
+01 00 22 6A 61 76 61 2F 6C 61 6E 67 2F 49 6C 6C 65 67 61 6C 41 72 67 75 6D 65 6E 74 45 78 63 65 70 74 69 6F 6E  # 62 Utf8 "java/lang/IllegalArgumentException"
+07 00 3E                                                  # 63 Class java/lang/IllegalArgumentException
+0A 00 3F 00 3C                                            # 64 Methodref IllegalArgumentException.<init>(String)
+01 00 1A 6A 61 76 61 2F 6C 61 6E 67 2F 52 75 6E 74 69 6D 65 45 78 63 65 70 74 69 6F 6E  # 65 Utf8 "java/lang/RuntimeException"
+07 00 41                                                  # 66 Class java/lang/RuntimeException
+01 00 13 6A 61 76 61 2F 6C 61 6E 67 2F 54 68 72 6F 77 61 62 6C 65  # 67 Utf8 "java/lang/Throwable"
+07 00 43                                                  # 68 Class java/lang/Throwable
+01 00 0A 67 65 74 4D 65 73 73 61 67 65                    # 69 Utf8 "getMessage"
+0C 00 45 00 37                                            # 70 NameAndType getMessage:()Ljava/lang/String;
+0A 00 44 00 46                                            # 71 Methodref Throwable.getMessage
+01 00 08 67 65 74 43 6C 61 73 73                          # 72 Utf8 "getClass"
+01 00 13 28 29 4C 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73 3B  # 73 Utf8 "()Ljava/lang/Class;"
+0C 00 48 00 49                                            # 74 NameAndType getClass:()Ljava/lang/Class;
+0A 00 04 00 4A                                            # 75 Methodref Object.getClass
+01 00 0F 6A 61 76 61 2F 6C 61 6E 67 2F 43 6C 61 73 73     # 76 Utf8 "java/lang/Class"
+07 00 4C                                                  # 77 Class java/lang/Class
+01 00 0D 67 65 74 53 69 6D 70 6C 65 4E 61 6D 65           # 78 Utf8 "getSimpleName"
+0C 00 4E 00 37                                            # 79 NameAndType getSimpleName:()Ljava/lang/String;
+0A 00 4D 00 4F                                            # 80 Methodref Class.getSimpleName
+01 00 13 5B 4C 6A 61 76 61 2F 6C 61 6E 67 2F 53 74 72 69 6E 67 3B  # 81 Utf8 "[Ljava/lang/String;"
+07 00 51                                                  # 82 Class [Ljava/lang/String;
+01 00 1B 55 73 61 67 65 3A 20 6A 61 76 61 20 53 74 65 70 73 20 3C 73 74 65 70 3E 2E 2E 2E  # 83 Utf8 "Usage: java Steps <step>..."
+08 00 53                                                  # 84 String USAGE
+01 00 02 6F 6B                                            # 85 Utf8 "ok"
+08 00 55                                                  # 86 String "ok"
+01 00 04 66 61 69 6C                                      # 87 Utf8 "fail"
+08 00 57                                                  # 88 String "fail"
+01 00 03 6E 70 65                                         # 89 Utf8 "npe"
+08 00 59                                                  # 90 String "npe"
+01 00 03 64 69 76                                         # 91 Utf8 "div"
+08 00 5B                                                  # 92 String "div"
+08 00 19                                                  # 93 String "exit" (Utf8 #25)
+01 00 05 73 74 65 70 20                                   # 94 Utf8 "step " (trailing space)
+08 00 5E                                                  # 95 String "step "
+01 00 07 20 66 61 69 6C 65 64                             # 96 Utf8 " failed" (leading space)
+08 00 60                                                  # 97 String " failed"
+01 00 03 20 6F 6B                                         # 98 Utf8 " ok" (leading space)
+08 00 62                                                  # 99 String " ok"
+01 00 08 63 6C 65 61 6E 75 70 20                          # 100 Utf8 "cleanup " (trailing space)
+08 00 64                                                  # 101 String "cleanup "
+01 00 04 64 6F 6E 65                                      # 102 Utf8 "done"
+08 00 66                                                  # 103 String "done"
+01 00 0E 75 6E 6B 6E 6F 77 6E 20 73 74 65 70 3A 20        # 104 Utf8 "unknown step: " (trailing space)
+08 00 68                                                  # 105 String "unknown step: "
+01 00 08 63 61 75 67 68 74 3A 20                          # 106 Utf8 "caught: " (trailing space)
+08 00 6A                                                  # 107 String "caught: "
+01 00 07 6F 75 74 65 72 3A 20                             # 108 Utf8 "outer: " (trailing space)
+08 00 6C                                                  # 109 String "outer: "
+
+# ---- class header ----
+00 21                         # access_flags public super
+00 02                         # this_class #2 Steps
+00 04                         # super_class #4 java/lang/Object
+00 00                         # interfaces_count 0
+00 00                         # fields_count 0
+00 02                         # methods_count 2
+
+# ---- method 1: public static void main(String[]) ----
+00 09                         # access public static
+00 05                         # name "main"
+00 06                         # descriptor ([Ljava/lang/String;)V
+00 01                         # attributes_count 1
+00 08                         # Code
+00 00 00 2C                   # attribute_length 44 = 12 + 23 + 0 + (6 + 3)
+00 02                         # max_stack 2
+00 01                         # max_locals 1
+00 00 00 17                   # code_length 23
+2A                            # 0 aload_0
+BE                            # 1 arraylength
+9A 00 10                      # 2 ifne -> 18
+B2 00 12                      # 5 getstatic System.err
+12 54                         # 8 ldc USAGE
+B6 00 18                      # 10 invokevirtual println(String)
+04                            # 13 iconst_1
+B8 00 1C                      # 14 invokestatic System.exit
+B1                            # 17 return
+2A                            # 18 aload_0
+B8 00 1E                      # 19 invokestatic Steps.run
+B1                            # 22 return
+00 00                         # exception_table_length 0
+00 01                         # attributes_count 1
+00 09                         # StackMapTable
+00 00 00 03                   # attribute_length 3
+00 01                         # number_of_entries 1
+12                            # @18 same_frame                     locals [String[]]
+
+# ---- method 2: private static void run(String[]) ----
+00 0A                         # access private static
+00 07                         # name "run"
+00 06                         # descriptor ([Ljava/lang/String;)V
+00 01                         # attributes_count 1
+00 08                         # Code
+00 00 02 16                   # attribute_length 534 = 12 + 382 + 8*10 + (6 + 54)
+00 04                         # max_stack 4 (new X, dup, StringBuilder, dup)
+00 04                         # max_locals 4
+00 00 01 7E                   # code_length 382
+04                            # 0 iconst_1
+3C                            # 1 istore_1                    i = 1
+# --- outer try starts at 2 ---
+1B                            # 2 iload_1                     loop:
+2A                            # 3 aload_0
+BE                            # 4 arraylength
+A3 01 37                      # 5 if_icmpgt -> 316 (loopEnd)  (+311)
+# --- inner try starts at 8 ---
+2A                            # 8 aload_0
+1B                            # 9 iload_1
+04                            # 10 iconst_1
+64                            # 11 isub
+32                            # 12 aaload
+4D                            # 13 astore_2                   s = steps[i-1]
+2C                            # 14 aload_2
+12 56                         # 15 ldc "ok"
+B6 00 24                      # 17 invokevirtual String.equals
+9A 00 93                      # 20 ifne -> 167 (printOk)      (+147)
+2C                            # 23 aload_2
+12 58                         # 24 ldc "fail"
+B6 00 24                      # 26 invokevirtual String.equals
+99 00 23                      # 29 ifeq -> 64 (chkNpe)        (+35)
+BB 00 3B                      # 32 new IllegalStateException  [U32]
+59                            # 35 dup                        [U32 U32]
+BB 00 2A                      # 36 new StringBuilder          [U32 U32 U36]
+59                            # 39 dup                        depth 4
+B7 00 2E                      # 40 invokespecial StringBuilder.<init>
+12 5F                         # 43 ldc "step "
+B6 00 32                      # 45 invokevirtual append(String)
+1B                            # 48 iload_1
+B6 00 35                      # 49 invokevirtual append(I)
+12 61                         # 52 ldc " failed"
+B6 00 32                      # 54 invokevirtual append(String)
+B6 00 39                      # 57 invokevirtual toString     [U32 U32 String]
+B7 00 3D                      # 60 invokespecial IllegalStateException.<init>(String)
+BF                            # 63 athrow
+2C                            # 64 aload_2                    chkNpe:
+12 5A                         # 65 ldc "npe"
+B6 00 24                      # 67 invokevirtual String.equals
+99 00 0B                      # 70 ifeq -> 81 (chkDiv)        (+11)
+01                            # 73 aconst_null
+B6 00 28                      # 74 invokevirtual String.length  (throws NullPointerException)
+57                            # 77 pop
+A7 00 59                      # 78 goto -> 167 (printOk)      (+89)
+2C                            # 81 aload_2                    chkDiv:
+12 5C                         # 82 ldc "div"
+B6 00 24                      # 84 invokevirtual String.equals
+99 00 0A                      # 87 ifeq -> 97 (chkExit)       (+10)
+1B                            # 90 iload_1
+03                            # 91 iconst_0
+6C                            # 92 idiv                       (throws ArithmeticException)
+57                            # 93 pop
+A7 00 49                      # 94 goto -> 167 (printOk)      (+73)
+2C                            # 97 aload_2                    chkExit:
+12 5D                         # 98 ldc "exit"
+B6 00 24                      # 100 invokevirtual String.equals
+99 00 25                      # 103 ifeq -> 140 (unknown)     (+37)
+# --- inner try gap [106,140): the return path; inner finally copy (still inside outer try) ---
+B2 00 0F                      # 106 getstatic System.out
+BB 00 2A                      # 109 new StringBuilder
+59                            # 112 dup
+B7 00 2E                      # 113 invokespecial StringBuilder.<init>
+12 65                         # 116 ldc "cleanup "
+B6 00 32                      # 118 invokevirtual append(String)
+1B                            # 121 iload_1
+B6 00 35                      # 122 invokevirtual append(I)
+B6 00 39                      # 125 invokevirtual toString
+B6 00 18                      # 128 invokevirtual println
+# --- outer try gap [131,140): outer finally copy, then return ---
+B2 00 0F                      # 131 getstatic System.out
+12 67                         # 134 ldc "done"
+B6 00 18                      # 136 invokevirtual println
+B1                            # 139 return
+# --- inner and outer try resume at 140 ---
+BB 00 3F                      # 140 new IllegalArgumentException   unknown:
+59                            # 143 dup
+BB 00 2A                      # 144 new StringBuilder
+59                            # 147 dup
+B7 00 2E                      # 148 invokespecial StringBuilder.<init>
+12 69                         # 151 ldc "unknown step: "
+B6 00 32                      # 153 invokevirtual append(String)
+2C                            # 156 aload_2
+B6 00 32                      # 157 invokevirtual append(String)
+B6 00 39                      # 160 invokevirtual toString
+B7 00 40                      # 163 invokespecial IllegalArgumentException.<init>(String)
+BF                            # 166 athrow
+B2 00 0F                      # 167 getstatic System.out       printOk:
+BB 00 2A                      # 170 new StringBuilder
+59                            # 173 dup
+B7 00 2E                      # 174 invokespecial StringBuilder.<init>
+12 5F                         # 177 ldc "step "
+B6 00 32                      # 179 invokevirtual append(String)
+1B                            # 182 iload_1
+B6 00 35                      # 183 invokevirtual append(I)
+12 63                         # 186 ldc " ok"
+B6 00 32                      # 188 invokevirtual append(String)
+B6 00 39                      # 191 invokevirtual toString
+B6 00 18                      # 194 invokevirtual println
+# --- inner try ends at 197; normal path: inner finally copy ---
+B2 00 0F                      # 197 getstatic System.out
+BB 00 2A                      # 200 new StringBuilder
+59                            # 203 dup
+B7 00 2E                      # 204 invokespecial StringBuilder.<init>
+12 65                         # 207 ldc "cleanup "
+B6 00 32                      # 209 invokevirtual append(String)
+1B                            # 212 iload_1
+B6 00 35                      # 213 invokevirtual append(I)
+B6 00 39                      # 216 invokevirtual toString
+B6 00 18                      # 219 invokevirtual println
+A7 00 58                      # 222 goto -> 310 (next)        (+88)
+# --- inner catch (IllegalStateException) handler at 225 ---
+4E                            # 225 astore_3                  e
+B2 00 0F                      # 226 getstatic System.out
+BB 00 2A                      # 229 new StringBuilder
+59                            # 232 dup
+B7 00 2E                      # 233 invokespecial StringBuilder.<init>
+12 6B                         # 236 ldc "caught: "
+B6 00 32                      # 238 invokevirtual append(String)
+2D                            # 241 aload_3
+B6 00 47                      # 242 invokevirtual Throwable.getMessage
+B6 00 32                      # 245 invokevirtual append(String)
+B6 00 39                      # 248 invokevirtual toString
+B6 00 18                      # 251 invokevirtual println
+# --- inner catch body ends at 254; inner finally copy ---
+B2 00 0F                      # 254 getstatic System.out
+BB 00 2A                      # 257 new StringBuilder
+59                            # 260 dup
+B7 00 2E                      # 261 invokespecial StringBuilder.<init>
+12 65                         # 264 ldc "cleanup "
+B6 00 32                      # 266 invokevirtual append(String)
+1B                            # 269 iload_1
+B6 00 35                      # 270 invokevirtual append(I)
+B6 00 39                      # 273 invokevirtual toString
+B6 00 18                      # 276 invokevirtual println
+A7 00 1F                      # 279 goto -> 310 (next)        (+31)
+# --- inner finally (any) handler at 282: save, run finally copy, rethrow ---
+4E                            # 282 astore_3                  t
+B2 00 0F                      # 283 getstatic System.out
+BB 00 2A                      # 286 new StringBuilder
+59                            # 289 dup
+B7 00 2E                      # 290 invokespecial StringBuilder.<init>
+12 65                         # 293 ldc "cleanup "
+B6 00 32                      # 295 invokevirtual append(String)
+1B                            # 298 iload_1
+B6 00 35                      # 299 invokevirtual append(I)
+B6 00 39                      # 302 invokevirtual toString
+B6 00 18                      # 305 invokevirtual println
+2D                            # 308 aload_3
+BF                            # 309 athrow                    rethrow t
+84 01 01                      # 310 iinc 1 1                  next: i++
+A7 FE C9                      # 313 goto -> 2 (loop)          (-311)
+# --- outer try ends at 316; normal path: outer finally copy ---
+B2 00 0F                      # 316 getstatic System.out      loopEnd:
+12 67                         # 319 ldc "done"
+B6 00 18                      # 321 invokevirtual println
+A7 00 39                      # 324 goto -> 381 (end)         (+57)
+# --- outer catch (RuntimeException) handler at 327 ---
+4C                            # 327 astore_1                  e (slot 1 reused)
+B2 00 0F                      # 328 getstatic System.out
+BB 00 2A                      # 331 new StringBuilder
+59                            # 334 dup
+B7 00 2E                      # 335 invokespecial StringBuilder.<init>
+12 6D                         # 338 ldc "outer: "
+B6 00 32                      # 340 invokevirtual append(String)
+2B                            # 343 aload_1
+B6 00 4B                      # 344 invokevirtual Object.getClass
+B6 00 50                      # 347 invokevirtual Class.getSimpleName
+B6 00 32                      # 350 invokevirtual append(String)
+B6 00 39                      # 353 invokevirtual toString
+B6 00 18                      # 356 invokevirtual println
+# --- outer catch body ends at 359; outer finally copy ---
+B2 00 0F                      # 359 getstatic System.out
+12 67                         # 362 ldc "done"
+B6 00 18                      # 364 invokevirtual println
+A7 00 0E                      # 367 goto -> 381 (end)         (+14)
+# --- outer finally (any) handler at 370 ---
+4C                            # 370 astore_1                  t (slot 1 reused)
+B2 00 0F                      # 371 getstatic System.out
+12 67                         # 374 ldc "done"
+B6 00 18                      # 376 invokevirtual println
+2B                            # 379 aload_1
+BF                            # 380 athrow                    rethrow t
+B1                            # 381 return                    end:
+# ---- exception table: start end handler catch_type (inner entries first: first match wins) ----
+00 0A                         # exception_table_length 10
+00 08 00 6A 00 E1 00 3B       # [8,106)    -> 225 IllegalStateException
+00 8C 00 C5 00 E1 00 3B       # [140,197)  -> 225 IllegalStateException
+00 08 00 6A 01 1A 00 00       # [8,106)    -> 282 any (inner finally)
+00 8C 00 C5 01 1A 00 00       # [140,197)  -> 282 any (inner finally)
+00 E1 00 FE 01 1A 00 00       # [225,254)  -> 282 any (inner catch body)
+00 02 00 83 01 47 00 42       # [2,131)    -> 327 RuntimeException
+00 8C 01 3C 01 47 00 42       # [140,316)  -> 327 RuntimeException
+00 02 00 83 01 72 00 00       # [2,131)    -> 370 any (outer finally)
+00 8C 01 3C 01 72 00 00       # [140,316)  -> 370 any (outer finally)
+01 47 01 67 01 72 00 00       # [327,359)  -> 370 any (outer catch body)
+00 01                         # attributes_count 1
+00 09                         # StackMapTable
+00 00 00 36                   # attribute_length 54
+00 0D                         # number_of_entries 13
+FC 00 02 01                   # @2   append 1, delta 2           locals [String[], int]
+FC 00 3D 07 00 20             # @64  append 1, delta 61          locals [String[], int, String]
+10                            # @81  same_frame, delta 16
+0F                            # @97  same_frame, delta 15
+2A                            # @140 same_frame, delta 42
+1A                            # @167 same_frame, delta 26
+FF 00 39 00 02 07 00 52 01 00 01 07 00 3B  # @225 full_frame, delta 57  locals [String[], int] stack [IllegalStateException]
+78 07 00 44                   # @282 same_locals_1_stack, delta 56  stack [Throwable]
+1B                            # @310 same_frame, delta 27        locals [String[], int]
+05                            # @316 same_frame, delta 5
+FF 00 0A 00 01 07 00 52 00 01 07 00 42     # @327 full_frame, delta 10  locals [String[]] stack [RuntimeException]
+6A 07 00 44                   # @370 same_locals_1_stack, delta 42  stack [Throwable]
+0A                            # @381 same_frame, delta 10        locals [String[]]
+
+# ---- class attributes ----
+00 00                         # attributes_count 0

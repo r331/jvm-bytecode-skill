@@ -224,7 +224,7 @@ All switch offsets are relative to the switch opcode address.
 | B7 | invokespecial | cp2 Methodref (or InterfaceMethodref from 52) | objectref, args... -> [result]; constructors, private and super calls |
 | B8 | invokestatic | cp2 Methodref (or InterfaceMethodref from 52) | args... -> [result] |
 | B9 | invokeinterface | cp2 InterfaceMethodref, u1 count, u1 0 | objectref, args... -> [result]; count = 1 + argument slots |
-| BA | invokedynamic | cp2 InvokeDynamic, u1 0, u1 0 | args... -> [result]; major 51+ |
+| BA | invokedynamic | cp2 InvokeDynamic, u1 0, u1 0 | args... -> [result]; no receiver; major 51+; see advanced.md |
 | BB | new | cp2 Class | -> uninitialized objectref |
 | BC | newarray | u1 atype | int count -> arrayref |
 | BD | anewarray | cp2 Class (component) | int count -> arrayref |
@@ -254,3 +254,7 @@ Use `wide` only for local indices above 255 or `iinc` constants outside -128..12
 
 Walk each path, adding pushes and subtracting pops using the table above; `max_stack` is the highest value reached.
 Example: `getstatic System.out` (1), `dload_1` (3), `dload_3` (5), `invokestatic Math.hypot(DD)D` (1 + 2 = 3), `invokevirtual println(D)V` (0) -> max_stack 5.
+
+The peak is often in the middle of a nested expression, not at a call: `stack[sp] = op(stack[sp], stack[sp+1])` pushes the outer array and index, then the inner array and index for each load, before anything is consumed.
+Count every push left to right, and remember a `double`/`long` element loaded from an array adds 2.
+`new` + `dup` plus the constructor arguments, and the arguments of nested calls, add up the same way.
